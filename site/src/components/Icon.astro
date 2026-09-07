@@ -1,0 +1,28 @@
+---
+import { ICONS } from "../lib/icons";
+
+interface Props {
+  name: keyof typeof ICONS;
+  size?: number;
+  class?: string;
+  style?: string;
+}
+const { name, size = 24, class: className = "", style } = Astro.props;
+const path = ICONS[name];
+if (!path) throw new Error(`Icon desconocido: "${name}" - revisa src/lib/icons.ts`);
+---
+
+<svg
+  class={`icon ${className}`}
+  style={style}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  set:html={path}
+/>

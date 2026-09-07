@@ -1,0 +1,102 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import RecipeGrid from "../../../components/RecipeGrid.astro";
+import { masteryTiers } from "../../../data/guide/mastery";
+import { getRecipe } from "../../../data/guide/recipes";
+---
+
+<BaseLayout title="Maestría" description="El equipo endgame definitivo de CobbleCraft: los 3 tiers reales de Maestría, requisitos y sets de bonificación.">
+  <PageHero eyebrow="Guía CobbleCraft" title="MAESTRÍA" subtitle="El equipo endgame definitivo." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Maestría" }]} />
+
+        <div class="card" style="margin-bottom:26px;">
+          <p style="margin:0;">
+            Cada set de Maestría tiene 4 piezas (yelmo, coraza, grebas y botas). Las 4 piezas de un mismo
+            tier usan exactamente los mismos ingredientes - aquí se muestra la receta real del yelmo como
+            ejemplo, pero aplica igual a las otras 3 piezas. A partir de Maestría II, el crafteo consume
+            también la pieza equivalente ya fabricada del tier anterior.
+          </p>
+        </div>
+
+        {masteryTiers.map((tier) => {
+          const recipe = getRecipe(tier.helmetSlug);
+          return (
+            <div class="card mastery-tier" id={`tier-${tier.tier}`}>
+              <div class="mastery-tier__head">
+                <h2>{tier.name}</h2>
+                <span class="badge badge--gold">Base: {tier.base}</span>
+              </div>
+
+              <div class="mastery-tier__stats">
+                <div><span>Nivel Cazador (Slayer) requerido</span><strong>{tier.requiredSlayerLevel}</strong></div>
+                <div><span>Nivel Pesca requerido</span><strong>{tier.requiredFishingLevel}</strong></div>
+                <div><span>Bono de set (4 piezas) - EV Ataque</span><strong>+{tier.fourPieceAttackEv}</strong></div>
+                <div><span>Bono de set (4 piezas) - EV Defensa</span><strong>+{tier.fourPieceDefenceEv}</strong></div>
+              </div>
+
+              {recipe && (
+                <>
+                  <h3>Receta del yelmo (misma para las 4 piezas)</h3>
+                  <RecipeGrid recipe={recipe} />
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .mastery-tier {
+    margin-bottom: 22px;
+  }
+  .mastery-tier__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .mastery-tier__head h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  .mastery-tier__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .mastery-tier__stats div {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .mastery-tier__stats span {
+    display: block;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  .mastery-tier__stats strong {
+    font-size: 1.05rem;
+  }
+  .mastery-tier h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--gold-ink);
+    margin: 18px 0 0;
+  }
+</style>

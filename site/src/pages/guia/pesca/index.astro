@@ -1,0 +1,52 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import ItemCard from "../../../components/ItemCard.astro";
+import { itemsByCategory } from "../../../data/guide/items";
+
+const fishingItems = itemsByCategory("pesca");
+---
+
+<BaseLayout title="Pesca" description="Guía de Pesca de CobbleCraft: minijuego de tensión, rarezas y los 5 materiales reales del Hub.">
+  <PageHero eyebrow="Guía CobbleCraft" title="PESCA" subtitle="Minijuego, rarezas y materiales del Hub." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Pesca" }]} />
+
+        <div class="card" style="margin-bottom:26px;">
+          <h2 style="margin-top:0; font-size:1.15rem;">Cómo funciona</h2>
+          <ul class="pesca-rules">
+            <li>La Pesca especial de CobbleCraft ocurre en una <strong>zona dedicada del Hub</strong>, distinta de la pesca vanilla.</li>
+            <li>Cuando picas algo de rareza Poco Común o superior, se activa un <strong>minijuego</strong>: click derecho para recoger sedal y mantener la tensión estable hasta sacar la pieza.</li>
+            <li>La <strong>rareza de la pescada</strong> determina cuánto dinero ganas - de más frecuente a extremadamente raro: <em>Común, Poco Común, Rara, Épica, Legendaria, Mítica</em>.</li>
+            <li>Los 5 materiales propios de Pesca alimentan tanto <a href="/guia/accesorios">Accesorios</a> (Anzuelo de la Suerte) como <a href="/guia/maestria">Maestría</a>.</li>
+          </ul>
+        </div>
+
+        <h2 style="font-size:1.2rem;">Materiales de Pesca</h2>
+        <div class="item-grid">
+          {fishingItems.map((item) => <ItemCard item={item} />)}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .pesca-rules {
+    margin: 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 6px;
+  }
+  .item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+  }
+</style>

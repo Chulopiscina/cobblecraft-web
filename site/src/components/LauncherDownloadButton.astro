@@ -1,0 +1,70 @@
+---
+import { siteConfig } from "@shared/site.config";
+import Icon from "./Icon.astro";
+
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+---
+
+<div id="launcher-download" class="launcher-download">
+  <a
+    id="launcher-download-btn"
+    class="btn btn-primary btn-lg btn-block is-disabled"
+    href="#"
+    data-api-base={apiBaseUrl}
+    aria-disabled="true"
+  >
+    <Icon name="descarga" size={20} />
+    Descargar Launcher para Windows
+  </a>
+  <p id="launcher-download-notice" class="notice" style="margin-top:14px;">
+    <strong>Aviso:</strong> {siteConfig.launcher.devLocalNotice}
+  </p>
+  <p id="launcher-download-checksum" style="display:none; margin-top:10px; font-size:0.78rem; color:var(--text-muted);"></p>
+</div>
+
+<style>
+  .launcher-download :global(.btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+</style>
+
+<script>
+  interface LauncherLatestResponse {
+    available: boolean;
+    manifestPresent?: boolean;
+    version?: string;
+    sha256?: string;
+    reason?: string;
+  }
+
+  const btn = document.getElementById("launcher-download-btn") as HTMLAnchorElement | null;
+  const notice = document.getElementById("launcher-download-notice");
+  const checksumEl = document.getElementById("launcher-download-checksum");
+  const apiBase = btn?.getAttribute("data-api-base");
+
+  if (btn && apiBase) {
+    fetch(`${apiBase}/api/launcher/latest`, { signal: AbortSignal.timeout(4000) })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: (LauncherLatestResponse & { url?: string }) | null) => {
+        if (data && data.available && data.url) {
+          btn.href = data.url;
+          btn.classList.remove("is-disabled");
+          btn.removeAttribute("aria-disabled");
+          btn.textContent = `⬇ Descargar Launcher (v${data.version})`;
+          notice?.remove();
+          // SHA-256 solo si el manifest real lo trae (Production Hardening V1, Fase D) - nunca
+          // se muestra un checksum inventado ni de una release legacy sin manifest.
+          if (checksumEl && data.manifestPresent && data.sha256) {
+            checksumEl.textContent = `SHA-256: ${data.sha256}`;
+            checksumEl.style.display = "block";
+          }
+        }
+      })
+      .catch(() => {
+        /* se queda en el aviso DEV/placeholder, nunca un enlace roto */
+      });
+  }
+</script>

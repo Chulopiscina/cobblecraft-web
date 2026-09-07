@@ -1,0 +1,330 @@
+---
+import { Image, getImage } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import FeatureCard from "../components/FeatureCard.astro";
+import ServerStatus from "../components/ServerStatus.astro";
+import Icon from "../components/Icon.astro";
+import HeroPlaque from "../components/HeroPlaque.astro";
+import { siteConfig } from "@shared/site.config";
+
+import heroLandscape from "../assets/images/hero-landscape.png";
+import bodyLandscape from "../assets/images/body-landscape.png";
+
+import galleryHub from "../assets/gallery/hub.png";
+import galleryMapaHub from "../assets/gallery/mapa-hub.png";
+import galleryLiga from "../assets/gallery/liga.png";
+import galleryMaestria from "../assets/gallery/maestria.png";
+import galleryPesca from "../assets/gallery/pesca.png";
+import gallerySlayerGengar from "../assets/gallery/slayer-gengar.png";
+import gallerySlayerSala from "../assets/gallery/slayer-sala.png";
+
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+
+// Envoltorio "ambiente general" (pedido explícito, sección 2) - `background-image: cover` propio
+// vía CSS var, nunca deformada con `100% 100%`. width=1600 es suficiente para el ancho máximo real
+// de un `background-size:cover` de página completa sin cargar el PNG original de varios MB.
+const worldBg = await getImage({ src: bodyLandscape, width: 1920, format: "webp", quality: 68 });
+
+const systemSpotlights = [
+  { icon: "cristal", title: "Investigaciones", description: "Laboratorio, fósiles, misiones legendarias y Anomalías: rutas reales para Pokémon especiales.", variant: "cyan" },
+  { icon: "pesca", title: "Pesca", description: "Minigame propio con rarezas reales - de común a mítico - que además genera dinero cada vez que pescas.", variant: "cyan" },
+  { icon: "slayer", title: "Cacerías Slayer", description: "4 tiers de Bosses únicos con equipo y recompensas propias - cada victoria paga dinero real.", variant: "gold" },
+  { icon: "medalla", title: "Liga Pokémon", description: "5 entrenadores de Nv.120 a Nv.160 - contenido endgame repetible, cada victoria vuelve a pagar.", variant: "purple" },
+  { icon: "candado", title: "Claims", description: "Rocas de Protección para proteger tu terreno y tus construcciones frente a otros jugadores.", variant: "cyan" },
+  { icon: "altar", title: "Encantamientos", description: "9 encantamientos propios, Tier I a VI, comprables al Encantador y mejorables en el yunque.", variant: "gold" },
+  { icon: "escudo", title: "Maestría", description: "El equipo endgame real: combina Slayer, Pesca y Liga en 3 sets de progresión propios.", variant: "purple" },
+  { icon: "cofre", title: "Cofres", description: "5 cofres con llave propia y probabilidades visibles - dinero, objetos, equipo y futuros cosméticos. Las llaves solo se ganan jugando, nunca se compran.", variant: "gold" },
+  { icon: "accesorio", title: "Accesorios", description: "27 accesorios reales para los 27 espacios de tu Bolsa - colecciónalos todos, cada uno con un pequeño bonus permanente en combate, crítico, cacerías o recolección.", variant: "purple" },
+] as const;
+
+const skillCards = [
+  { icon: "pesca", title: "Pesca", description: "Cañas y armaduras propias, materiales exclusivos del mar." },
+  { icon: "mineria", title: "Minería", description: "Conjuntos y picos progresivos con Fortuna de Minería." },
+  { icon: "agricultura", title: "Agricultura", description: "Equipo propio para quien vive de la tierra." },
+  { icon: "recoleccion", title: "Recolección", description: "Hachas y armaduras temáticas para explorar los bosques." },
+  { icon: "combate", title: "Combate", description: "Progresión de combate propia, con bono de experiencia real." },
+  { icon: "captura", title: "Captura", description: "Suerte de Captura real mediante equipo y amuletos." },
+  { icon: "cria", title: "Cría", description: "Guardería propia para criar a tus Pokémon." },
+  { icon: "slayer", title: "Cacerías", description: "Cacerías contra Bosses únicos, con equipo y recompensas propias." },
+] as const;
+
+const economyCards = [
+  { icon: "moneda", title: "Moneda única", description: "Empiezas con 500 monedas de bienvenida y ganas más jugando." },
+  { icon: "tienda", title: "Tienda", description: "Vende materiales al servidor a precios controlados." },
+  { icon: "mercado", title: "Mercado", description: "Compra y vende directamente entre jugadores." },
+  { icon: "coleccion", title: "Mercado Pokémon", description: "Intercambia Pokémon con otros jugadores de forma segura." },
+] as const;
+
+const progressionSteps = [
+  { title: "Prepárate", description: "Ten localizada la guía y el Launcher para cuando activemos la apertura pública." },
+  { title: "Survival + Pokémon", description: "Explora el mundo, atrapa Pokémon y monta tu primera base con tu Roca de Protección." },
+  { title: "Skills y Pesca", description: "Sube tus 8 Skills jugando de forma natural - la Pesca además te da dinero desde el minuto uno." },
+  { title: "Cacerías Slayer", description: "Cuando estés listo, enfréntate a los 4 tiers de Bosses por equipo, dinero y progresión." },
+  { title: "Liga Pokémon", description: "Reta a los 5 entrenadores - contenido endgame repetible, cada victoria vuelve a pagar." },
+  { title: "Maestría", description: "Combina Slayer, Pesca y Liga en el equipo endgame definitivo del servidor." },
+] as const;
+
+const galleryItems = [
+  { image: galleryHub, caption: "El Hub - punto de partida del servidor" },
+  { image: galleryMapaHub, caption: "Mapa del Hub con todas sus zonas" },
+  { image: galleryLiga, caption: "Arena de la Liga Pokémon" },
+  { image: galleryMaestria, caption: "Colecciones - progresión de Maestría" },
+  { image: galleryPesca, caption: "Zona de Pesca" },
+  { image: gallerySlayerGengar, caption: "Cacería Slayer - Gengar" },
+  { image: gallerySlayerSala, caption: "Sala de combate Slayer" },
+] as const;
+
+const faqs = [
+  { q: "¿Qué es CobbleCraft?", a: "Un servidor de Minecraft Java con Cobblemon: supervivencia clásica combinada con captura y combate Pokémon, más sistemas de progresión propios (Skills, Slayer, Liga, Maestría, economía y mercado)." },
+  { q: "¿Qué versión de Minecraft necesito?", a: `Minecraft Java ${siteConfig.minecraft.javaVersion} con Cobblemon ${siteConfig.minecraft.cobblemonVersion} sobre Fabric. El Launcher Oficial prepara todo esto por ti.` },
+  { q: "¿Necesito instalar Cobblemon yo mismo?", a: "No. El Launcher Oficial descarga Fabric, Cobblemon y el resto de mods en una carpeta aislada, sin tocar tu instalación normal de Minecraft." },
+  { q: "¿Es Pay to Win?", a: "No. La progresión real (equipo, dinero, Pokémon) se consigue jugando - nunca comprando poder." },
+  { q: "¿Cómo gano dinero en el servidor?", a: "Pescando, capturando Pokémon, derrotando Bosses Slayer y venciendo a los entrenadores de la Liga - también puedes comerciar con otros jugadores en el Mercado." },
+  { q: "¿Qué es Slayer?", a: "Un sistema de cacerías contra Bosses Pokémon únicos, repartidos en 4 tiers de dificultad creciente, con equipo y dinero propios como recompensa." },
+  { q: "¿Qué es la Liga?", a: "Un recorrido de 5 entrenadores (Nv.120 a Nv.160) pensado como contenido endgame repetible - cada victoria vuelve a pagar, no es solo un logro de una vez." },
+  { q: "¿Cómo protejo mi casa?", a: "Con las Rocas de Protección (Claims) - reclaman el terreno a tu alrededor para que otros jugadores no puedan construir ni robar ahí." },
+  { q: "¿Cómo entro en la Beta?", a: "CobbleCraft está preparando su primera Beta. Únete a la comunidad para enterarte en cuanto se abra - no hace falta rellenar ninguna solicitud." },
+  { q: "¿Cómo funciona /vote?", a: "Escribe /vote dentro del servidor y recibirás un enlace personal y seguro para votar por CobbleCraft desde la web. Cada voto ayuda a que más gente descubra el servidor." },
+  { q: "¿Qué son los cofres?", a: "5 cofres distintos (Voto, Suministros, Armaduras, Cosméticos y Épico), cada uno con su propia llave y sus propias recompensas - dinero, objetos, equipo y futuros cosméticos, con probabilidades visibles dentro del juego." },
+  { q: "¿Cómo consigo llaves?", a: "Jugando: votando por el servidor, encontrándolas como drop en el mundo o recibiéndolas en eventos puntuales. No se venden con dinero real." },
+  { q: "¿Qué consigo al votar?", a: "Una Llave de Voto, que abre el Cofre de Voto. La recibirás automáticamente dentro del servidor en cuanto te conectes tras votar." },
+  { q: "¿Los cofres son P2W?", a: "No. Ninguna llave se vende por dinero real - todas se ganan jugando, así que el contenido de los cofres nunca se puede comprar directamente." },
+] as const;
+---
+
+<BaseLayout title="Inicio">
+  <section class="hero hero--photo">
+    <Image src={heroLandscape} alt="" class="hero__bg" widths={[640, 960, 1280, 1920]} sizes="100vw" loading="eager" fetchpriority="high" format="webp" quality={70} />
+    <div class="hero__scrim" aria-hidden="true"></div>
+    <div class="container">
+      <img class="hero__logo" src={siteConfig.logo.path} alt={siteConfig.logo.alt} />
+      <HeroPlaque>
+        <span class="eyebrow">Minecraft Java {siteConfig.minecraft.javaVersion} · Cobblemon {siteConfig.minecraft.cobblemonVersion}</span>
+        <h1>
+          <span class="text-gradient-gold">{siteConfig.serverName.toUpperCase()}</span>
+        </h1>
+        <p style="font-size:1.15rem; max-width:520px; margin:0 auto; color:var(--text);">
+          Survival Cobblemon con progresión RPG
+        </p>
+      </HeroPlaque>
+      <p style="max-width:560px; margin:22px auto 0; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.35);">
+        Minecraft Java {siteConfig.minecraft.javaVersion} · Cobblemon {siteConfig.minecraft.cobblemonVersion} · Fabric · Servidor en desarrollo / próxima Beta
+      </p>
+      <div style="margin: 20px 0;">
+        <ServerStatus statusEndpoint={apiBaseUrl} />
+      </div>
+      <div class="hero__actions">
+        {siteConfig.links.discord ? (
+          <a href={siteConfig.links.discord} class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+            <Icon name="usuario" size={18} />
+            Únete al Discord
+          </a>
+        ) : (
+          <a href="/jugar" class="btn btn-primary btn-lg">
+            <Icon name="descarga" size={18} />
+            Preparar Launcher
+          </a>
+        )}
+        <a href="#que-es" class="btn btn-secondary btn-lg">Descubre CobbleCraft</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <div class="grid grid--4">
+        <div class="stat"><div class="stat__value">8</div><div class="stat__label">Skills reales</div></div>
+        <div class="stat"><div class="stat__value">4</div><div class="stat__label">Tiers Slayer</div></div>
+        <div class="stat"><div class="stat__value">5</div><div class="stat__label">Entrenadores de Liga</div></div>
+        <div class="stat"><div class="stat__value">9</div><div class="stat__label">Encantamientos propios</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="world-bg" style={`--world-bg-image: url(${worldBg.src})`}>
+    <div class="divider"><span class="divider__glyph"></span></div>
+
+    <section class="section" id="que-es">
+      <div class="container" style="text-align:center;">
+        <div class="section-head section-head--center" style="max-width:720px;">
+          <span class="eyebrow" style="justify-content:center;">Qué es CobbleCraft</span>
+          <h2>Survival + Cobblemon, con progresión de verdad</h2>
+          <p>
+            CobbleCraft es un servidor de supervivencia sobre Cobblemon: exploras, capturas y luchas con
+            Pokémon como en cualquier survival, pero cada sistema (Skills, dinero, equipo, Slayer, Liga)
+            está construido a medida para que progresar tenga sentido a largo plazo - nada de vaciarse en
+            una semana.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="caracteristicas">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" style="justify-content:center;">Características</span>
+          <h2>Sistemas principales</h2>
+          <p>Todo lo que ves aquí existe de verdad en el servidor - nada de promesas sin jugar.</p>
+        </div>
+        <div class="grid grid--3">
+          {systemSpotlights.map((c) => <FeatureCard {...c} />)}
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" style="justify-content:center;">Progresión</span>
+          <h2>Sube tus Skills</h2>
+          <p>
+            Cada acción que haces en el servidor forma parte de una progresión real: desbloquea mejor
+            equipamiento a medida que subes de nivel en cada una de las <span class="accent-word text-gradient-cyan">8 Skills</span>.
+          </p>
+        </div>
+        <div class="grid grid--4">
+          {skillCards.map((c) => <FeatureCard {...c} />)}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="progresion">
+      <div class="container" style="max-width:720px;">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" style="justify-content:center;">Tu camino</span>
+          <h2>Progresión visual</h2>
+          <p>Una ruta orientativa, no obligatoria - juega en el orden que más te apetezca.</p>
+        </div>
+        <div class="steps">
+          {progressionSteps.map((s, i) => (
+            <div class="step">
+              <div class="step__num">{i + 1}</div>
+              <div>
+                <div class="step__title">{s.title}</div>
+                <p style="margin:4px 0 0;">{s.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="economia">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" style="justify-content:center;">Economía</span>
+          <h2>Una economía viva</h2>
+          <p>
+            Todo jugador nuevo empieza con 500 monedas de bienvenida. A partir de ahí, ganas más pescando,
+            capturando Pokémon, derrotando Bosses Slayer y venciendo a los entrenadores de la Liga - y
+            puedes comerciar directamente con otros jugadores en el Mercado.
+          </p>
+        </div>
+        <div class="grid grid--4">
+          {economyCards.map((c) => <FeatureCard {...c} />)}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"><span class="divider__glyph"></span></div>
+
+  <section class="section section--alt" id="galeria">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <span class="eyebrow" style="justify-content:center;">Galería</span>
+        <h2>Capturas reales del servidor</h2>
+        <p>Sin renders, sin imágenes generadas - lo que ves aquí existe ya en CobbleCraft.</p>
+      </div>
+      <div class="gallery">
+        {galleryItems.map((g, i) => (
+          <button type="button" class="gallery__item" data-gallery-open={i} aria-label={`Ampliar: ${g.caption}`}>
+            <Image src={g.image} alt={g.caption} width={700} format="webp" quality={72} />
+            <span class="gallery__caption">{g.caption}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <dialog class="lightbox" id="gallery-lightbox">
+      <div class="lightbox__inner">
+        <button type="button" class="lightbox__close" id="gallery-lightbox-close" aria-label="Cerrar">✕</button>
+        <img id="gallery-lightbox-img" src="" alt="" />
+        <p class="lightbox__caption" id="gallery-lightbox-caption"></p>
+      </div>
+    </dialog>
+  </section>
+
+  <section class="section" style="text-align:center;">
+    <div class="container" style="max-width:560px;">
+      <span class="eyebrow" style="justify-content:center;">Comunidad</span>
+      <h2>CobbleCraft está preparando su primera Beta</h2>
+      <p>
+        {siteConfig.links.discord
+          ? "Únete a la comunidad en Discord para seguir el desarrollo y enterarte en cuanto se abra la Beta."
+          : "Todavía no tenemos un canal de comunidad público - vuelve pronto para unirte y seguir el desarrollo."}
+      </p>
+      <p style="opacity:0.75; font-size:0.9rem;">Sin fecha cerrada todavía. Sin P2W.</p>
+      <div class="hero__actions" style="margin-top:8px;">
+        {siteConfig.links.discord ? (
+          <a href={siteConfig.links.discord} class="btn btn-primary" target="_blank" rel="noopener noreferrer">Únete a la comunidad</a>
+        ) : (
+          <a href="/ayuda" class="btn btn-ghost">Ir a Ayuda</a>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="faq">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <span class="eyebrow" style="justify-content:center;">Preguntas frecuentes</span>
+        <h2>FAQ</h2>
+      </div>
+      <div class="faq">
+        {faqs.map((f) => (
+          <details class="faq-item">
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="text-align:center;">
+    <div class="container">
+      <h2>¿Listo para la apertura?</h2>
+      <p style="max-width:520px; margin:0 auto 24px;">La web queda preparada para Launcher, guía y comunidad sin publicar una IP ni una fecha que todavía no están cerradas.</p>
+      <div class="hero__actions">
+        <a href="/jugar" class="btn btn-primary btn-lg">Preparar Launcher</a>
+        <a href="/tienda" class="btn btn-ghost btn-lg">Ver Tienda</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const items = document.querySelectorAll<HTMLButtonElement>("[data-gallery-open]");
+  const dialog = document.getElementById("gallery-lightbox") as HTMLDialogElement | null;
+  const img = document.getElementById("gallery-lightbox-img") as HTMLImageElement | null;
+  const caption = document.getElementById("gallery-lightbox-caption");
+  const closeBtn = document.getElementById("gallery-lightbox-close");
+
+  items.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const inner = btn.querySelector("img");
+      const label = btn.getAttribute("aria-label")?.replace("Ampliar: ", "") ?? "";
+      if (inner && img && caption && dialog) {
+        img.src = inner.src;
+        img.alt = label;
+        caption.textContent = label;
+        dialog.showModal();
+      }
+    });
+  });
+  closeBtn?.addEventListener("click", () => dialog?.close());
+  dialog?.addEventListener("click", (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+</script>

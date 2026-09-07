@@ -1,0 +1,140 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Icon from "../components/Icon.astro";
+import PageHero from "../components/PageHero.astro";
+import WorldBackdrop from "../components/WorldBackdrop.astro";
+import { siteConfig } from "@shared/site.config";
+
+const faqs = [
+  {
+    q: "¿Necesito tener Minecraft Java o Bedrock?",
+    a: `Java Edition ${siteConfig.minecraft.javaVersion}. Bedrock (móvil/consola) no es compatible con Cobblemon ni con este servidor.`,
+  },
+  {
+    q: "¿Necesito instalar Cobblemon o Fabric yo mismo?",
+    a: "No. El Launcher Oficial descarga e instala automáticamente Minecraft, Fabric y todos los mods necesarios (incluido Cobblemon) por ti.",
+  },
+  {
+    q: "¿Cuánta RAM necesito?",
+    a: `Recomendamos entre ${siteConfig.minecraft.ramMinMb} MB y ${siteConfig.minecraft.ramMaxMb} MB asignados al juego - el propio Launcher lo configura por ti.`,
+  },
+  {
+    q: "El Launcher no abre / mi antivirus lo bloquea",
+    a: "Algunos antivirus marcan por error launchers no firmados. Si esto ocurre, añade una excepción manual - estamos trabajando en la firma del ejecutable para versiones futuras.",
+  },
+  {
+    q: "No veo mi resource pack / las texturas de Cobblemon",
+    a: "El servidor envía automáticamente el resource pack necesario al conectar. Acepta la descarga cuando Minecraft te la pida.",
+  },
+  {
+    q: "Compré algo en la Tienda y no me ha llegado",
+    a: "La entrega es automática y normalmente tarda menos de un minuto tras confirmarse el pago. Si tarda más, la página de estado de tu pedido seguirá intentándolo en segundo plano sin que pierdas la compra.",
+  },
+  {
+    q: "¿Puedo jugar sin verificar mi cuenta de Minecraft?",
+    a: "No - la Tienda usa tu nombre de usuario Java real para poder entregar tu compra en la cuenta correcta.",
+  },
+];
+
+const steps = [
+  { title: "Descarga el Launcher", description: "Desde la página Jugar, para tu sistema operativo." },
+  { title: "Ábrelo", description: "Windows puede avisar de \"editor desconocido\" - es normal en una v1 sin firma comercial." },
+  { title: "Instalación automática", description: "El Launcher descarga Minecraft, Fabric y Cobblemon la primera vez." },
+  { title: "Inicia sesión", description: "Con tu cuenta de Microsoft/Minecraft Java, desde el propio Launcher." },
+  { title: "Pulsa Jugar", description: "Conectarás directamente al servidor, sin pasos extra." },
+];
+---
+
+<BaseLayout title="Ayuda" description="Cómo instalar el Launcher, cómo entrar al servidor y preguntas frecuentes.">
+  <PageHero eyebrow="Soporte" title="AYUDA" subtitle="Instalación, primeros pasos y preguntas frecuentes." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" style="justify-content:center;">Primeros pasos</span>
+          <h2>Instalar y jugar</h2>
+        </div>
+        <div class="steps" style="max-width:600px; margin:0 auto;">
+          {steps.map((s, i) => (
+            <div class="step">
+              <div class="step__num">{i + 1}</div>
+              <div>
+                <div class="step__title">{s.title}</div>
+                <p style="margin:4px 0 0;">{s.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div class="notice" style="margin-top:28px; max-width:600px; margin-left:auto; margin-right:auto;">
+          Si algún paso falla, revisa las preguntas frecuentes de más abajo antes de reinstalar nada a mano.
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"><span class="divider__glyph"></span></div>
+
+    <section class="section section--alt">
+      <div class="container" style="max-width:720px;">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" style="justify-content:center;">Dudas comunes</span>
+          <h2>Preguntas frecuentes</h2>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          {faqs.map((item) => (
+            <details class="card faq-item">
+              <summary>
+                <span>{item.q}</span>
+                <Icon name="flecha" size={18} class="faq-item__chevron" />
+              </summary>
+              <p>{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container" style="max-width:520px;">
+        <div class="icon-tile" style="margin:0 auto 18px;"><Icon name="usuario" /></div>
+        <h2 style="font-size:1.3rem;">¿Sigues necesitando ayuda?</h2>
+        <p>
+          {siteConfig.links.discord
+            ? "Únete a nuestro Discord para soporte en directo."
+            : "Todavía no tenemos un canal de soporte público - vuelve pronto."}
+        </p>
+        <p style="margin-top:14px;"><a href="/guia">Consulta también la Guía de CobbleCraft →</a></p>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .faq-item {
+    text-align: left;
+    padding: 18px 20px;
+  }
+  .faq-item summary {
+    cursor: pointer;
+    font-weight: 700;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-item__chevron {
+    flex-shrink: 0;
+    color: var(--cyan-ink);
+    transition: transform 0.18s var(--ease);
+  }
+  .faq-item[open] .faq-item__chevron {
+    transform: rotate(90deg);
+  }
+  .faq-item p {
+    margin: 12px 0 0;
+  }
+</style>

@@ -1,0 +1,22 @@
+# Copia este archivo a ".dev.vars" (gitignored, NUNCA se commitea) para desarrollo local con
+# `wrangler dev --local`. Wrangler lo carga automáticamente. Ver web/docs/LOCAL_DEVELOPMENT.md.
+
+# Bearer token que valida al servidor Minecraft (progression_core) contra este Worker.
+# Cualquier cadena larga aleatoria sirve en local - generar con: openssl rand -hex 32
+STORE_SERVER_TOKEN=dev-local-server-token-change-me
+
+# Firma HMAC del simulador de pagos MockPaymentProvider - SOLO development.
+STORE_MOCK_SECRET=dev-local-mock-secret-change-me
+
+# Secreto HMAC compartido con progression_core (vote-config.properties, misma cadena EXACTA en
+# ambos lados) para firmar/verificar el token de /vote. Generar con: openssl rand -hex 32
+VOTE_SIGNING_SECRET=dev-local-vote-secret-change-me
+
+# Opcionales - dejar vacíos si no se van a probar en local:
+# GITHUB_LAUNCHER_REPO=tu-usuario/tu-repo
+# TEBEX_PUBLIC_TOKEN=
+# TEBEX_WEBHOOK_SECRET=
+# STRIPE_SECRET_KEY=
+# STRIPE_WEBHOOK_SECRET=
+# MC_STATUS_HOST=
+# MC_STATUS_PORT=

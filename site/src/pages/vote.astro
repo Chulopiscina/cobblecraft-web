@@ -1,0 +1,182 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHero from "../components/PageHero.astro";
+import WorldBackdrop from "../components/WorldBackdrop.astro";
+import Icon from "../components/Icon.astro";
+
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+---
+
+<BaseLayout title="Votar" description="Vota por CobbleCraft y ayuda a que más gente descubra el servidor.">
+  <PageHero eyebrow="Comunidad" title="VOTO DIARIO" subtitle="Un voto por día de CobbleCraft - cada voto ayuda a que más jugadores descubran el servidor y consigue 1 Llave de Voto." />
+
+  <WorldBackdrop>
+    <section class="section section--tight">
+      <div class="container" style="max-width:520px;">
+        <div class="card vote-card" id="vote-card" data-api-base={apiBaseUrl}>
+          <!-- Sin token: explicador -->
+          <div id="vote-explainer">
+            <div class="icon-tile icon-tile--cyan"><Icon name="medalla" /></div>
+            <h2 style="font-size:1.15rem;">Vota desde el juego</h2>
+            <p>
+              Escribe <code>/vote</code> dentro del servidor. Recibirás un enlace personal y seguro en
+              el chat - haz click en él para volver aquí y confirmar tu voto.
+            </p>
+            <p class="vote-card__footnote" style="margin-top:8px;">
+              Un voto por día de CobbleCraft - el voto diario se reinicia a las 00:00 (Europe/Madrid).
+            </p>
+          </div>
+
+          <!-- Con token: cargando -->
+          <div id="vote-loading" style="display:none;">
+            <span class="spinner"></span>
+            <p style="margin-top:14px;">Comprobando tu enlace...</p>
+          </div>
+
+          <!-- Listo para votar -->
+          <div id="vote-ready" style="display:none;">
+            <div class="icon-tile icon-tile--gold"><Icon name="medalla" /></div>
+            <h2 style="font-size:1.15rem;">¡Hola, <span id="vote-player-name"></span>!</h2>
+            <p>Pulsa el botón para registrar tu voto por CobbleCraft.</p>
+            <button type="button" id="vote-submit-btn" class="btn btn-primary btn-lg btn-block" style="margin-top:12px;">
+              Votar por CobbleCraft
+            </button>
+          </div>
+
+          <!-- Éxito -->
+          <div id="vote-success" style="display:none;">
+            <div class="icon-tile icon-tile--grass"><Icon name="check" /></div>
+            <h2 style="font-size:1.15rem;">¡Gracias por apoyar CobbleCraft!</h2>
+            <p>Has conseguido: <Icon name="cofre" size={16} style="vertical-align:-2px;" /> <strong>Llave de Voto</strong>.</p>
+            <p>La recibirás automáticamente dentro del servidor en unos instantes.</p>
+            <p class="vote-card__footnote" style="margin-top:8px;">Si estás desconectado, se entregará cuando vuelvas a entrar.</p>
+          </div>
+
+          <!-- Ya ha votado hoy -->
+          <div id="vote-already-voted" style="display:none;">
+            <div class="icon-tile icon-tile--cyan"><Icon name="reloj" /></div>
+            <h2 style="font-size:1.15rem;">Ya has votado hoy, <span id="vote-already-voted-name"></span></h2>
+            <p>Podrás volver a votar después del próximo reinicio diario.</p>
+            <p id="vote-already-voted-text" class="vote-card__footnote" style="margin-top:8px;">Próximo voto disponible: —</p>
+          </div>
+
+          <!-- Expirado / usado / inválido -->
+          <div id="vote-error" style="display:none;">
+            <div class="icon-tile"><Icon name="candado" /></div>
+            <h2 style="font-size:1.15rem;" id="vote-error-title">Enlace no válido</h2>
+            <p id="vote-error-text">Vuelve al servidor y escribe <code>/vote</code> para generar un enlace nuevo.</p>
+          </div>
+
+          <p class="notice notice--error" id="vote-network-error" role="status" aria-live="polite" style="margin-top:16px; display:none;">
+            No se pudo contactar con la web ahora mismo. Inténtalo de nuevo en unos segundos.
+          </p>
+        </div>
+
+        <p class="vote-card__footnote">
+          ¿Quieres saber qué más hay en el Cofre de Voto? Consulta la <a href="/guia/cofres">Guía de Cofres y Llaves</a>.
+        </p>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<script>
+  import { panelForState, errorCopyForState, formatNextReset, type VoteApiState } from "../lib/vote-client";
+
+  const card = document.getElementById("vote-card");
+  const apiBase = card?.getAttribute("data-api-base") ?? "";
+  const token = new URLSearchParams(window.location.search).get("token");
+
+  const panels = {
+    explainer: document.getElementById("vote-explainer"),
+    loading: document.getElementById("vote-loading"),
+    ready: document.getElementById("vote-ready"),
+    success: document.getElementById("vote-success"),
+    "already-voted": document.getElementById("vote-already-voted"),
+    error: document.getElementById("vote-error"),
+  };
+  const networkError = document.getElementById("vote-network-error");
+
+  function show(panel: keyof typeof panels) {
+    for (const key of Object.keys(panels) as (keyof typeof panels)[]) {
+      const el = panels[key];
+      if (el) el.style.display = key === panel ? "block" : "none";
+    }
+  }
+
+  function render(data: VoteApiState) {
+    const panel = panelForState(data);
+    if (data.state === "ready") {
+      const nameEl = document.getElementById("vote-player-name");
+      if (nameEl) nameEl.textContent = data.playerName;
+    } else if (data.state === "already_voted") {
+      const nameEl = document.getElementById("vote-already-voted-name");
+      const textEl = document.getElementById("vote-already-voted-text");
+      if (nameEl) nameEl.textContent = data.playerName;
+      if (textEl) textEl.textContent = `Próximo voto disponible: ${formatNextReset(data.nextResetAt)}`;
+    } else if (data.state === "used" || data.state === "expired" || data.state === "invalid") {
+      const copy = errorCopyForState(data);
+      const titleEl = document.getElementById("vote-error-title");
+      const textEl = document.getElementById("vote-error-text");
+      if (titleEl) titleEl.textContent = copy.title;
+      if (textEl) textEl.textContent = copy.text;
+    }
+    show(panel);
+  }
+
+  async function loadStatus() {
+    if (!token || !apiBase) {
+      show("explainer");
+      return;
+    }
+    show("loading");
+    try {
+      const res = await fetch(`${apiBase}/api/vote/status?token=${encodeURIComponent(token)}`);
+      const data = (await res.json()) as VoteApiState;
+      render(data);
+    } catch {
+      networkError?.style.setProperty("display", "block");
+      show("error");
+    }
+  }
+
+  document.getElementById("vote-submit-btn")?.addEventListener("click", async (e) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    if (!token || !apiBase) return;
+    btn.disabled = true;
+    btn.textContent = "Votando...";
+    try {
+      const res = await fetch(`${apiBase}/api/vote/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const data = (await res.json()) as VoteApiState;
+      render(data);
+    } catch {
+      networkError?.style.setProperty("display", "block");
+      btn.disabled = false;
+      btn.textContent = "Votar por CobbleCraft";
+    }
+  });
+
+  loadStatus();
+</script>
+
+<style>
+  .vote-card {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
+  }
+  .vote-card__footnote {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+  }
+  .vote-card__footnote a {
+    color: var(--cyan-ink);
+    font-weight: 600;
+  }
+</style>

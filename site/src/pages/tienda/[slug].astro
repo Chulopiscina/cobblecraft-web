@@ -1,0 +1,179 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Icon from "../../components/Icon.astro";
+import PageHero from "../../components/PageHero.astro";
+import { getVisibleProducts, categoryLabels } from "../../lib/catalog";
+import type { DeliveryAction } from "@shared/catalog-schema";
+
+export function getStaticPaths() {
+  return getVisibleProducts().map((product) => ({ params: { slug: product.slug }, props: { product } }));
+}
+
+const { product } = Astro.props;
+const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + " €";
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+
+/**
+ * Descripción de "qué incluye" en lenguaje de jugador - nunca expone el `DeliveryAction` técnico
+ * (rankId/customItemId internos) directamente, solo un resumen legible por tipo.
+ */
+function deliverySummary(action: DeliveryAction): string[] {
+  const lines: string[] = [];
+  if (action.type === "RANK") lines.push(`Rango del servidor${action.durationDays ? ` (${action.durationDays} días)` : " (permanente)"}.`);
+  if (action.type === "CUSTOM_ITEM" || action.type === "COSMETIC") lines.push(`${action.amount ?? 1}x objeto exclusivo, entregado directamente en tu inventario o buzón.`);
+  if (action.type === "CURRENCY") lines.push("Moneda del servidor.");
+  if (action.type === "BUNDLE" && action.bundle) {
+    for (const sub of action.bundle) lines.push(...deliverySummary(sub));
+  }
+  return lines;
+}
+const includes = deliverySummary(product.delivery);
+---
+
+<BaseLayout title={product.name} description={product.description}>
+  <PageHero eyebrow={categoryLabels[product.category]} title={product.name} subtitle={product.description}>
+    <Fragment slot="before">
+      <p style="margin-bottom:8px;"><a href="/tienda" style="font-size:0.85rem; font-weight:600;">← Volver a la Tienda</a></p>
+      <div class="product-hero-icon">
+        {/* alt="" deliberado: redundante con el <h1> inmediatamente debajo, ver ProductCard.astro para el mismo criterio. */}
+        <img src={product.icon} alt="" width="88" height="88" />
+      </div>
+    </Fragment>
+    {product.devOnly && (
+      <Fragment slot="badge">
+        <div style="margin-top:6px;"><span class="badge badge--muted">DEV - no disponible en producción</span></div>
+      </Fragment>
+    )}
+    <div class="badge badge--gold" style="font-size:1.15rem; padding:8px 18px; margin-top:20px;">{priceLabel}</div>
+  </PageHero>
+
+  <section class="section section--tight">
+    <div class="container" style="max-width:640px;">
+      <div class="card panel-notch" style="text-align:left;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+          <Icon name="check" size={18} style="color:var(--cyan);" />
+          <h2 style="font-size:1.05rem; margin:0;">Qué incluye</h2>
+        </div>
+        <ul class="plain-list">
+          {includes.map((line) => <li>{line}</li>)}
+        </ul>
+
+        <div style="display:flex; align-items:center; gap:10px; margin:22px 0 4px;">
+          <Icon name="candado" size={18} style="color:var(--gold-soft);" />
+          <h2 style="font-size:1.05rem; margin:0;">Condiciones</h2>
+        </div>
+        <ul class="plain-list">
+          <li>La entrega se realiza automáticamente en el servidor una vez confirmado el pago - no es instantánea al 100%: puede tardar hasta un minuto mientras el servidor recoge el pedido.</li>
+          <li>Necesitas una cuenta de Minecraft Java válida y el nombre EXACTO de tu personaje.</li>
+          {product.limits.maxPerPlayer && <li>Límite de {product.limits.maxPerPlayer} por jugador.</li>}
+          <li>No se garantiza reembolso una vez entregado el producto - ver <a href="/legal/reembolsos">Política de reembolsos</a>.</li>
+        </ul>
+
+        <form id="purchase-form" data-api-base={apiBaseUrl} data-product-id={product.productId} style="margin-top:26px; border-top:1px solid var(--border); padding-top:22px;">
+          <label for="player-name" class="field-label">Tu nombre de usuario de Minecraft</label>
+          <input
+            id="player-name"
+            name="playerName"
+            type="text"
+            required
+            minlength="3"
+            maxlength="16"
+            pattern="[A-Za-z0-9_]{3,16}"
+            placeholder="Ej: Notch"
+            class="input"
+          />
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:16px;" id="purchase-submit">
+            Comprar por {priceLabel}
+          </button>
+          <p style="margin:12px 0 0; font-size:0.78rem; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <Icon name="candado" size={14} />
+            Checkout hospedado por Tebex · entrega validada por webhook firmado
+          </p>
+          <p id="purchase-error" class="notice notice--error" role="alert" aria-live="assertive" style="display:none; margin-top:12px;"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .product-hero-icon {
+    width: 128px;
+    height: 128px;
+    margin: 18px auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.28), transparent 70%);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+  }
+  .product-hero-icon img {
+    filter: drop-shadow(0 0 16px rgba(212, 175, 55, 0.3));
+  }
+  .plain-list {
+    margin: 12px 0 0;
+    padding-left: 4px;
+    line-height: 1.8;
+    list-style: none;
+  }
+  .plain-list li {
+    padding-left: 20px;
+    position: relative;
+  }
+  .plain-list li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 11px;
+    width: 6px;
+    height: 6px;
+    background: var(--cyan);
+    transform: rotate(45deg);
+  }
+</style>
+
+<script>
+  const form = document.getElementById("purchase-form") as HTMLFormElement | null;
+  const submitBtn = document.getElementById("purchase-submit") as HTMLButtonElement | null;
+  const errorBox = document.getElementById("purchase-error");
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!submitBtn || !errorBox) return;
+    const apiBase = form.getAttribute("data-api-base");
+    const productId = form.getAttribute("data-product-id");
+    const playerName = (document.getElementById("player-name") as HTMLInputElement | null)?.value.trim();
+
+    errorBox.style.display = "none";
+    if (!apiBase) {
+      errorBox.textContent = "La Tienda no está disponible ahora mismo (API no configurada).";
+      errorBox.style.display = "block";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Procesando...";
+    try {
+      const res = await fetch(`${apiBase}/api/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, playerName }),
+      });
+      const data = (await res.json()) as { checkoutUrl?: string; error?: string };
+      if (!res.ok || !data.checkoutUrl) {
+        errorBox.textContent = data.error ?? "No se pudo crear el pedido. Comprueba tu nombre de usuario.";
+        errorBox.style.display = "block";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Reintentar";
+        return;
+      }
+      window.location.href = data.checkoutUrl;
+    } catch {
+      errorBox.textContent = "No se pudo contactar con el servidor de pagos. Inténtalo de nuevo.";
+      errorBox.style.display = "block";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Reintentar";
+    }
+  });
+</script>

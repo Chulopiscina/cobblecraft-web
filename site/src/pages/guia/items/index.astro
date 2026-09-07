@@ -1,0 +1,107 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import ItemCard from "../../../components/ItemCard.astro";
+import { items } from "../../../data/guide/items";
+import type { ItemCategory } from "../../../data/guide/types";
+import { CATEGORY_LABELS } from "../../../lib/guide-helpers";
+
+const categoryFilters = ["todos", ...Object.keys(CATEGORY_LABELS)] as const;
+---
+
+<BaseLayout title="Catálogo de Ítems" description="Catálogo visual de los ítems propios de CobbleCraft: accesorios, cofres, llaves, materiales de Slayer, tokens de Liga, equipo de Maestría y más.">
+  <PageHero eyebrow="Guía CobbleCraft" title="CATÁLOGO DE ÍTEMS" subtitle={`${items.length} ítems propios de CobbleCraft, verificados contra el estado real del servidor.`} />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Ítems" }]} />
+
+        <div class="item-filters" role="group" aria-label="Filtrar por categoría">
+          {categoryFilters.map((cat) => (
+            <button type="button" class="chip" data-filter={cat} aria-pressed={cat === "todos" ? "true" : "false"}>
+              {cat === "todos" ? "Todos" : CATEGORY_LABELS[cat as ItemCategory]}
+            </button>
+          ))}
+        </div>
+
+        <div class="item-grid" id="item-grid">
+          {items.map((item) => (
+            <div class="item-grid__cell" data-category={item.category}>
+              <ItemCard item={item} />
+            </div>
+          ))}
+        </div>
+        <p id="item-grid-empty" class="item-grid__empty" hidden>Ningún ítem coincide con este filtro.</p>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<script>
+  const chips = document.querySelectorAll<HTMLButtonElement>(".chip[data-filter]");
+  const cells = document.querySelectorAll<HTMLDivElement>(".item-grid__cell");
+  const empty = document.getElementById("item-grid-empty");
+
+  chips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chips.forEach((c) => c.setAttribute("aria-pressed", "false"));
+      chip.setAttribute("aria-pressed", "true");
+      const filter = chip.dataset.filter;
+      let visible = 0;
+      cells.forEach((cell) => {
+        const show = filter === "todos" || cell.dataset.category === filter;
+        cell.style.display = show ? "" : "none";
+        if (show) visible++;
+      });
+      if (empty) empty.hidden = visible > 0;
+    });
+  });
+</script>
+
+<style>
+  .item-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .chip {
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s var(--ease);
+  }
+  .chip:hover {
+    border-color: var(--cyan);
+    color: var(--cyan-ink);
+  }
+  .chip[aria-pressed="true"] {
+    background: linear-gradient(120deg, var(--cyan-ink), var(--cyan) 65%, var(--cyan-soft));
+    border-color: var(--cyan);
+    color: #fff;
+  }
+  .item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .item-grid__empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 40px 0;
+  }
+  @media (max-width: 640px) {
+    .item-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,80 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import RecipeGrid from "../../../components/RecipeGrid.astro";
+import { recipes } from "../../../data/guide/recipes";
+
+const bySystem = new Map<string, typeof recipes>();
+for (const r of recipes) {
+  if (!bySystem.has(r.system)) bySystem.set(r.system, []);
+  bySystem.get(r.system)!.push(r);
+}
+---
+
+<BaseLayout title="Crafteos" description="Recetas reales de CobbleCraft, visualizadas ingrediente a ingrediente.">
+  <PageHero eyebrow="Guía CobbleCraft" title="CRAFTEOS" subtitle={`${recipes.length} recetas reales, verificadas contra la configuración desplegada del servidor.`} />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Crafteos" }]} />
+
+        <p style="color:var(--text-muted); margin-top:-8px; margin-bottom:22px;">
+          ¿Quieres ver de dónde salen los ingredientes y qué desbloquea cada resultado? Visita el
+          <a href="/guia/objetos">Atlas de Objetos</a> para las cadenas completas de progresión.
+        </p>
+
+        {Array.from(bySystem.entries()).map(([system, list]) => (
+          <div class="crafteos-system">
+            <h2>{system}</h2>
+            <div class="crafteos-list">
+              {list.map((recipe) => (
+                <div class="card crafteos-list__item" id={recipe.slug}>
+                  <div class="crafteos-list__head">
+                    <h3><a href={`/guia/items/${recipe.outputSlug}`}>{recipe.outputName}</a></h3>
+                    {recipe.requirement && <span class="badge badge--muted">{recipe.requirement}</span>}
+                  </div>
+                  <RecipeGrid recipe={recipe} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .crafteos-system {
+    margin-bottom: 34px;
+  }
+  .crafteos-system h2 {
+    font-size: 1.2rem;
+    margin-bottom: 14px;
+  }
+  .crafteos-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .crafteos-list__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .crafteos-list__head h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .crafteos-list__head a {
+    color: var(--text);
+  }
+  .crafteos-list__head a:hover {
+    color: var(--cyan-ink);
+  }
+</style>

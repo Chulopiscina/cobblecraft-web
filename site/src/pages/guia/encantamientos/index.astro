@@ -1,0 +1,70 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import Icon from "../../../components/Icon.astro";
+import { enchantFamilies } from "../../../data/guide/enchantments";
+---
+
+<BaseLayout title="Encantamientos" description="Las 9 familias reales de Encantamientos custom de CobbleCraft, de Nivel I a VI, con precios reales del Encantador.">
+  <PageHero eyebrow="Guía CobbleCraft" title="ENCANTAMIENTOS" subtitle="9 familias reales, Nivel I a VI." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Encantamientos" }]} />
+
+        <div class="card" style="margin-bottom:26px;">
+          <p style="margin:0;">
+            Cada familia se compra en <strong>Tier I al Encantador (Hub)</strong>. Para subir de tier,
+            combina 2 libros idénticos en un yunque - hasta un máximo de <strong>Tier VI</strong>.
+          </p>
+        </div>
+
+        <div class="enchant-grid">
+          {enchantFamilies.map((f) => (
+            <div class="card enchant-card" id={f.id}>
+              <div class="icon-tile icon-tile--purple"><Icon name="libro" /></div>
+              <h2>{f.name}</h2>
+              <p>{f.effect}</p>
+              <div class="enchant-card__foot">
+                <span class="badge badge--gold">Tier I: {f.tier1Price} monedas</span>
+                {f.itemSlug && <a href={`/guia/items/${f.itemSlug}`}>Ver ítem →</a>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .enchant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .enchant-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+  }
+  .enchant-card p {
+    margin: 0 0 14px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .enchant-card__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .enchant-card__foot a {
+    color: var(--cyan-ink);
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+</style>

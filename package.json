@@ -1,0 +1,11 @@
+{
+  "name": "cobblemon-server-web",
+  "private": true,
+  "workspaces": [
+    "worker",
+    "site"
+  ],
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "cobblemon-server-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --local",
+    "build": "tsc --noEmit",
+    "typecheck:test": "tsc --noEmit -p tsconfig.test.json",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "db:migrate:local": "wrangler d1 migrations apply cobblemon_store --local",
+    "db:migrate:remote": "wrangler d1 migrations apply cobblemon_store --remote",
+    "validate:migrations": "node scripts/validate-migrations.mjs"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "@types/node": "^22.20.1",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4",
+    "wrangler": "^3.90.0"
+  }
+}

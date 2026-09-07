@@ -1,0 +1,93 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+---
+
+<BaseLayout title="Estado del pedido" description="Consulta el estado de tu pedido.">
+  <PageHero eyebrow="Tienda" title="ESTADO DEL PEDIDO" subtitle="Nunca confirmamos un pedido solo porque hayas vuelto a esta página - el estado real se confirma siempre contra el servidor." />
+
+  <section class="section section--tight">
+    <div class="container" style="max-width:520px;">
+      <div class="card" id="order-status-card" data-api-base={apiBaseUrl} style="text-align:left;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="spinner" id="order-status-spinner"></span>
+          <p id="order-status-text" role="status" aria-live="polite" style="margin:0;">Consultando el pedido...</p>
+        </div>
+        <p id="order-status-detail" class="notice" role="status" aria-live="polite" style="margin-top:16px; display:none;"></p>
+      </div>
+      <p style="margin-top:20px;"><a class="btn btn-ghost btn-block" href="/tienda">Volver a la Tienda</a></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const card = document.getElementById("order-status-card");
+  const statusText = document.getElementById("order-status-text");
+  const detail = document.getElementById("order-status-detail");
+  const spinner = document.getElementById("order-status-spinner");
+  const apiBase = card?.getAttribute("data-api-base") ?? "";
+  const orderId = new URLSearchParams(window.location.search).get("order");
+
+  const labels: Record<string, string> = {
+    CREATED: "Pedido creado.",
+    PENDING_PAYMENT: "Esperando confirmación de pago...",
+    PAID: "Pago confirmado. Preparando la entrega en el servidor...",
+    CLAIMED: "El servidor está procesando tu entrega...",
+    DELIVERED: "¡Entregado! Ya puedes verlo en el juego.",
+    FAILED: "El pago no se completó.",
+    REFUNDED: "Este pedido fue reembolsado.",
+  };
+
+  let attempts = 0;
+  const MAX_ATTEMPTS = 40; // ~2 minutos a intervalos de 3s
+
+  async function poll() {
+    if (!statusText || !detail) return;
+    if (!orderId || !apiBase) {
+      statusText.textContent = "No se pudo identificar el pedido.";
+      spinner?.remove();
+      return;
+    }
+    try {
+      const res = await fetch(`${apiBase}/api/orders/${encodeURIComponent(orderId)}`);
+      if (!res.ok) {
+        statusText.textContent = "Pedido no encontrado.";
+        spinner?.remove();
+        return;
+      }
+      const data = (await res.json()) as { status: string; deliveredAt: number | null };
+      statusText.textContent = labels[data.status] ?? data.status;
+
+      if (data.status === "DELIVERED") {
+        spinner?.remove();
+        detail.style.display = "block";
+        detail.className = "notice notice--success";
+        detail.textContent = "Entrega confirmada. ¡Gracias por tu apoyo!";
+        return;
+      }
+      if (data.status === "FAILED") {
+        spinner?.remove();
+        detail.style.display = "block";
+        detail.className = "notice notice--error";
+        detail.textContent = "Si crees que esto es un error, contacta con el equipo del servidor.";
+        return;
+      }
+
+      attempts += 1;
+      if (attempts < MAX_ATTEMPTS) {
+        setTimeout(poll, 3000);
+      } else {
+        spinner?.remove();
+        detail.style.display = "block";
+        detail.textContent = "Esto está tardando más de lo normal. Puedes cerrar esta página - la entrega seguirá procesándose en el servidor.";
+      }
+    } catch {
+      attempts += 1;
+      if (attempts < MAX_ATTEMPTS) setTimeout(poll, 3000);
+    }
+  }
+
+  poll();
+</script>

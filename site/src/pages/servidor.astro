@@ -1,0 +1,69 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import FeatureCard from "../components/FeatureCard.astro";
+import ServerStatus from "../components/ServerStatus.astro";
+import PageHero from "../components/PageHero.astro";
+import WorldBackdrop from "../components/WorldBackdrop.astro";
+
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+
+const systems = [
+  { icon: "cristal", title: "Investigaciones Pokémon", description: "Laboratorio, fósiles, Cronista de Leyendas, Explorador de Anomalías y rutas especiales reales.", variant: "cyan" },
+  { icon: "coleccion", title: "Skills", description: "8 skills reales con progresión propia: nivel, equipo y hitos claros en cada una.", variant: "gold" },
+  { icon: "material", title: "Colecciones", description: "Descubre y sigue tu progreso: qué equipo has conseguido y qué te falta.", variant: "cyan" },
+  { icon: "slayer", title: "Cacerías", description: "Cacerías con cuota, Bosses únicos, equipo y libros de encantamiento propios.", variant: "gold" },
+  { icon: "pesca", title: "Pesca", description: "Sistema de pesca completo con cañas, armaduras y materiales exclusivos.", variant: "cyan" },
+  { icon: "medalla", title: "Liga Pokémon", description: "5 entrenadores de Nv.120 a Nv.160 - contenido endgame repetible.", variant: "gold" },
+  { icon: "candado", title: "Claims", description: "Rocas de Protección para proteger tu terreno frente a otros jugadores.", variant: "cyan" },
+  { icon: "jefe", title: "Jefes Mundiales", description: "Jefes especiales del mundo con objetos únicos como recompensa.", variant: "gold" },
+  { icon: "moneda", title: "Economía", description: "Moneda única del servidor con auditoría real de cada transacción.", variant: "cyan" },
+  { icon: "mercado", title: "Mercado", description: "Compra y vende objetos y Pokémon directamente entre jugadores.", variant: "gold" },
+  { icon: "escudo", title: "Maestría", description: "El equipo endgame real: combina Slayer, Pesca y Liga en 3 sets propios.", variant: "cyan" },
+  { icon: "altar", title: "Encantamientos personalizados", description: "9 encantamientos propios Tier I-VI, comprables al Encantador y mejorables en el yunque.", variant: "gold" },
+  { icon: "paleta", title: "Skins y Cosméticos", description: "Sistema de personalización visual en desarrollo activo.", variant: "cyan" },
+  { icon: "cofre", title: "Cofres", description: "5 cofres con llave propia y probabilidades visibles - dinero, objetos, equipo y futuros cosméticos. Las llaves solo se ganan jugando, nunca se compran.", variant: "gold" },
+  { icon: "accesorio", title: "Accesorios", description: "27 accesorios reales, 27 espacios en la Bolsa - colecciónalos todos y cada uno aplica su efecto automáticamente. Se consiguen crafteando con materiales reales y son comerciables entre jugadores.", variant: "cyan" },
+] as const;
+---
+
+<BaseLayout title="Servidor" description="Sistemas reales del servidor: Investigaciones, Skills, Colecciones, Slayer, Pesca, Liga y más.">
+  <PageHero eyebrow="Sistemas del servidor" title="UN SERVIDOR CON PROGRESIÓN REAL" subtitle="Cada sistema marcado como disponible está basado en el estado real del servidor; lo pendiente se mantiene como pendiente.">
+    <div style="margin-top:14px;">
+      <ServerStatus statusEndpoint={apiBaseUrl} />
+    </div>
+  </PageHero>
+
+  <WorldBackdrop>
+    <div class="divider"><span class="divider__glyph"></span></div>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" style="justify-content:center;">Sistemas</span>
+          <h2>Qué hay ya jugable</h2>
+        </div>
+        <div class="grid grid--3">
+          {systems.map((s) => <FeatureCard {...s} />)}
+        </div>
+        <p style="text-align:center; margin-top:18px;">
+          <a href="/guia" class="btn btn-secondary">Ver la Guía completa →</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="section section--alt" style="text-align:center;">
+      <div class="container" style="max-width:680px;">
+        <h2>Un servidor cuidado, no un modpack gigante</h2>
+        <p>
+          Progresión pensada para durar: cada sistema nuevo se construye sobre los mismos principios -
+          el nivel de una Skill activa <span class="accent-word text-gradient-gold">PODER</span>, nunca te
+          impide fabricar o poseer equipo. Preferimos pocos sistemas bien terminados a muchos a medias.
+        </p>
+        <div class="hero__actions" style="margin-top:20px;">
+          <a href="/jugar" class="btn btn-primary">Preparar Launcher</a>
+          <a href="/tienda" class="btn btn-ghost">Ver Tienda</a>
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>

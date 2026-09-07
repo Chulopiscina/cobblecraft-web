@@ -1,0 +1,85 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+const storeEnv = import.meta.env.PUBLIC_STORE_ENV === "prod" ? "prod" : "dev";
+---
+
+<BaseLayout title="Pago simulado (DEV)" description="Pasarela de pago simulada, solo para desarrollo local.">
+  <PageHero eyebrow="Solo desarrollo" title="PAGO SIMULADO" subtitle="Esta página sustituye a Tebex SOLO en desarrollo local. El Worker rechaza esta simulación si está configurado como producción, aunque llegues aquí por error." />
+
+  <section class="section section--tight">
+    <div class="container" style="max-width:520px;">
+      {storeEnv === "prod" && (
+        <div class="notice notice--error" style="margin-bottom:16px;">
+          Esta build está marcada como producción (PUBLIC_STORE_ENV=prod) - el pago simulado no debería
+          usarse aquí. El Worker lo rechazará igualmente.
+        </div>
+      )}
+
+      <div class="card" id="mock-checkout-card" data-api-base={apiBaseUrl} style="text-align:left;">
+        <p id="mock-order-label" style="font-weight:600;">Cargando pedido...</p>
+        <div style="display:flex; gap:12px; margin-top:20px; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="btn-pay-ok">Simular pago exitoso</button>
+          <button class="btn btn-ghost" id="btn-pay-fail">Simular pago fallido</button>
+        </div>
+        <p id="mock-result" class="notice" role="status" aria-live="polite" style="display:none; margin-top:16px;"></p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const card = document.getElementById("mock-checkout-card");
+  const label = document.getElementById("mock-order-label");
+  const result = document.getElementById("mock-result");
+  const btnOk = document.getElementById("btn-pay-ok") as HTMLButtonElement | null;
+  const btnFail = document.getElementById("btn-pay-fail") as HTMLButtonElement | null;
+
+  const apiBase = card?.getAttribute("data-api-base") ?? "";
+  const orderId = new URLSearchParams(window.location.search).get("order");
+
+  if (label) {
+    label.textContent = orderId ? `Pedido: ${orderId}` : "Falta el parámetro ?order= en la URL.";
+  }
+  if (!orderId || !apiBase) {
+    btnOk?.setAttribute("disabled", "true");
+    btnFail?.setAttribute("disabled", "true");
+  }
+
+  async function simulate(outcome: "paid" | "failed") {
+    if (!result || !orderId || !apiBase) return;
+    btnOk?.setAttribute("disabled", "true");
+    btnFail?.setAttribute("disabled", "true");
+    result.style.display = "block";
+    result.className = "notice";
+    result.textContent = "Procesando...";
+    try {
+      const res = await fetch(`${apiBase}/api/payments/mock/simulate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderPublicId: orderId, outcome }),
+      });
+      const data = (await res.json()) as { simulated?: boolean; error?: string };
+      if (!res.ok || !data.simulated) {
+        result.className = "notice notice--error";
+        result.textContent = data.error ?? "No se pudo simular el pago.";
+        btnOk?.removeAttribute("disabled");
+        btnFail?.removeAttribute("disabled");
+        return;
+      }
+      result.className = "notice notice--success";
+      result.textContent = "Simulación enviada. Redirigiendo...";
+      window.location.href = `/tienda/gracias?order=${encodeURIComponent(orderId)}`;
+    } catch {
+      result.className = "notice notice--error";
+      result.textContent = "No se pudo contactar con el Worker.";
+      btnOk?.removeAttribute("disabled");
+      btnFail?.removeAttribute("disabled");
+    }
+  }
+
+  btnOk?.addEventListener("click", () => simulate("paid"));
+  btnFail?.addEventListener("click", () => simulate("failed"));
+</script>

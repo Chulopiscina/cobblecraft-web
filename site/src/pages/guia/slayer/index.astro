@@ -1,0 +1,121 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import Icon from "../../../components/Icon.astro";
+import { slayerTiers } from "../../../data/guide/slayer";
+import { getItem } from "../../../data/guide/items";
+---
+
+<BaseLayout title="Slayer" description="Las 4 Cacerías Slayer de CobbleCraft contra Jefes cada vez más difíciles: requisitos, recompensas y contratos reales.">
+  <PageHero eyebrow="Guía CobbleCraft" title="SLAYER" subtitle="4 Cacerías contra Jefes cada vez más difíciles." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Slayer" }]} />
+
+        <p style="max-width:640px; margin:0 0 16px; color:var(--text-muted);">
+          Los Jefes Slayer están diseñados como enfrentamientos de tu equipo completo contra un único
+          Pokémon muy preparado - escalan mucho más allá del contenido de las primeras horas. Cuanto
+          más alto el Tier, más preparación real necesitas: equipo, tipos, objetos y estrategia importan
+          más que solo el nivel de tus Pokémon.
+        </p>
+        <p style="max-width:640px; margin:0 0 24px; color:var(--text-muted);">
+          Los Jefes de los Tiers más avanzados cuentan con varias fases de combate. Reducir su vida
+          una vez no significa necesariamente haber terminado la Cacería - resiste más de lo que
+          parece a simple vista, así que prepárate para un combate largo, no solo intenso.
+        </p>
+
+        <div class="tier-list">
+          {slayerTiers.map((t) => {
+            const contract = getItem(t.contractSlug);
+            return (
+              <div class="card tier-card" id={t.id}>
+                <div class="tier-card__head">
+                  <div class="icon-tile icon-tile--purple"><Icon name="slayer" /></div>
+                  <div>
+                    <span class="badge badge--muted">Tier {t.tier}</span>
+                    <h2>{t.name}</h2>
+                    <p class="tier-card__boss">Jefe: <strong>{t.boss}</strong> ({t.species}), nivel {t.bossLevel}</p>
+                  </div>
+                </div>
+
+                <div class="tier-card__stats">
+                  <div><span>Nivel Cazador requerido</span><strong>{t.requiredSlayerLevel}</strong></div>
+                  <div><span>Derrotas necesarias</span><strong>{t.requiredKills}</strong></div>
+                  <div><span>Recompensa en dinero</span><strong>{t.rewardMoney}</strong></div>
+                </div>
+
+                <p class="tier-card__reward">
+                  Material de recompensa: <a href={`/guia/items/${t.rewardItemSlug}`}>{t.rewardItemName}</a> x{t.rewardAmount} por victoria.
+                </p>
+
+                {contract && (
+                  <p class="tier-card__contract">
+                    Contrato: <a href={`/guia/items/${contract.slug}`}>{contract.name}</a>
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .tier-list {
+    display: grid;
+    gap: 18px;
+  }
+  .tier-card__head {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .tier-card__head h2 {
+    margin: 2px 0 4px;
+    font-size: 1.2rem;
+  }
+  .tier-card__boss {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .tier-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .tier-card__stats div {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .tier-card__stats span {
+    display: block;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  .tier-card__stats strong {
+    font-size: 1.05rem;
+  }
+  .tier-card__reward,
+  .tier-card__contract {
+    margin: 6px 0;
+    font-size: 0.92rem;
+  }
+  .tier-card__reward a,
+  .tier-card__contract a {
+    color: var(--cyan-ink);
+    font-weight: 700;
+  }
+</style>

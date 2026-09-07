@@ -1,0 +1,93 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LauncherDownloadButton from "../components/LauncherDownloadButton.astro";
+import Icon from "../components/Icon.astro";
+import PageHero from "../components/PageHero.astro";
+import WorldBackdrop from "../components/WorldBackdrop.astro";
+import { siteConfig } from "@shared/site.config";
+
+const steps = [
+  { title: "Descarga el Launcher", description: "Un único archivo .exe, sin instalar nada más a mano." },
+  { title: "Ábrelo", description: "El Launcher Oficial se abre y prepara todo automáticamente." },
+  { title: "Prepara Minecraft y Cobblemon", description: "Descarga Fabric, Cobblemon y el resto de mods en una carpeta aislada, sin tocar tu instalación normal." },
+  { title: "Inicia sesión con Microsoft", description: "Dentro del Launcher oficial de Minecraft, con tu cuenta real - nunca te pedimos tu contraseña." },
+  { title: "Entra a CobbleCraft", description: "Cuando tengamos hosting e IP pública, la dirección del servidor se actualizará desde configuración sin rehacer la web." },
+];
+
+const requirements = [
+  { icon: "descarga", title: "Sistema operativo", description: "Windows (el Launcher Oficial V1 está disponible para Windows)." },
+  { icon: "usuario", title: "Cuenta", description: "Una cuenta Minecraft Java válida. Nunca pedimos tu contraseña de Microsoft." },
+  { icon: "candado", title: "RAM recomendada", description: `Entre ${siteConfig.minecraft.ramMinMb / 1024} GB y ${siteConfig.minecraft.ramMaxMb / 1024} GB asignados a Minecraft.` },
+] as const;
+---
+
+<BaseLayout title="Jugar" description="Launcher Oficial de CobbleCraft preparado para Minecraft Java, Cobblemon y Fabric.">
+  <PageHero eyebrow="El método oficial para entrar" title="PREPARA EL LAUNCHER" subtitle={`Minecraft Java ${siteConfig.minecraft.javaVersion} · Cobblemon ${siteConfig.minecraft.cobblemonVersion} · Fabric`}>
+    <div id="descarga" style="margin-top:22px; max-width:480px; margin-left:auto; margin-right:auto;">
+      <LauncherDownloadButton />
+    </div>
+  </PageHero>
+
+  <WorldBackdrop>
+    <div class="divider"><span class="divider__glyph"></span></div>
+
+    <section class="section section--alt">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" style="justify-content:center;">Sin fricción</span>
+          <h2>Cómo funciona</h2>
+          <p>
+            Nunca tendrás que copiar mods a mano, instalar Fabric tú mismo ni tocar la carpeta <code>.minecraft</code>.
+            El Launcher Oficial hace todo el trabajo por ti, dentro de una instancia aislada de tu Minecraft normal.
+          </p>
+        </div>
+        <div class="steps" style="max-width:600px; margin:0 auto;">
+          {steps.map((s, i) => (
+            <div class="step">
+              <div class="step__num">{i + 1}</div>
+              <div>
+                <div class="step__title">{s.title}</div>
+                <p style="margin:4px 0 0;">{s.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p style="max-width:600px; margin:24px auto 0; text-align:center; opacity:0.8;">
+          El resource pack oficial de CobbleCraft se instala automáticamente al conectar - no
+          hace falta descargar ni activar nada a mano.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" style="justify-content:center;">Antes de empezar</span>
+          <h2>Requisitos</h2>
+        </div>
+        <div class="grid grid--3">
+          {requirements.map((r) => (
+            <div class="card" style="text-align:center;">
+              <div class="icon-tile icon-tile--cyan" style="margin-left:auto; margin-right:auto;">
+                <Icon name={r.icon} />
+              </div>
+              <h3 style="font-size:1rem;">{r.title}</h3>
+              <p style="margin:0;">{r.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" style="text-align:center;">
+      <div class="container" style="max-width:560px;">
+        <h2>¿Todo listo?</h2>
+        <p>El Launcher queda preparado como método oficial. La descarga pública se activará cuando exista una Release real y la IP se añadirá cuando tengamos hosting definitivo.</p>
+        <div class="hero__actions">
+          <a href="#descarga" class="btn btn-primary">Volver a la descarga</a>
+          <a href="/ayuda" class="btn btn-ghost">Necesito ayuda</a>
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>

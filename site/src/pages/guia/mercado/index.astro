@@ -1,0 +1,89 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import Icon from "../../../components/Icon.astro";
+import { marketInfo } from "../../../data/guide/market";
+---
+
+<BaseLayout title="Mercado" description="Compra y vende con otros jugadores en el Mercado de CobbleCraft: listados, comisiones y límites reales.">
+  <PageHero eyebrow="Guía CobbleCraft" title="MERCADO" subtitle="Compra y vende con otros jugadores." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container" style="max-width:760px;">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Mercado" }]} />
+
+        <div class="card" style="margin-bottom:22px;">
+          <p style="margin:0 0 10px;">
+            En el Mercado puedes listar ítems y Pokémon para que otros jugadores los compren.
+            <strong> Tú eliges tu propio precio.</strong>
+          </p>
+          <p style="margin:0;">
+            Cada listado dura <strong>{marketInfo.listingDurationHours} horas</strong>. Al listar se cobra
+            una comisión fija de <strong>{marketInfo.listingFeeFlat} monedas</strong> más un{" "}
+            <strong>{marketInfo.listingFeePercent}%</strong> del precio, y al venderse se aplica además un
+            impuesto de venta del <strong>{marketInfo.salesTaxPercent}%</strong> (
+            {marketInfo.pokemonSalesTaxPercent}% también para Pokémon).
+          </p>
+        </div>
+
+        <div class="market-cols">
+          <div class="card">
+            <div class="icon-tile icon-tile--cyan"><Icon name="material" /></div>
+            <h2>Límite de listados de ítems</h2>
+            <ul class="market-list">
+              {marketInfo.maxActiveListingsBySkillLevel.map((row) => (
+                <li>
+                  {row.skillsAtLeast === 0
+                    ? `Sin requisito`
+                    : `${row.skillsAtLeast} Skill(s) a nivel ${row.level}+`}
+                  <strong> → {row.maxListings} listados activos</strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="card">
+            <div class="icon-tile icon-tile--purple"><Icon name="captura" /></div>
+            <h2>Límite de listados de Pokémon</h2>
+            <ul class="market-list">
+              {marketInfo.pokemonMaxActiveListingsBySkillLevel.map((row) => (
+                <li>
+                  Nivel {row.level}+ <strong> → {row.maxListings} listados activos</strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:22px;">
+          <p style="margin:0;">
+            El Mercado entre jugadores transfiere dinero de un jugador a otro (menos la comisión) - nunca
+            crea dinero nuevo.
+          </p>
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .market-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .market-cols h2 {
+    margin: 0 0 10px;
+    font-size: 1.05rem;
+  }
+  .market-list {
+    margin: 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+</style>

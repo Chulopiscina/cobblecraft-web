@@ -1,0 +1,62 @@
+---
+/**
+ * Imagen de un ítem de la Guía - usa la textura REAL (recolor propio del proyecto, nunca un
+ * asset oficial de Mojang) si existe en src/assets/guide/items/, o un placeholder PROFESIONAL
+ * propio de CobbleCraft (nunca un cuadro gris) si todavía no hay arte para ese ítem - pedido
+ * explícito: "diseña un placeholder acorde a CobbleCraft". `image-rendering:pixelated` en la
+ * imagen real (textura Minecraft de 16-32px, se vería borrosa al escalar sin esto).
+ */
+import { Image } from "astro:assets";
+import Icon from "./Icon.astro";
+import { resolveItemImage } from "../lib/guide-helpers";
+import type { IconName } from "../lib/icons";
+
+interface Props {
+  image: string | null;
+  name: string;
+  icon?: IconName;
+  size?: number;
+}
+const { image, name, icon = "material", size = 96 } = Astro.props;
+const resolved = resolveItemImage(image);
+---
+
+{resolved ? (
+  <div class="item-image" style={`width:${size}px;height:${size}px;`}>
+    <Image src={resolved} alt={name} width={size} height={size} class="item-image__real" />
+  </div>
+) : (
+  <div class="item-image item-image--placeholder" style={`width:${size}px;height:${size}px;`} title="Imagen pendiente">
+    <Icon name={icon} size={Math.round(size * 0.42)} />
+  </div>
+)}
+
+<style>
+  .item-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(150deg, rgba(212, 175, 55, 0.14), rgba(63, 224, 224, 0.1));
+    border: 1px solid var(--border);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .item-image__real {
+    width: 68%;
+    height: 68%;
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
+  .item-image--placeholder {
+    color: var(--gold-ink);
+    background: repeating-linear-gradient(
+      135deg,
+      rgba(212, 175, 55, 0.1),
+      rgba(212, 175, 55, 0.1) 8px,
+      rgba(63, 224, 224, 0.08) 8px,
+      rgba(63, 224, 224, 0.08) 16px
+    );
+    border-style: dashed;
+  }
+</style>

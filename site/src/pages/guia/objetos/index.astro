@@ -1,0 +1,310 @@
+---
+/**
+ * Atlas de Objetos (`/guia/objetos`) - la experiencia VISUAL de cadenas de progresión pedida
+ * explícitamente: de dónde sale cada objeto -> qué me dropea/vende -> para qué sirve -> qué
+ * crafteo con él -> qué desbloqueo después. Es una VISTA, no una fuente de datos nueva: todo
+ * nodo/receta que se ve aquí viene de `items.ts`/`recipes.ts`/`slayer.ts`/`league.ts`/
+ * `crates.ts`/`claims.ts`/`enchantments.ts` a través de `src/lib/progression-chains.ts` - una
+ * receta/relación sigue viviendo en un único sitio (nunca se reescribe aquí a mano).
+ *
+ * `/guia/items` sigue siendo el catálogo/ficha por ítem: esta página es el mapa de cómo se
+ * conectan entre sí.
+ */
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import RecipeGrid from "../../../components/RecipeGrid.astro";
+import ProgressionChain from "../../../components/ProgressionChain.astro";
+import Icon from "../../../components/Icon.astro";
+import type { IconName } from "../../../lib/icons";
+import { itemsByCategory } from "../../../data/guide/items";
+import { getRecipe } from "../../../data/guide/recipes";
+import { enchantFamilies } from "../../../data/guide/enchantments";
+import type { ItemCategory } from "../../../data/guide/types";
+import {
+  buildItemChain,
+  buildClaimsChain,
+  buildEnchantChain,
+  craftingMaterialHubs,
+  type ChainNode,
+} from "../../../lib/progression-chains";
+
+interface ChainCard {
+  title: string;
+  requirement?: string;
+  nodes: ChainNode[];
+  recipeSlug?: string;
+}
+
+/** Dentro de cada sección: materiales/orígenes (sin receta propia) primero, objetos derivados
+ * (crafteados) después - pedido explícito. */
+function chainsForCategory(category: ItemCategory): ChainCard[] {
+  const list = [...itemsByCategory(category)].sort(
+    (a, b) => (a.producedByRecipe ? 1 : 0) - (b.producedByRecipe ? 1 : 0)
+  );
+  return list.map((item) => ({
+    title: item.name,
+    requirement: item.requirements,
+    nodes: buildItemChain(item),
+    recipeSlug: item.producedByRecipe,
+  }));
+}
+
+interface ItemSection {
+  key: string;
+  label: string;
+  icon: IconName;
+  chains: ChainCard[];
+}
+
+const itemSections: ItemSection[] = [
+  { key: "pesca", label: "Pesca", icon: "pesca", chains: chainsForCategory("pesca") },
+  { key: "slayer", label: "Slayer", icon: "slayer", chains: chainsForCategory("slayer") },
+  { key: "liga", label: "Liga Pokémon", icon: "medalla", chains: chainsForCategory("liga") },
+  { key: "accesorios", label: "Accesorios", icon: "accesorio", chains: chainsForCategory("accesorios") },
+  { key: "cofres", label: "Cofres y Llaves", icon: "cofre", chains: chainsForCategory("cofres-llaves") },
+  {
+    key: "encantamientos",
+    label: "Encantamientos",
+    icon: "libro",
+    chains: enchantFamilies
+      .map((f) => ({ title: f.name, requirement: undefined, nodes: buildEnchantChain(f.id) ?? [], recipeSlug: undefined }))
+      .filter((c) => c.nodes.length > 0),
+  },
+  { key: "maestria", label: "Maestría", icon: "jefe", chains: chainsForCategory("maestria") },
+];
+
+const claimsChain = buildClaimsChain();
+const materialHubs = craftingMaterialHubs();
+
+const filters = [
+  { key: "todos", label: "Todos" },
+  ...itemSections.map((s) => ({ key: s.key, label: s.label })),
+  { key: "claims", label: "Claims" },
+  { key: "crafting", label: "Crafting" },
+] as const;
+---
+
+<BaseLayout
+  title="Atlas de Objetos"
+  description="Atlas de Objetos de CobbleCraft: de dónde sale cada objeto, qué te dropea, para qué sirve y qué puedes craftear con él - todas las cadenas de progresión reales del servidor en una sola página visual."
+>
+  <PageHero
+    eyebrow="Guía CobbleCraft"
+    title="ATLAS DE OBJETOS"
+    subtitle="De dónde sale cada objeto, qué te dropea y qué puedes craftear con él - toda la progresión real, conectada."
+  />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Objetos" }]} />
+
+        <div class="card" style="margin-bottom:22px;">
+          <p style="margin:0;">
+            Cada tarjeta es una cadena real: <strong>origen → objeto → a dónde lleva</strong>. Haz click en cualquier nombre para
+            abrir su ficha completa en <a href="/guia/items">el catálogo de Ítems</a>, o expande <strong>«Ver receta completa»</strong>
+            para ver el grid de crafteo 3x3 exacto (mismos datos que <a href="/guia/crafteos">Crafteos</a>). Si un objeto todavía no
+            tiene un método de obtención directo definido, lo verás indicado tal cual - nunca inventamos una fuente.
+          </p>
+        </div>
+
+        <div class="atlas-filters" role="group" aria-label="Filtrar por sistema">
+          {filters.map((f) => (
+            <button type="button" class="chip" data-filter={f.key} aria-pressed={f.key === "todos" ? "true" : "false"}>
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {itemSections.map((section) => (
+          <section class="atlas-section" data-section={section.key}>
+            <h2 class="atlas-section__title"><Icon name={section.icon} size={22} /> {section.label}</h2>
+            <div class="chain-list">
+              {section.chains.map((chain) => {
+                const recipe = chain.recipeSlug ? getRecipe(chain.recipeSlug) : undefined;
+                return (
+                  <div class="card chain-card">
+                    <div class="chain-card__head">
+                      <h3>{chain.title}</h3>
+                      {chain.requirement && <span class="badge badge--muted">{chain.requirement}</span>}
+                    </div>
+                    <div class="chain-card__scroll">
+                      <ProgressionChain nodes={chain.nodes} />
+                    </div>
+                    {recipe && (
+                      <details class="chain-card__recipe">
+                        <summary>Ver receta completa</summary>
+                        <RecipeGrid recipe={recipe} />
+                      </details>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+
+        <section class="atlas-section" data-section="claims">
+          <h2 class="atlas-section__title"><Icon name="escudo" size={22} /> Claims</h2>
+          <div class="card chain-card">
+            <div class="chain-card__head">
+              <h3>Protección de terreno</h3>
+            </div>
+            <div class="chain-card__scroll">
+              <ProgressionChain nodes={claimsChain} />
+            </div>
+          </div>
+        </section>
+
+        <section class="atlas-section" data-section="crafting">
+          <h2 class="atlas-section__title"><Icon name="altar" size={22} /> Crafting: materiales puente</h2>
+          <p style="color:var(--text-muted); margin-top:-6px;">
+            Materiales vanilla sin ficha propia que alimentan dos o más recetas reales del servidor.
+          </p>
+          <div class="chain-list">
+            {materialHubs.map((hub) => (
+              <div class="card chain-card">
+                <div class="chain-card__head">
+                  <h3><Icon name="material" size={18} style="vertical-align:-3px; margin-right:6px;" />{hub.label}</h3>
+                  <span class="badge badge--muted">{hub.recipeCount} recetas</span>
+                </div>
+                <ul class="hub-recipe-list">
+                  {hub.recipesList.map((r) => {
+                    const amount = r.ingredients.find((i) => i.label === hub.label)?.amount ?? 1;
+                    return (
+                      <li>
+                        <details>
+                          <summary>
+                            {amount}x {hub.label} → <a href={`/guia/items/${r.outputSlug}`}>{r.outputName}</a>
+                          </summary>
+                          <RecipeGrid recipe={r} />
+                        </details>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<script>
+  const chips = document.querySelectorAll<HTMLButtonElement>(".chip[data-filter]");
+  const sections = document.querySelectorAll<HTMLElement>(".atlas-section[data-section]");
+
+  chips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chips.forEach((c) => c.setAttribute("aria-pressed", "false"));
+      chip.setAttribute("aria-pressed", "true");
+      const filter = chip.dataset.filter;
+      sections.forEach((section) => {
+        const show = filter === "todos" || section.dataset.section === filter;
+        section.style.display = show ? "" : "none";
+      });
+    });
+  });
+</script>
+
+<style>
+  .atlas-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 26px;
+  }
+  .chip {
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s var(--ease);
+  }
+  .chip:hover {
+    border-color: var(--cyan);
+    color: var(--cyan-ink);
+  }
+  .chip[aria-pressed="true"] {
+    background: linear-gradient(120deg, var(--cyan-ink), var(--cyan) 65%, var(--cyan-soft));
+    border-color: var(--cyan);
+    color: #fff;
+  }
+  .atlas-section {
+    margin-bottom: 38px;
+  }
+  .atlas-section__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+    color: var(--gold-ink);
+  }
+  .chain-list {
+    display: grid;
+    gap: 16px;
+  }
+  .chain-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .chain-card__head h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .chain-card__scroll {
+    overflow-x: auto;
+    padding: 10px 2px;
+  }
+  .chain-card__recipe {
+    margin-top: 8px;
+    border-top: 1px solid var(--border-soft);
+    padding-top: 10px;
+  }
+  .chain-card__recipe summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.86rem;
+    color: var(--cyan-ink);
+  }
+  .hub-recipe-list {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .hub-recipe-list > li {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+  }
+  .hub-recipe-list summary {
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .hub-recipe-list summary a {
+    color: var(--cyan-ink);
+  }
+  @media (max-width: 640px) {
+    .atlas-section__title {
+      font-size: 1.1rem;
+    }
+  }
+</style>

@@ -1,0 +1,118 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import Icon from "../../../components/Icon.astro";
+import { crates } from "../../../data/guide/crates";
+---
+
+<BaseLayout title="Cofres y Llaves" description="Los 5 cofres reales de CobbleCraft, cada uno con su propia llave y probabilidades visibles - sin P2W.">
+  <PageHero eyebrow="Guía CobbleCraft" title="COFRES Y LLAVES" subtitle="5 cofres, cada uno con su propia llave exclusiva. Sin P2W: las llaves nunca se compran con dinero real." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Cofres y Llaves" }]} />
+
+        <div class="crate-list">
+          {crates.map((crate) => (
+            <div class="card crate-card" id={crate.id}>
+              <div class="crate-card__head">
+                <div class="icon-tile icon-tile--gold"><Icon name="cofre" /></div>
+                <div>
+                  <h2>{crate.name}</h2>
+                  <p class="crate-card__key">Llave: <a href={`/guia/items/${crate.keySlug}`}>{crate.keyName}</a></p>
+                </div>
+              </div>
+              <p>{crate.description}</p>
+
+              <h3>Contiene</h3>
+              <ul class="crate-card__rewards">
+                {crate.rewardTypes.map((r) => <li>{r}</li>)}
+              </ul>
+
+              <h3>Probabilidad por rareza</h3>
+              <div class="crate-card__rarity">
+                {crate.rarityBreakdown.map((r) => (
+                  <div class="crate-card__rarity-row">
+                    <span>{r.rarity}</span>
+                    <div class="crate-card__bar"><div class="crate-card__bar-fill" style={`width:${r.percent}%`}></div></div>
+                    <span>{r.percent}%</span>
+                  </div>
+                ))}
+              </div>
+
+              <h3>Cómo conseguir la llave</h3>
+              <p class="crate-card__how">{crate.howToGetKey}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .crate-list {
+    display: grid;
+    gap: 20px;
+  }
+  .crate-card__head {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .crate-card__head h2 {
+    margin: 0 0 4px;
+    font-size: 1.2rem;
+  }
+  .crate-card__key {
+    margin: 0;
+    font-size: 0.88rem;
+  }
+  .crate-card__key a {
+    color: var(--cyan-ink);
+    font-weight: 700;
+  }
+  .crate-card h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--gold-ink);
+    margin: 18px 0 8px;
+  }
+  .crate-card__rewards {
+    margin: 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 3px;
+    font-size: 0.9rem;
+  }
+  .crate-card__rarity {
+    display: grid;
+    gap: 8px;
+  }
+  .crate-card__rarity-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 46px;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.84rem;
+  }
+  .crate-card__bar {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--bg-soft);
+    overflow: hidden;
+  }
+  .crate-card__bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--cyan));
+  }
+  .crate-card__how {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+</style>

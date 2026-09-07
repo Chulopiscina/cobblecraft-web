@@ -1,0 +1,128 @@
+---
+/**
+ * Renderiza una cadena de progresión (origen -> objeto -> a dónde lleva) como una fila de nodos
+ * unidos por flechas - horizontal en escritorio, vertical en móvil (mismo icono `flecha`,
+ * rotado por CSS). Cada nodo es o bien un ítem real con ficha (`ItemImage` + link a
+ * `/guia/items/<slug>`) o un nodo "de texto" (sistema/NPC/mecánica sin ficha propia, ej.
+ * "Encantador (Hub)" o "Loot de Pesca") - nunca inventa una ficha para algo que no la tiene.
+ * Los datos de los nodos SIEMPRE vienen de `src/lib/progression-chains.ts`, este componente
+ * solo pinta lo que recibe.
+ */
+import type { ChainNode } from "../lib/progression-chains";
+import ItemImage from "./ItemImage.astro";
+import Icon from "./Icon.astro";
+
+interface Props {
+  nodes: ChainNode[];
+  /** Tamaño de la imagen de cada nodo-ítem, en px. */
+  imageSize?: number;
+}
+const { nodes, imageSize = 56 } = Astro.props;
+---
+
+<div class="p-chain">
+  {nodes.map((node, i) => (
+    <>
+      <div class:list={["p-chain__node", { "p-chain__node--current": node.current, "p-chain__node--plain": node.plain }]}>
+        {node.href ? (
+          <a href={node.href} class="p-chain__link">
+            {!node.plain && <ItemImage image={node.image ?? null} name={node.label} size={imageSize} />}
+            <span class="p-chain__label">{node.label}</span>
+            {node.sublabel && <span class="p-chain__sublabel">{node.sublabel}</span>}
+          </a>
+        ) : (
+          <div class="p-chain__static">
+            {!node.plain && <ItemImage image={node.image ?? null} name={node.label} size={imageSize} />}
+            <span class="p-chain__label">{node.label}</span>
+            {node.sublabel && <span class="p-chain__sublabel">{node.sublabel}</span>}
+          </div>
+        )}
+      </div>
+      {i < nodes.length - 1 && (
+        <div class="p-chain__arrow" aria-hidden="true">
+          <Icon name="flecha" size={20} />
+        </div>
+      )}
+    </>
+  ))}
+</div>
+
+<style>
+  .p-chain {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .p-chain__node {
+    display: flex;
+  }
+  .p-chain__link,
+  .p-chain__static {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    width: 108px;
+    text-decoration: none;
+    color: inherit;
+  }
+  .p-chain__link:hover .p-chain__label {
+    color: var(--cyan-ink);
+  }
+  .p-chain__node--plain .p-chain__link,
+  .p-chain__node--plain .p-chain__static {
+    justify-content: center;
+    min-height: 56px;
+    padding: 8px 10px;
+    width: 150px;
+    background: var(--bg-soft);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .p-chain__node--current .p-chain__link,
+  .p-chain__node--current .p-chain__static {
+    outline: 2px solid var(--gold);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+  .p-chain__label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .p-chain__sublabel {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.25;
+  }
+  .p-chain__arrow {
+    color: var(--gold-ink);
+    flex-shrink: 0;
+    opacity: 0.75;
+  }
+  @media (max-width: 640px) {
+    .p-chain {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .p-chain__node {
+      justify-content: center;
+    }
+    .p-chain__link,
+    .p-chain__static {
+      width: 100%;
+      flex-direction: row;
+      text-align: left;
+    }
+    .p-chain__node--plain .p-chain__link,
+    .p-chain__node--plain .p-chain__static {
+      width: 100%;
+    }
+    .p-chain__arrow {
+      align-self: center;
+      transform: rotate(90deg);
+    }
+  }
+</style>

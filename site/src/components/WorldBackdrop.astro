@@ -1,0 +1,17 @@
+---
+/**
+ * Unificación visual (2026-09-05) - envuelve el contenido posterior a la cabecera con la MISMA
+ * imagen vertical "ambiente general" (`body-landscape.png`) que ya usa la Home (`.world-bg`,
+ * clase global ya existente en global.css) - antes solo `index.astro` la usaba, cada página
+ * nueva tenía que repetir el `getImage`/wrapper a mano. Ahora es un componente de una línea:
+ * `<WorldBackdrop><section>...</section></WorldBackdrop>`.
+ */
+import { getImage } from "astro:assets";
+import bodyLandscape from "../assets/images/body-landscape.png";
+
+const worldBg = await getImage({ src: bodyLandscape, width: 1920, format: "webp", quality: 68 });
+---
+
+<div class="world-bg" style={`--world-bg-image: url(${worldBg.src})`}>
+  <slot />
+</div>

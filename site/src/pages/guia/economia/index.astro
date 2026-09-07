@@ -1,0 +1,76 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import Icon from "../../../components/Icon.astro";
+import { economyInfo } from "../../../data/guide/economy";
+---
+
+<BaseLayout title="Economía" description="De dónde sale y a dónde va el dinero en CobbleCraft: fuentes, gastos y cómo funciona el Mercado.">
+  <PageHero eyebrow="Guía CobbleCraft" title="ECONOMÍA" subtitle="De dónde sale y a dónde va el dinero." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container" style="max-width:760px;">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Economía" }]} />
+
+        <div class="card" style="margin-bottom:22px;">
+          <div class="econ-head">
+            <div class="icon-tile icon-tile--cyan"><Icon name="moneda" /></div>
+            <div>
+              <h2 style="margin:0 0 4px;">Bono de bienvenida: {economyInfo.starterMoney} monedas</h2>
+              <p style="margin:0; color:var(--text-muted);">{economyInfo.starterNote}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="econ-cols">
+          <div class="card">
+            <h2 style="margin-top:0; font-size:1.1rem;">Fuentes de dinero</h2>
+            <ul class="econ-list">
+              {economyInfo.sources.map((s) => (
+                <li><strong>{s.name}.</strong> {s.description}</li>
+              ))}
+            </ul>
+          </div>
+          <div class="card">
+            <h2 style="margin-top:0; font-size:1.1rem;">Gastos</h2>
+            <ul class="econ-list">
+              {economyInfo.sinks.map((s) => (
+                <li><strong>{s.name}.</strong> {s.description}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:22px;">
+          <p style="margin:0;">{economyInfo.note}</p>
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .econ-head {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .econ-head .icon-tile {
+    margin-bottom: 0;
+  }
+  .econ-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .econ-list {
+    margin: 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 8px;
+    font-size: 0.92rem;
+  }
+</style>

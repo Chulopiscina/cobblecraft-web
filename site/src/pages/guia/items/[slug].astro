@@ -1,0 +1,182 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import ItemImage from "../../../components/ItemImage.astro";
+import ItemCard from "../../../components/ItemCard.astro";
+import RecipeGrid from "../../../components/RecipeGrid.astro";
+import ProgressionChain from "../../../components/ProgressionChain.astro";
+import { items, getItem } from "../../../data/guide/items";
+import { getRecipe } from "../../../data/guide/recipes";
+import { rarityBadgeClass, CATEGORY_LABELS, PROGRESSION_STAGE_LABELS, progressionStageBadgeClass } from "../../../lib/guide-helpers";
+import { buildItemChain } from "../../../lib/progression-chains";
+
+export function getStaticPaths() {
+  return items.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+
+const { item } = Astro.props;
+const recipe = item.producedByRecipe ? getRecipe(item.producedByRecipe) : undefined;
+const usedInRecipes = (item.usedInRecipes ?? []).map((slug) => getRecipe(slug)).filter(Boolean);
+const related = (item.relatedItems ?? []).map((slug) => getItem(slug)).filter((i): i is NonNullable<typeof i> => Boolean(i));
+const chain = buildItemChain(item);
+---
+
+<BaseLayout title={`${item.name} · Guía`} description={`${item.name} - ${item.description}`}>
+  <PageHero eyebrow={CATEGORY_LABELS[item.category]} title={item.name} />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container" style="max-width:760px;">
+        <Breadcrumbs
+          items={[
+            { label: "Guía", href: "/guia" },
+            { label: "Ítems", href: "/guia/items" },
+            { label: item.name },
+          ]}
+        />
+
+        <div class="card item-detail">
+          <div class="item-detail__top">
+            <ItemImage image={item.image} name={item.name} size={132} />
+            <div>
+              <h1 style="margin:0 0 8px; font-size:1.5rem;">{item.name}</h1>
+              <div class="item-detail__badges">
+                {item.rarity && <span class={rarityBadgeClass(item.rarity)}>{item.rarity}</span>}
+                <span class="badge badge--muted">{CATEGORY_LABELS[item.category]}</span>
+                {item.progressionStage && <span class={progressionStageBadgeClass(item.progressionStage)}>{PROGRESSION_STAGE_LABELS[item.progressionStage]}</span>}
+                {item.tradable ? <span class="badge badge--grass">Tradeable</span> : <span class="badge badge--muted">No tradeable</span>}
+                {item.craftable && <span class="badge">Crafteable</span>}
+              </div>
+              {!item.image && <p class="item-detail__pending">Imagen pendiente de arte propio - se actualizará más adelante.</p>}
+            </div>
+          </div>
+
+          <dl class="item-detail__facts">
+            <div>
+              <dt>Qué es</dt>
+              <dd>{item.description}</dd>
+            </div>
+            <div>
+              <dt>Cómo se consigue</dt>
+              <dd>{item.obtainedFrom}</dd>
+            </div>
+            <div>
+              <dt>Para qué sirve</dt>
+              <dd>{item.usedFor}</dd>
+            </div>
+            {item.requirements && (
+              <div>
+                <dt>Requisitos</dt>
+                <dd>{item.requirements}</dd>
+              </div>
+            )}
+            {item.relatedGuideSection && (
+              <div>
+                <dt>Sistema</dt>
+                <dd><a href={item.relatedGuideSection}>Ver en la Guía →</a></dd>
+              </div>
+            )}
+          </dl>
+        </div>
+
+        {chain.length > 2 && (
+          <div class="card" style="margin-top:20px; overflow-x:auto;">
+            <h2 style="font-size:1.15rem; margin-top:0;">Cadena de progresión</h2>
+            <ProgressionChain nodes={chain} />
+            <p class="item-detail__pending" style="margin-top:14px;">
+              ¿Quieres ver todas las cadenas del servidor de un vistazo? Visita el <a href="/guia/objetos">Atlas de Objetos</a>.
+            </p>
+          </div>
+        )}
+
+        {recipe && (
+          <div class="card" style="margin-top:20px;">
+            <h2 style="font-size:1.15rem; margin-top:0;">Receta</h2>
+            {recipe.requirement && <p class="item-detail__pending" style="margin-top:-6px;">Requisito: {recipe.requirement}</p>}
+            <RecipeGrid recipe={recipe} />
+          </div>
+        )}
+
+        {usedInRecipes.length > 0 && (
+          <div class="card" style="margin-top:20px;">
+            <h2 style="font-size:1.15rem; margin-top:0;">Se usa para craftear</h2>
+            <ul class="item-detail__uses">
+              {usedInRecipes.map((r) => r && (
+                <li><a href={`/guia/items/${r.outputSlug}`}>{r.outputName}</a></li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {related.length > 0 && (
+          <div style="margin-top:24px;">
+            <h2 style="font-size:1.15rem;">Relacionado</h2>
+            <div class="item-grid">
+              {related.map((r) => <ItemCard item={r} />)}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .item-detail__top {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .item-detail__badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .item-detail__pending {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 8px 0 0;
+  }
+  .item-detail__facts {
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .item-detail__facts dt {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    color: var(--gold-ink);
+    margin-bottom: 3px;
+  }
+  .item-detail__facts dd {
+    margin: 0;
+    color: var(--text);
+  }
+  .item-detail__facts a {
+    color: var(--cyan-ink);
+    font-weight: 600;
+  }
+  .item-detail__uses {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .item-detail__uses a {
+    color: var(--cyan-ink);
+    font-weight: 600;
+  }
+  .item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-top: 10px;
+  }
+</style>

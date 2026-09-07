@@ -1,0 +1,65 @@
+---
+import type { Product } from "@shared/catalog-schema";
+
+interface Props {
+  product: Product;
+}
+const { product } = Astro.props;
+const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + " €";
+---
+
+<a class="card product-card" href={`/tienda/${product.slug}`}>
+  {product.devOnly && <span class="badge badge--muted product-card__dev">DEV</span>}
+  <div class="product-card__icon">
+    {/* alt="" deliberado (WCAG): el icono es puramente redundante con el <h3> inmediatamente debajo - un alt real duplicaría el anuncio en un lector de pantalla ("Rango Mecenas... Rango Mecenas"). */}
+    <img src={product.icon} alt="" width="64" height="64" />
+  </div>
+  <h3 style="font-size:1.02rem; text-align:center;">{product.name}</h3>
+  <p style="font-size:0.88rem; min-height:2.6em; text-align:center;">{product.description}</p>
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; padding-top:10px;">
+    <span class="badge badge--gold">{priceLabel}</span>
+    <span class="product-card__cta">Ver detalles →</span>
+  </div>
+</a>
+
+<style>
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    text-align: center;
+  }
+  .product-card__dev {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+  }
+  .product-card__icon {
+    width: 84px;
+    height: 84px;
+    margin: 4px auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.24), transparent 70%);
+    border: 1px solid rgba(212, 175, 55, 0.28);
+  }
+  .product-card__icon img {
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.2));
+  }
+  .product-card__cta {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--cyan);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition:
+      opacity 0.18s var(--ease),
+      transform 0.18s var(--ease);
+  }
+  .product-card:hover .product-card__cta {
+    opacity: 1;
+    transform: translateX(0);
+  }
+</style>

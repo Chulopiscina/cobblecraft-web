@@ -1,0 +1,45 @@
+---
+/**
+ * Widget de estado (ONLINE/OFFLINE/jugadores X/Y) - ver src/lib/server-status.ts para la
+ * interfaz real. Sin `data-status-endpoint`, el widget se renderiza como "Estado no disponible"
+ * y NUNCA hace ninguna petición de red (comportamiento por defecto seguro en DEV/PROD hasta que
+ * exista un endpoint real configurado).
+ */
+interface Props {
+  statusEndpoint?: string;
+}
+const { statusEndpoint } = Astro.props;
+---
+
+<span
+  class="status-pill"
+  id="server-status-widget"
+  data-status-endpoint={statusEndpoint ?? ""}
+>
+  <span class="status-dot status-dot--unknown" id="server-status-dot"></span>
+  <span id="server-status-text">Estado no disponible</span>
+</span>
+
+<script>
+  const widget = document.getElementById("server-status-widget");
+  const dot = document.getElementById("server-status-dot");
+  const text = document.getElementById("server-status-text");
+  const endpoint = widget?.getAttribute("data-status-endpoint");
+
+  if (widget && dot && text && endpoint) {
+    fetch(`${endpoint}/api/server/status`, { signal: AbortSignal.timeout(4000) })
+      .then((res) => (res.ok ? res.json() : { state: "disabled" }))
+      .then((data: { state: string; playersOnline?: number; maxPlayers?: number }) => {
+        if (data.state === "online") {
+          dot.className = "status-dot status-dot--online";
+          text.textContent = `Online · ${data.playersOnline}/${data.maxPlayers} jugadores`;
+        } else if (data.state === "offline") {
+          dot.className = "status-dot status-dot--offline";
+          text.textContent = "Offline";
+        }
+      })
+      .catch(() => {
+        /* se queda en "Estado no disponible" - nunca lanza un error visible al jugador */
+      });
+  }
+</script>

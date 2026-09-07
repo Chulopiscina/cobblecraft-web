@@ -1,0 +1,151 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import WorldBackdrop from "../../components/WorldBackdrop.astro";
+import Icon from "../../components/Icon.astro";
+import { categories } from "../../data/guide/categories";
+---
+
+<BaseLayout title="Guía" description="Guía visual de CobbleCraft: Investigaciones, ítems, recetas, accesorios, cofres, Slayer, Liga y todos los sistemas reales del servidor.">
+  <PageHero eyebrow="Guía CobbleCraft" title="TODO SOBRE COBBLECRAFT" subtitle="Ítems, recetas y sistemas reales del servidor - explicados de forma visual." compact={false}>
+    <div class="hero__actions" style="margin-top:8px;">
+      <a href="/guia/objetos" class="btn btn-primary btn-lg">
+        <Icon name="coleccion" size={18} />
+        Ver Atlas de Objetos
+      </a>
+      <a href="/guia/items" class="btn btn-secondary btn-lg">
+        <Icon name="material" size={18} />
+        Ver catálogo de ítems
+      </a>
+      <a href="#buscar" class="btn btn-secondary btn-lg">Buscar en la Guía</a>
+    </div>
+  </PageHero>
+
+  <WorldBackdrop>
+    <section class="section" id="buscar">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <h2>Buscar en la Guía</h2>
+          <p>Ítems, recetas, sistemas, accesorios y cofres - todo en un único buscador.</p>
+        </div>
+        <div class="guide-search">
+          <input type="search" id="guide-search-input" placeholder="Ej. Escama, Gengar, Anzuelo, Llave, Maestría..." aria-label="Buscar en la Guía" />
+          <ul id="guide-search-results" class="guide-search__results" hidden></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <h2>Categorías</h2>
+          <p>Elige un sistema para ver todo lo real que hay dentro.</p>
+        </div>
+        <div class="guide-grid">
+          {categories.map((c) => (
+            <a href={c.href} class="card guide-category-card">
+              <div class="icon-tile icon-tile--cyan"><Icon name={c.icon as any} /></div>
+              <h3>{c.title}</h3>
+              <p>{c.description}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<script>
+  import { searchGuide } from "../../lib/guide-search";
+
+  const input = document.getElementById("guide-search-input") as HTMLInputElement | null;
+  const results = document.getElementById("guide-search-results") as HTMLUListElement | null;
+
+  input?.addEventListener("input", () => {
+    const q = input.value.trim();
+    if (!results) return;
+    if (q.length < 2) {
+      results.hidden = true;
+      results.innerHTML = "";
+      return;
+    }
+    const hits = searchGuide(q).slice(0, 10);
+    results.innerHTML = hits
+      .map(
+        (h) =>
+          `<li><a href="${h.href}"><span class="guide-search__kind">${h.kind}</span>${h.label}</a></li>`
+      )
+      .join("");
+    results.hidden = hits.length === 0;
+  });
+</script>
+
+<style>
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+  }
+  .guide-category-card {
+    text-decoration: none;
+    color: inherit;
+  }
+  .guide-category-card h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .guide-category-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+  .guide-search {
+    max-width: 560px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .guide-search input {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    font-size: 1rem;
+  }
+  .guide-search input:focus-visible {
+    outline: 2px solid var(--gold);
+  }
+  .guide-search__results {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 6px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 30px rgba(20, 30, 10, 0.12);
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .guide-search__results a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.92rem;
+  }
+  .guide-search__results a:hover {
+    background: var(--bg-soft);
+  }
+  .guide-search__kind {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--cyan-ink);
+    background: rgba(63, 224, 224, 0.15);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+</style>

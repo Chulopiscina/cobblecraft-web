@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "products": [
+    {
+      "productId": "rank_supporter_dev",
+      "slug": "rango-mecenas",
+      "name": "Rango Mecenas (DEV)",
+      "description": "Placeholder de desarrollo para un rango de apoyo cosmético (prefijo de chat, color de nombre). Nunca ventajas de combate/economía - producto NO publicado en producción.",
+      "category": "rangos",
+      "icon": "/images/store/rank_crown.svg",
+      "priceCents": 500,
+      "currency": "EUR",
+      "active": true,
+      "devOnly": true,
+      "delivery": { "type": "RANK", "rankId": "supporter_dev" },
+      "limits": { "maxPerPlayer": 1 },
+      "metadata": { "nota": "rankId placeholder, requiere grupo real en LuckPerms antes de producción" }
+    },
+    {
+      "productId": "cosmetic_particle_trail_dev",
+      "slug": "estela-cristal",
+      "name": "Estela de Cristal (DEV)",
+      "description": "Placeholder de desarrollo para un cosmético del Skin System (sin efecto en estadísticas). Producto NO publicado en producción - el Skin System aún no tiene skins reales listas.",
+      "category": "cosmeticos",
+      "icon": "/images/store/cosmetic_crystal.svg",
+      "priceCents": 300,
+      "currency": "EUR",
+      "active": true,
+      "devOnly": true,
+      "delivery": { "type": "COSMETIC", "customItemId": "progression:enchant/mining_fortune_1" },
+      "limits": { "maxPerPlayer": null },
+      "metadata": { "nota": "customItemId es un item REAL ya existente, reutilizado solo para poder probar la entrega de extremo a extremo en DEV" }
+    },
+    {
+      "productId": "item_test_book_dev",
+      "slug": "libro-de-prueba",
+      "name": "Libro de Prueba (DEV)",
+      "description": "Producto de desarrollo para validar la entrega de Custom Items reales (identidad verificada, nunca un vanilla renombrado). Producto NO publicado en producción.",
+      "category": "items",
+      "icon": "/images/store/item_mining_fortune.png",
+      "priceCents": 150,
+      "currency": "EUR",
+      "active": true,
+      "devOnly": true,
+      "delivery": { "type": "CUSTOM_ITEM", "customItemId": "progression:enchant/mining_fortune_1", "amount": 1 },
+      "limits": { "maxPerPlayer": 5 },
+      "metadata": {}
+    },
+    {
+      "productId": "bundle_test_dev",
+      "slug": "pack-de-prueba",
+      "name": "Pack de Prueba (DEV)",
+      "description": "Producto de desarrollo para validar una entrega combinada (BUNDLE: rango + item en una sola compra). Producto NO publicado en producción.",
+      "category": "otros",
+      "icon": "/images/store/rank_crown.svg",
+      "priceCents": 700,
+      "currency": "EUR",
+      "active": true,
+      "devOnly": true,
+      "delivery": {
+        "type": "BUNDLE",
+        "bundle": [
+          { "type": "RANK", "rankId": "supporter_dev" },
+          { "type": "CUSTOM_ITEM", "customItemId": "progression:enchant/mining_fortune_1", "amount": 1 }
+        ]
+      },
+      "limits": { "maxPerPlayer": 1 },
+      "metadata": {}
+    },
+    {
+      "productId": "item_disabled_dev",
+      "slug": "producto-desactivado",
+      "name": "Producto Desactivado (DEV)",
+      "description": "Producto de desarrollo deliberadamente inactivo - usado para probar que la Tienda y la API nunca muestran ni aceptan pedidos de productos con active=false.",
+      "category": "items",
+      "icon": "/images/store/item_capture_luck.png",
+      "priceCents": 100,
+      "currency": "EUR",
+      "active": false,
+      "devOnly": true,
+      "delivery": { "type": "CUSTOM_ITEM", "customItemId": "progression:enchant/capture_luck_1", "amount": 1 },
+      "limits": { "maxPerPlayer": null },
+      "metadata": {}
+    }
+  ]
+}

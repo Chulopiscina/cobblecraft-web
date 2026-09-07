@@ -1,0 +1,89 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Icon from "../../components/Icon.astro";
+import PageHero from "../../components/PageHero.astro";
+---
+
+<BaseLayout title="Política de reembolsos" description="Cuándo se puede solicitar un reembolso.">
+  <PageHero eyebrow="Legal" title="POLÍTICA DE REEMBOLSOS" />
+
+  <section class="section section--tight">
+    <div class="container" style="max-width:680px; text-align:left;">
+      <div class="notice notice--error">
+        <strong>PLANTILLA - REQUIERE REVISIÓN HUMANA ANTES DE PRODUCCIÓN.</strong>
+        Este texto es un borrador de partida, no asesoría legal. Antes de publicar la Tienda con
+        pagos reales, un humano debe revisarlo contra la ley de consumidores aplicable y la propia
+        política de reembolsos/disputas del proveedor de pago elegido.
+      </div>
+
+      <div class="legal-content">
+        <h2>1. Contenido digital y derecho de desistimiento</h2>
+        <p>
+          Los productos de la Tienda son contenido digital de entrega inmediata dentro del servidor.
+          Al confirmar una compra, aceptas que la entrega comience de inmediato tras el pago, lo que
+          en muchas jurisdicciones limita el derecho de desistimiento habitual de otras compras online.
+        </p>
+
+        <h2>2. Errores de entrega</h2>
+        <p>
+          Si tu pedido queda marcado como pagado pero no se entrega en el servidor en un plazo
+          razonable, contáctanos indicando el identificador de tu pedido (visible en la página de
+          estado tras la compra) - investigaremos y, si el error es nuestro, completaremos la entrega
+          o procesaremos un reembolso.
+        </p>
+
+        <h2>3. Nombre de usuario incorrecto</h2>
+        <p>
+          Si compraste indicando un nombre de usuario de Minecraft equivocado, contáctanos lo antes
+          posible - no podemos garantizar poder revertir una entrega ya realizada a la cuenta
+          incorrecta.
+        </p>
+
+        <h2>4. Nunca vendemos ventajas de juego</h2>
+        <p>
+          Como no vendemos productos que afecten al equilibrio del juego (ver nuestra postura en la
+          <a href="/tienda">Tienda</a>), no se conceden reembolsos por "arrepentimiento" tras usar un
+          producto ya entregado, salvo error real de nuestra parte.
+        </p>
+      </div>
+
+      <p class="legal-nav">
+        <Icon name="libro" size={16} />
+        <a href="/legal/terminos">Términos de uso</a>
+        <span aria-hidden="true">·</span>
+        <a href="/legal/privacidad">Política de privacidad</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal-content {
+    margin-top: 28px;
+  }
+  .legal-content h2 {
+    font-size: 1.05rem;
+    margin: 30px 0 10px;
+    padding-left: 14px;
+    border-left: 3px solid var(--gold);
+  }
+  .legal-content h2:first-child {
+    margin-top: 0;
+  }
+  .legal-content p {
+    margin: 0;
+  }
+  .legal-nav {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .legal-nav a {
+    font-weight: 600;
+  }
+</style>

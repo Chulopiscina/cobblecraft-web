@@ -1,0 +1,123 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import Icon from "../../../components/Icon.astro";
+import { researchHighlights, researchPokémonRoutes } from "../../../data/guide/research";
+---
+
+<BaseLayout title="Investigaciones Pokémon" description="Guía de Investigaciones Pokémon: Laboratorio, Fósiles, Cronista de Leyendas, Explorador de Anomalías y rutas especiales reales de CobbleCraft.">
+  <PageHero eyebrow="Guía CobbleCraft" title="INVESTIGACIONES Pokémon" subtitle="La ruta real para Pokémon especiales: NPCs, misiones, laboratorio, Fósiles y Anomalías." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Investigaciones Pokémon" }]} />
+
+        <div class="research-grid">
+          {researchHighlights.map((block) => (
+            <article class="card research-card">
+              <div class="research-card__head">
+                <div class="icon-tile icon-tile--cyan"><Icon name="cristal" /></div>
+                <div>
+                  <h2>{block.title}</h2>
+                  <p>{block.summary}</p>
+                </div>
+              </div>
+              <ul>
+                {block.details.map((detail) => <li>{detail}</li>)}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <h2>Rutas especiales</h2>
+          <p>Resumen de lo que esta disponible de verdad y lo que sigue reservado para mas adelante.</p>
+        </div>
+
+        <div class="route-table" role="table" aria-label="Rutas especiales de Investigaciones">
+          <div class="route-table__row route-table__row--head" role="row">
+            <span>Pokémon</span>
+            <span>Sistema</span>
+            <span>Estado</span>
+            <span>Ruta</span>
+          </div>
+          {researchPokémonRoutes.map((route) => (
+            <div class="route-table__row" role="row">
+              <strong>{route.name}</strong>
+              <span>{route.category}</span>
+              <span><span class={`badge ${route.status === "Disponible" ? "badge--grass" : "badge--muted"}`}>{route.status}</span></span>
+              <span>{route.route}{route.requirements ? ` ${route.requirements}` : ""}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .research-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .research-card__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .research-card h2 {
+    margin: 0 0 6px;
+    font-size: 1.08rem;
+  }
+  .research-card p {
+    margin: 0;
+  }
+  .research-card ul {
+    margin: 14px 0 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+  .route-table {
+    display: grid;
+    gap: 8px;
+  }
+  .route-table__row {
+    display: grid;
+    grid-template-columns: 150px 180px 120px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+  }
+  .route-table__row--head {
+    background: var(--bg-elevated);
+    color: var(--gold-ink);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+  }
+  @media (max-width: 760px) {
+    .route-table__row {
+      grid-template-columns: 1fr;
+    }
+    .route-table__row--head {
+      display: none;
+    }
+  }
+</style>
+

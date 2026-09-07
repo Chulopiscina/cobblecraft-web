@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHero from "../components/PageHero.astro";
+---
+
+<BaseLayout title="Página no encontrada">
+  <PageHero eyebrow="Error 404" title="RUTA NO ENCONTRADA" subtitle="Parece que este portal no lleva a ningún sitio. La página que buscas no existe.">
+    <div style="margin-top:8px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a class="btn btn-primary" href="/">Volver al inicio</a>
+      <a class="btn btn-secondary" href="/guia">Ir a la Guía</a>
+      <a class="btn btn-ghost" href="/tienda">Ir a la Tienda</a>
+    </div>
+  </PageHero>
+</BaseLayout>

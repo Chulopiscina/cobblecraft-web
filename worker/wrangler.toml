@@ -1,0 +1,43 @@
+# Web Oficial V1 - Cloudflare Worker (API de Tienda/Pedidos/Entrega Minecraft).
+#
+# IMPORTANTE: este archivo NUNCA debe contener secrets reales. Todo lo sensible
+# (STORE_SERVER_TOKEN, TEBEX_PUBLIC_TOKEN, TEBEX_WEBHOOK_SECRET) se configura con
+# `wrangler secret put <NOMBRE>` en el entorno real, o en `.dev.vars` (gitignored) en local -
+# ver web/docs/CLOUDFLARE_DEPLOY.md.
+
+name = "cobblemon-server-store"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Variables NO sensibles (seguras para versionar) - fijan el entorno real en tiempo de ejecucion.
+[vars]
+ENVIRONMENT = "development"
+PAYMENT_PROVIDER = "mock"
+CORS_ALLOWED_ORIGIN = "https://cobblemon-server-site.pages.dev"
+CLAIM_TIMEOUT_SECONDS = "120"
+# /vote V2 (2026-09-06) - UN VOTO POR DIA DE COBBLECRAFT, ventana GLOBAL diaria (NUNCA rolling
+# 24h) - ver web/worker/src/lib/vote-period.ts. Worker y progression_core (vote-config.properties)
+# DEBEN usar el MISMO timezone/hora de reset - si se cambian aqui, cambiar tambien alla.
+VOTE_TIMEZONE = "Europe/Madrid"
+VOTE_RESET_HOUR = "0"
+VOTE_RESET_MINUTE = "0"
+
+# D1 - "database_id" es un PLACEHOLDER hasta crear la base de datos real con
+# `wrangler d1 create cobblemon_store` (ver CLOUDFLARE_DEPLOY.md). En local, wrangler usa
+# automaticamente una D1 local (SQLite en .wrangler/state) sin necesitar este ID real.
+[[d1_databases]]
+binding = "DB"
+database_name = "cobblemon_store"
+database_id = "e4d37921-f9a1-427d-8b17-c8772d24f5ac"
+migrations_dir = "migrations"
+
+# ---- Entorno de produccion real (activar explicitamente al desplegar, nunca por defecto) ----
+[env.production]
+vars = { ENVIRONMENT = "production", PAYMENT_PROVIDER = "tebex", CORS_ALLOWED_ORIGIN = "https://REQUIERE-DOMINIO-REAL", CLAIM_TIMEOUT_SECONDS = "120", VOTE_TIMEZONE = "Europe/Madrid", VOTE_RESET_HOUR = "0", VOTE_RESET_MINUTE = "0" }
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "cobblemon_store"
+database_id = "e4d37921-f9a1-427d-8b17-c8772d24f5ac"
+migrations_dir = "migrations"

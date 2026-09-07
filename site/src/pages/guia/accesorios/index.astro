@@ -1,0 +1,234 @@
+---
+/**
+ * Accesorios V3 (2026-09-06) - "27 accesorios = 27 espacios de la Bolsa", una META DE COLECCIÓN
+ * explícita: ya no es "elige cuáles llevar", es "consíguelos todos". Divide el catálogo en las 4
+ * etapas reales (`progressionStage` de items.ts, verificado contra `AccessoryStage` de
+ * `AccessoryItemCatalog.kt`/`CatchingProgressionItemCatalog.kt`): Early Game, Mid Game, Late
+ * Game, Hyper Late Game. Todo dato (efecto/receta/obtención) viene de items.ts/recipes.ts - esta
+ * página no declara ningún valor propio, solo agrupa y presenta.
+ */
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import ItemImage from "../../../components/ItemImage.astro";
+import RecipeGrid from "../../../components/RecipeGrid.astro";
+import { itemsByCategory } from "../../../data/guide/items";
+import { getRecipe } from "../../../data/guide/recipes";
+import { rarityBadgeClass, PROGRESSION_STAGE_LABELS, PROGRESSION_STAGE_ORDER } from "../../../lib/guide-helpers";
+import type { ProgressionStage } from "../../../data/guide/types";
+
+const accessories = itemsByCategory("accesorios");
+
+const STAGE_INTRO: Record<ProgressionStage, string> = {
+  early: "Los primeros que vas a craftear - materiales vanilla básicos y niveles de habilidad bajos (5-10).",
+  mid: "Requieren tu primer Slayer T1/T2 o Combate nivel 15-20 - ya has salido del Hub y estás jugando en serio.",
+  late: "Materiales de Liga y Netherite - equipo de jugador avanzado, Combate/Slayer nivel 20-25.",
+  hyper_late: "El tramo final de la colección: combina varios sistemas del servidor a la vez y exige niveles altos (30+) en más de una habilidad.",
+};
+
+const sections = PROGRESSION_STAGE_ORDER.map((stage) => ({
+  stage,
+  label: PROGRESSION_STAGE_LABELS[stage],
+  intro: STAGE_INTRO[stage],
+  items: accessories.filter((a) => a.progressionStage === stage),
+}));
+
+const total = accessories.length;
+---
+
+<BaseLayout title="Accesorios" description="Guía de Accesorios de CobbleCraft: 27 accesorios reales, 27 espacios en la Bolsa. Colecciónalos todos - cada uno con un pequeño bonus permanente.">
+  <PageHero eyebrow="Guía CobbleCraft" title="27 ACCESORIOS · 27 ESPACIOS" subtitle="Colecciónalos todos. Cada uno da una mejora pequeña; todos los que tengas en la Bolsa funcionan a la vez." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Accesorios" }]} />
+
+        <div class="card collection-card">
+          <div class="collection-card__text">
+            <h2 style="margin-top:0; font-size:1.15rem;">Colecciónalos todos</h2>
+            <ul class="accessory-rules">
+              <li>La Bolsa de Accesorios tiene <strong>27 espacios</strong> - y hay exactamente <strong>27 accesorios reales</strong> en el servidor. El objetivo es tenerlos <strong>todos</strong> guardados en ella a la vez.</li>
+              <li>Cada accesorio da un <strong>micro-bonus individual</strong> pequeño. No hay que "elegir cuáles llevar": <strong>todo accesorio distinto que tengas dentro de la Bolsa aplica su efecto automáticamente</strong>, sin equipar ni activar nada.</li>
+              <li>Tener varias copias del <strong>mismo</strong> accesorio no multiplica su bonus - el efecto no se acumula, solo cuenta una vez por accesorio distinto.</li>
+              <li>Completar la colección (27/27) da una mejora acumulada notable en todos los sistemas del servidor a la vez, sin sustituir nunca a Maestría, Slayer Gear o Liga - es un plus por encima, nunca un atajo.</li>
+              <li>Cada accesorio pertenece a una etapa de progresión real: <strong>Early Game</strong>, <strong>Mid Game</strong>, <strong>Late Game</strong> o <strong>Hyper Late Game</strong> - cuanto más avanzada, más difícil (o más sistemas combina) su receta.</li>
+            </ul>
+          </div>
+          <div class="collection-progress" aria-hidden="true">
+            <span class="collection-progress__label">Colección total (ilustrativo)</span>
+            <div class="collection-progress__bar"><div class="collection-progress__fill" style="width:0%"></div></div>
+            <span class="collection-progress__count">0 / {total}</span>
+            <span class="collection-progress__note">Esta web no está conectada a tu cuenta - es solo un ejemplo de cómo se vería tu progreso real en el juego.</span>
+          </div>
+        </div>
+
+        {sections.map((section) => (
+          <section class="stage-section" id={section.stage}>
+            <div class="stage-section__head">
+              <h2>{section.label.toUpperCase()}</h2>
+              <span class="badge badge--muted">{section.items.length} accesorios</span>
+            </div>
+            <p class="stage-section__intro">{section.intro}</p>
+            <div class="accessory-grid">
+              {section.items.map((item) => {
+                const recipe = item.producedByRecipe ? getRecipe(item.producedByRecipe) : undefined;
+                return (
+                  <div class="card accessory-card">
+                    <div class="accessory-card__head">
+                      <ItemImage image={item.image} name={item.name} size={64} icon="accesorio" />
+                      <div>
+                        <h3><a href={`/guia/items/${item.slug}`}>{item.name}</a></h3>
+                        <div class="accessory-card__badges">
+                          {item.rarity && <span class={rarityBadgeClass(item.rarity)}>{item.rarity}</span>}
+                          {item.requirements && <span class="badge badge--muted">{item.requirements}</span>}
+                        </div>
+                      </div>
+                    </div>
+                    <p class="accessory-card__effect">{item.description}</p>
+                    <p class="accessory-card__obtain"><strong>Obtención:</strong> {item.obtainedFrom}</p>
+                    {recipe && (
+                      <details class="accessory-card__recipe">
+                        <summary>Ver receta completa</summary>
+                        <RecipeGrid recipe={recipe} />
+                      </details>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .collection-card {
+    margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 24px;
+    align-items: start;
+  }
+  .accessory-rules {
+    margin: 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 8px;
+  }
+  .collection-progress {
+    display: grid;
+    gap: 6px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    align-self: stretch;
+  }
+  .collection-progress__label {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    color: var(--gold-ink);
+  }
+  .collection-progress__bar {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .collection-progress__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan-ink), var(--gold-ink));
+    border-radius: 999px;
+  }
+  .collection-progress__count {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .collection-progress__note {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .stage-section {
+    margin-top: 34px;
+  }
+  .stage-section__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .stage-section__head h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--gold-ink);
+    letter-spacing: 0.02em;
+  }
+  .stage-section__intro {
+    color: var(--text-muted);
+    margin: 6px 0 16px;
+    max-width: 70ch;
+  }
+  .accessory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+  }
+  .accessory-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .accessory-card__head {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .accessory-card__head h3 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+  }
+  .accessory-card__head h3 a {
+    color: var(--text);
+  }
+  .accessory-card__head h3 a:hover {
+    color: var(--cyan-ink);
+  }
+  .accessory-card__badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .accessory-card__effect {
+    margin: 0;
+    font-size: 0.88rem;
+  }
+  .accessory-card__obtain {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  .accessory-card__recipe {
+    margin-top: 4px;
+    border-top: 1px solid var(--border-soft);
+    padding-top: 8px;
+  }
+  .accessory-card__recipe summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.84rem;
+    color: var(--cyan-ink);
+  }
+  @media (max-width: 760px) {
+    .collection-card {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

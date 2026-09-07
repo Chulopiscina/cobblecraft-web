@@ -1,0 +1,147 @@
+---
+/**
+ * Visualización de una receta real como grid de crafteo 3x3 + resultado (pedido explícito,
+ * sección 6). Los ingredientes REALES de `SlayerGearRecipeConfig.kt` no llevan una posición de
+ * slot concreta (son `crafting_shapeless` - cualquier hueco vale) - aquí se reparten en orden de
+ * forma compacta y centrada, nunca inventando una posición "oficial" que no existe. Cada
+ * ingrediente con ficha propia (`itemSlug`) es clicable.
+ */
+import type { GuideRecipe } from "../data/guide/types";
+import { getItem } from "../data/guide/items";
+import ItemImage from "./ItemImage.astro";
+import Icon from "./Icon.astro";
+
+interface Props {
+  recipe: GuideRecipe;
+}
+const { recipe } = Astro.props;
+
+// Expande cada ingrediente en N celdas (una por unidad, hasta 9 en total) - mismo criterio real
+// que el crafteo de Minecraft (una unidad = un hueco del grid 3x3).
+const cells: { label: string; itemSlug: string | null }[] = [];
+for (const ing of recipe.ingredients) {
+  for (let i = 0; i < ing.amount; i++) cells.push({ label: ing.label, itemSlug: ing.itemSlug });
+}
+while (cells.length < 9) cells.push({ label: "", itemSlug: null });
+
+const outputItem = getItem(recipe.outputSlug);
+---
+
+<div class="recipe-grid">
+  <div class="recipe-grid__craft">
+    {cells.slice(0, 9).map((cell) => (
+      <div class="recipe-grid__cell">
+        {cell.label && (
+          cell.itemSlug ? (
+            <a href={`/guia/items/${cell.itemSlug}`} class="recipe-grid__ingredient" title={cell.label}>
+              <ItemImage image={getItem(cell.itemSlug)?.image ?? null} name={cell.label} size={40} />
+            </a>
+          ) : (
+            <div class="recipe-grid__ingredient recipe-grid__ingredient--plain" title={cell.label}>
+              <ItemImage image={null} name={cell.label} size={40} icon="material" />
+            </div>
+          )
+        )}
+      </div>
+    ))}
+  </div>
+  <div class="recipe-grid__arrow"><Icon name="flecha" size={28} style="transform:rotate(90deg);" /></div>
+  <div class="recipe-grid__result">
+    {outputItem ? (
+      <a href={`/guia/items/${recipe.outputSlug}`}>
+        <ItemImage image={outputItem.image} name={recipe.outputName} size={64} />
+      </a>
+    ) : (
+      <ItemImage image={null} name={recipe.outputName} size={64} />
+    )}
+    <strong>{recipe.outputName}{recipe.outputAmount > 1 ? ` x${recipe.outputAmount}` : ""}</strong>
+  </div>
+</div>
+
+<ul class="recipe-ingredient-list">
+  {recipe.ingredients.map((ing) => (
+    <li>
+      {ing.itemSlug ? <a href={`/guia/items/${ing.itemSlug}`}>{ing.label}</a> : <span>{ing.label}</span>}
+      <span class="recipe-ingredient-list__amount">x{ing.amount}</span>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .recipe-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 20px 0;
+  }
+  .recipe-grid__craft {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+  }
+  .recipe-grid__cell {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-soft);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .recipe-grid__ingredient {
+    display: block;
+    line-height: 0;
+  }
+  .recipe-grid__arrow {
+    color: var(--gold-ink);
+    flex-shrink: 0;
+  }
+  .recipe-grid__result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    max-width: 140px;
+  }
+  .recipe-ingredient-list {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .recipe-ingredient-list li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.84rem;
+  }
+  .recipe-ingredient-list a {
+    color: var(--cyan-ink);
+    font-weight: 600;
+  }
+  .recipe-ingredient-list__amount {
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+  @media (max-width: 560px) {
+    .recipe-grid__cell {
+      width: 38px;
+      height: 38px;
+    }
+  }
+</style>

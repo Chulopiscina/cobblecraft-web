@@ -1,0 +1,53 @@
+---
+import type { GuideItem } from "../data/guide/types";
+import ItemImage from "./ItemImage.astro";
+import { rarityBadgeClass, PROGRESSION_STAGE_LABELS, progressionStageBadgeClass } from "../lib/guide-helpers";
+
+interface Props {
+  item: GuideItem;
+}
+const { item } = Astro.props;
+---
+
+<a href={`/guia/items/${item.slug}`} class="card item-card" data-search={`${item.name} ${item.category} ${item.rarity ?? ""}`.toLowerCase()}>
+  <ItemImage image={item.image} name={item.name} size={72} />
+  <div class="item-card__body">
+    <h3>{item.name}</h3>
+    <div class="item-card__meta">
+      {item.rarity && <span class={rarityBadgeClass(item.rarity)}>{item.rarity}</span>}
+      {item.progressionStage && <span class={progressionStageBadgeClass(item.progressionStage)}>{PROGRESSION_STAGE_LABELS[item.progressionStage]}</span>}
+      {!item.tradable && <span class="badge badge--muted">No tradeable</span>}
+    </div>
+    <p class="item-card__desc">{item.description}</p>
+  </div>
+</a>
+
+<style>
+  .item-card {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    text-align: left;
+    text-decoration: none;
+    color: inherit;
+  }
+  .item-card__body h3 {
+    font-size: 1rem;
+    margin: 0 0 6px;
+  }
+  .item-card__meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .item-card__desc {
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

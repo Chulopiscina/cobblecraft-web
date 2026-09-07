@@ -1,0 +1,101 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Icon from "../../components/Icon.astro";
+import PageHero from "../../components/PageHero.astro";
+import { siteConfig } from "@shared/site.config";
+---
+
+<BaseLayout title="Política de privacidad" description="Qué datos tratamos y para qué.">
+  <PageHero eyebrow="Legal" title="POLÍTICA DE PRIVACIDAD" />
+
+  <section class="section section--tight">
+    <div class="container" style="max-width:680px; text-align:left;">
+      <div class="notice notice--error">
+        <strong>PLANTILLA - REQUIERE REVISIÓN HUMANA ANTES DE PRODUCCIÓN.</strong>
+        Este texto es un borrador de partida, no asesoría legal. Antes de publicar la Tienda con
+        pagos reales, un humano debe revisarlo contra el RGPD/normativa aplicable y la política de
+        datos del proveedor de pago elegido.
+      </div>
+
+      <div class="legal-content">
+        <h2>1. Qué datos tratamos</h2>
+        <ul>
+          <li>Tu nombre de usuario de Minecraft Java y tu UUID (identificador único de tu cuenta), para poder entregarte lo que compres.</li>
+          <li>Datos del pedido: producto, precio, estado y fechas (creado, pagado, entregado).</li>
+          <li>Si vinculas tu cuenta con el comando <code>/web link</code>: tu UUID real, confirmado desde dentro del juego.</li>
+        </ul>
+        <p style="margin-top:12px;">
+          <strong>Nunca</strong> almacenamos tu contraseña de Microsoft/Mojang, ni tus datos de pago
+          (número de tarjeta, CVV, etc.) - eso lo gestiona directamente el proveedor de pago mediante
+          una pasarela segura (checkout hospedado).
+        </p>
+
+        <h2>2. Para qué usamos estos datos</h2>
+        <p>Únicamente para procesar tu pedido y entregarlo en el servidor, y para poder ayudarte si hay un problema con una compra.</p>
+
+        <h2>3. Con quién compartimos datos</h2>
+        <p>
+          Con el proveedor de pago elegido (para procesar el cobro) y con la API pública de Mojang
+          (para verificar que el nombre de usuario que indicas corresponde a una cuenta Java real).
+          No vendemos datos a terceros.
+        </p>
+
+        <h2>4. Cookies y analíticas</h2>
+        <p>
+          Esta web no usa cookies de analítica ni de seguimiento en su versión V1. Si en el futuro se
+          introduce alguna cookie técnica esencial, se documentará aquí.
+        </p>
+
+        <h2>5. Contacto</h2>
+        <p>
+          {siteConfig.links.supportEmail
+            ? `Puedes escribirnos a ${siteConfig.links.supportEmail} para cualquier consulta sobre tus datos.`
+            : "Todavía no tenemos un canal de contacto público - se añadirá aquí cuando exista."}
+        </p>
+      </div>
+
+      <p class="legal-nav">
+        <Icon name="libro" size={16} />
+        <a href="/legal/terminos">Términos de uso</a>
+        <span aria-hidden="true">·</span>
+        <a href="/legal/reembolsos">Política de reembolsos</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal-content {
+    margin-top: 28px;
+  }
+  .legal-content h2 {
+    font-size: 1.05rem;
+    margin: 30px 0 10px;
+    padding-left: 14px;
+    border-left: 3px solid var(--gold);
+  }
+  .legal-content h2:first-child {
+    margin-top: 0;
+  }
+  .legal-content p,
+  .legal-content ul {
+    margin: 0;
+  }
+  .legal-content ul {
+    padding-left: 20px;
+    line-height: 1.8;
+  }
+  .legal-nav {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .legal-nav a {
+    font-weight: 600;
+  }
+</style>

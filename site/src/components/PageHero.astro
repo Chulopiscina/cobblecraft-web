@@ -1,0 +1,42 @@
+---
+/**
+ * Unificación visual (2026-09-05) - cabecera fotográfica reutilizable para CUALQUIER página que
+ * no sea la Home (antes cada una improvisaba su propia cabecera - `/vote` usaba `MeadowScene`,
+ * una ilustración SVG genérica, mientras que la Home ya usaba la foto real `hero-landscape.png`
+ * + `HeroPlaque` - pedido explícito: "quiero que toda la web parezca una única web"). Mismo
+ * `hero hero--photo` + `hero__scrim` + `HeroPlaque` que ya usa `index.astro`, en un modo
+ * `compact` (menos padding, sin logo/animación) pensado para cabeceras de página interior.
+ */
+import { Image } from "astro:assets";
+import HeroPlaque from "./HeroPlaque.astro";
+import heroLandscape from "../assets/images/hero-landscape.png";
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  compact?: boolean;
+}
+const { eyebrow, title, subtitle, compact = true } = Astro.props;
+---
+
+<section class={compact ? "hero hero--photo hero--compact" : "hero hero--photo"}>
+  <Image src={heroLandscape} alt="" class="hero__bg" widths={[640, 960, 1280, 1920]} sizes="100vw" loading="eager" fetchpriority="high" format="webp" quality={70} />
+  <div class="hero__scrim" aria-hidden="true"></div>
+  <div class="container">
+    <slot name="before" />
+    <HeroPlaque size={compact ? "sm" : "md"}>
+      {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+      <slot name="badge" />
+      <h1><span class="text-gradient-gold">{title}</span></h1>
+      {subtitle && <p style="font-size:1.05rem; max-width:560px; margin:10px auto 0; color:var(--text);">{subtitle}</p>}
+    </HeroPlaque>
+    <slot />
+  </div>
+</section>
+
+<style>
+  .hero--compact {
+    padding: 76px 0 56px;
+  }
+</style>

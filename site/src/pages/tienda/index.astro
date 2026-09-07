@@ -1,0 +1,127 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import Icon from "../../components/Icon.astro";
+import PageHero from "../../components/PageHero.astro";
+import { getVisibleProducts, getVisibleCategories, categoryLabels } from "../../lib/catalog";
+import type { IconName } from "../../lib/icons";
+import type { ProductCategory } from "@shared/catalog-schema";
+import { siteConfig } from "@shared/site.config";
+
+const products = getVisibleProducts();
+const categories = getVisibleCategories();
+
+const categoryIcons: Record<ProductCategory, IconName> = {
+  rangos: "medalla",
+  kits: "coleccion",
+  ventajas: "check",
+  cosmeticos: "cristal",
+  items: "material",
+  otros: "coleccion",
+};
+
+const plannedCategories = [
+  { icon: "medalla", title: "Rangos", description: "Grupos de apoyo con beneficios definidos y sin ventaja competitiva." },
+  { icon: "coleccion", title: "Kits", description: "Contenido periódico controlado, con límites y cooldowns claros si se activa." },
+  { icon: "check", title: "Ventajas", description: "Comodidad y utilidades permitidas, siempre revisadas para evitar pay-to-win." },
+  { icon: "cristal", title: "Cosméticos", description: "Aspecto, títulos o efectos visuales sin impacto en combate, economía o progresión." },
+  { icon: "material", title: "Otros productos", description: "Solo añadiremos productos con entrega clara, reversible/auditable y permitida." },
+] as const;
+---
+
+<BaseLayout title="Tienda" description="Tienda preparada para futuros rangos y cosméticos de CobbleCraft, sin cobros reales habilitados todavía.">
+  <PageHero eyebrow="Preparada para más adelante" title="TIENDA" subtitle="Estructura lista para futuros rangos, cosméticos o formas de apoyo. Todavía no hay cobros reales ni productos definitivos." />
+
+  {products.length === 0 && (
+    <div class="container section">
+      <div class="empty-state store-coming-soon">
+        <Icon name="tienda" size={44} />
+        <h2>Próximamente</h2>
+        <p>
+          La tienda visual de CobbleCraft ya está preparada para integrarse con Tebex, pero todavía
+          no hay productos reales, precios ni pagos habilitados.
+        </p>
+        <div class="hero__actions">
+          {siteConfig.links.discord && (
+            <a class="btn btn-primary" href={siteConfig.links.discord} target="_blank" rel="noopener noreferrer">
+              Discord oficial
+            </a>
+          )}
+          <a class="btn btn-ghost" href="/guia">Ver guía</a>
+        </div>
+      </div>
+    </div>
+  )}
+
+  <section class="section section--tight section--alt">
+    <div class="container">
+      <div class="section-head" style="max-width:760px;">
+        <span class="eyebrow">Preparada para Tebex</span>
+        <h2>Estructura lista, pagos apagados</h2>
+        <p>
+          Cuando existan productos reales configurados podremos mostrar nombre, descripción, precio,
+          beneficios, duración, categoría y botón de compra. La identificación será por usuario de
+          Minecraft Java y la entrega se confirmará por webhook firmado.
+        </p>
+      </div>
+      <div class="grid grid--4">
+        {plannedCategories.map((category) => (
+          <div class="card">
+            <div class="icon-tile"><Icon name={category.icon} /></div>
+            <h3>{category.title}</h3>
+            <p>{category.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {categories.map((cat, i) => (
+    <>
+      <section class={`section section--tight ${i % 2 === 1 ? "section--alt" : ""}`}>
+        <div class="container">
+          <div class="section-head" style="display:flex; align-items:center; gap:14px; margin-bottom:24px;">
+            <div class="icon-tile" style="margin:0;"><Icon name={categoryIcons[cat]} /></div>
+            <h2 style="margin:0; font-size:1.4rem;">{categoryLabels[cat]}</h2>
+          </div>
+          <div class="grid grid--4">
+            {products.filter((p) => p.category === cat).map((p) => <ProductCard product={p} />)}
+          </div>
+        </div>
+      </section>
+    </>
+  ))}
+
+  <div class="divider"><span class="divider__glyph"></span></div>
+
+  <section class="section" style="text-align:center;">
+    <div class="container" style="max-width:720px;">
+      <div class="icon-tile icon-tile--cyan" style="margin-left:auto; margin-right:auto;">
+        <Icon name="escudo" />
+      </div>
+      <h2>Nuestra postura: nunca pay-to-win</h2>
+      <p>
+        No vendemos ni venderemos objetos que den ventaja directa en combate, economía o
+        progresión (más daño, más dinero gratis, saltarte una Skill). Todo lo que aparece o
+        aparecerá aquí es cosmético, de conveniencia o de apoyo al proyecto. Los productos
+        marcados <span class="badge badge--muted">DEV</span> son de desarrollo/pruebas y nunca
+        están disponibles en producción.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .store-coming-soon {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .store-coming-soon h2 {
+    margin-top: 14px;
+  }
+  .store-coming-soon p {
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+</style>

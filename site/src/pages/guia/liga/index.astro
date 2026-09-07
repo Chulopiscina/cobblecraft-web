@@ -1,0 +1,100 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import Icon from "../../../components/Icon.astro";
+import { leagueTrainers } from "../../../data/guide/league";
+---
+
+<BaseLayout title="Liga Pokémon" description="Los 5 entrenadores reales de la Liga Pokémon de CobbleCraft, de Nv.120 a Nv.160 - contenido endgame repetible.">
+  <PageHero eyebrow="Guía CobbleCraft" title="LIGA POKÉMON" subtitle="5 entrenadores reales, de Nv.120 a Nv.160." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Liga Pokémon" }]} />
+
+        <div class="card" style="margin-bottom:26px;">
+          <p style="margin:0;">
+            La Liga es contenido endgame <strong>repetible</strong>: cada entrenador se puede volver a
+            retar, y cada victoria vuelve a pagar en dinero y en su token. Las composiciones de equipo de
+            cada entrenador no se revelan aquí a propósito.
+          </p>
+        </div>
+
+        <div class="trainer-list">
+          {leagueTrainers.map((t) => (
+            <div class="card trainer-card" id={t.id}>
+              <div class="trainer-card__head">
+                <div class="icon-tile icon-tile--purple"><Icon name="medalla" /></div>
+                <div>
+                  <h2>{t.name}</h2>
+                  <p class="trainer-card__meta">Tipo {t.type} · Nivel {t.level}</p>
+                </div>
+                {t.repeatable && <span class="badge">Repetible</span>}
+              </div>
+              <div class="trainer-card__stats">
+                <div><span>Recompensa en dinero</span><strong>{t.rewardMoney}</strong></div>
+                <div>
+                  <span>Token</span>
+                  <strong><a href={`/guia/items/${t.tokenSlug}`}>{t.tokenName}</a></strong>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .trainer-list {
+    display: grid;
+    gap: 16px;
+  }
+  .trainer-card__head {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .trainer-card__head h2 {
+    margin: 0 0 4px;
+    font-size: 1.15rem;
+  }
+  .trainer-card__meta {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+  .trainer-card__head .badge {
+    margin-left: auto;
+  }
+  .trainer-card__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .trainer-card__stats div {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .trainer-card__stats span {
+    display: block;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  .trainer-card__stats strong {
+    font-size: 1.02rem;
+  }
+  .trainer-card__stats a {
+    color: var(--cyan-ink);
+  }
+</style>

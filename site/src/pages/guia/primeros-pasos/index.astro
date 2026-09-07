@@ -1,0 +1,78 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+
+const steps = [
+  {
+    title: "Survival + Pokémon",
+    description: "Explora el mundo, atrapa Pokémon y monta tu primera base. Protégela con una Roca de Protección del Topógrafo en cuanto puedas.",
+    href: "/guia/claims",
+    linkLabel: "Ver Claims",
+  },
+  {
+    title: "Skills",
+    description: "Sube tus 8 Skills jugando de forma natural (Pesca, Minería, Combate, Agricultura, Tala y Recolección, Captura, Cría, Cazador). Cada una desbloquea equipo y accesorios propios.",
+    href: "/guia/skills",
+    linkLabel: "Ver Skills",
+  },
+  {
+    title: "Pesca",
+    description: "La Pesca especial del Hub te da dinero desde el minuto uno, además de materiales propios que alimentan Accesorios y Maestría.",
+    href: "/guia/pesca",
+    linkLabel: "Ver Pesca",
+  },
+  {
+    title: "Cacerías Slayer",
+    description: "Cuando estés listo, enfréntate a los 4 tiers de Jefes por dinero, materiales y equipo de progresión.",
+    href: "/guia/slayer",
+    linkLabel: "Ver Slayer",
+  },
+  {
+    title: "Liga Pokémon",
+    description: "Reta a los 5 entrenadores de la Liga - contenido endgame repetible, cada victoria vuelve a pagar.",
+    href: "/guia/liga",
+    linkLabel: "Ver Liga",
+  },
+  {
+    title: "Maestría",
+    description: "Combina lo que consigas en Slayer, Pesca y Liga en el equipo endgame definitivo del servidor - la meta a largo plazo.",
+    href: "/guia/maestria",
+    linkLabel: "Ver Maestría",
+  },
+];
+---
+
+<BaseLayout title="Primeros Pasos" description="Por dónde empezar en CobbleCraft, paso a paso - una ruta orientativa por los sistemas reales del servidor.">
+  <PageHero eyebrow="Guía CobbleCraft" title="PRIMEROS PASOS" subtitle="Por dónde empezar en CobbleCraft, paso a paso." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container" style="max-width:760px;">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Primeros Pasos" }]} />
+
+        <div class="card" style="margin-bottom:26px;">
+          <p style="margin:0;">
+            Una ruta orientativa, no obligatoria - juega en el orden que más te apetezca. Todo lo que
+            aparece aquí es un sistema real del servidor, con su propia página de la Guía si quieres
+            profundizar.
+          </p>
+        </div>
+
+        <div class="steps">
+          {steps.map((s, i) => (
+            <div class="step">
+              <div class="step__num">{i + 1}</div>
+              <div>
+                <div class="step__title">{s.title}</div>
+                <p style="margin:4px 0 10px;">{s.description}</p>
+                <a href={s.href}>{s.linkLabel} →</a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>

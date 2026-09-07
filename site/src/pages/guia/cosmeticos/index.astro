@@ -1,0 +1,245 @@
+---
+/**
+ * Cosméticos V1/V2/V3 (2026-09-06/07/11) - página preparada SOLO tras cerrar el backend real
+ * (PlayerCosmeticService/PlayerCosmeticRegistry/AchievementTitleService/
+ * PlayerArmorSkinSyncService/PokemonSkinService). Regla central de todo el sistema: 0 bonus de
+ * combate/economía/progresión - esta página lo repite explícitamente, nunca insinúa lo contrario.
+ * NUNCA se listan los cosméticos placeholder deshabilitados (mismo criterio que la GUI in-game -
+ * "no afirmar visualmente que existe algo sin arte real").
+ *
+ * V3 (2026-09-11, "reglas definitivas") - modelo de propiedad DISTINTO por tipo:
+ * - Skins Pokémon: OBJETO FÍSICO comerciable (nunca un desbloqueo de cuenta) - se consume al
+ *   aplicarse a UN Pokémon concreto; un Extractor reutilizable lo devuelve.
+ * - Skins de Armadura: desbloqueo de CUENTA vía Vale físico, equipable desde el menú - el
+ *   propietario puede "Preparar para vender" para recuperar el Vale, perdiendo el desbloqueo.
+ * - Títulos: account-bound, NUNCA comerciables.
+ */
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import Icon from "../../../components/Icon.astro";
+
+const pokemonSkins = [
+  { id: "skin_pilot_gengar_spectral", name: "Skin Pokémon: Gengar Espectral", species: "Gengar", rarityBadge: "badge", rarityLabel: "Rara", obtainedFrom: "Cofre de Cosméticos, comerciable en el Mercado." },
+];
+
+const pokemonSkinsComingSoon = ["Garchomp Obsidiana", "Gyarados Abisal", "Scizor Filo Carmesí", "Pikachu Voltaico"];
+
+const armorSkins = [
+  { id: "cosmetics_crate_skin_1", name: "Armadura del Explorador", rarityBadge: "badge", rarityLabel: "Rara", trim: "Cobre · patrón Costilla", obtainedFrom: "Vale de Skin - Cofre de Cosméticos." },
+  { id: "cosmetics_crate_skin_2", name: "Armadura Ígnea", rarityBadge: "badge", rarityLabel: "Rara", trim: "Redstone · patrón Flujo", obtainedFrom: "Vale de Skin - Cofre de Cosméticos." },
+  { id: "cosmetics_crate_epic_skin_1", name: "Armadura Arcana", rarityBadge: "badge badge--purple", rarityLabel: "Épica", trim: "Amatista · patrón Ojo", obtainedFrom: "Vale de Skin - Cofre de Cosméticos." },
+  { id: "vote_crate_skin_1", name: "Armadura Abisal", rarityBadge: "badge badge--purple", rarityLabel: "Épica", trim: "Netherite · patrón Marea", obtainedFrom: "Vale de Skin - Cofre de Voto." },
+  { id: "epic_crate_skin_1", name: "Armadura Real de Diamante", rarityBadge: "badge badge--gold", rarityLabel: "Legendaria", trim: "Diamante · patrón Aguja", obtainedFrom: "Vale de Skin - Cofre Épico." },
+  { id: "armor_skin_centinela", name: "Armadura del Centinela", rarityBadge: "badge", rarityLabel: "Rara", trim: "Oro · patrón Centinela", obtainedFrom: "Vale de Skin: Centinela - se craftea (3x Papel, 2x Lingote de Oro, 1x Saco de Tinta Luminosa) y es tradeable en el Mercado." },
+  { id: "armor_skin_espectral", name: "Armadura Espectral", rarityBadge: "badge badge--purple", rarityLabel: "Épica", trim: "Cuarzo · patrón Silencio", obtainedFrom: "Vale de Skin: Espectral - se craftea (3x Papel, 3x Cuarzo, 1x Saco de Tinta Luminosa) y es tradeable en el Mercado." },
+];
+
+const titles = [
+  { id: "title_pionero", name: "Pionero", rarityBadge: "badge", rarityLabel: "Rara", kind: "comerciable" as const, obtainedFrom: "Vale de Título: Pionero - craftea (3x Papel, 4x Pepita de Oro, 1x Saco de Tinta Luminosa) y tradeable en el Mercado." },
+  { id: "title_coleccionista", name: "Coleccionista", rarityBadge: "badge badge--grass", rarityLabel: "Poco Común", kind: "comerciable" as const, obtainedFrom: "Recompensa del Cofre de Cosméticos - directa, sin vale." },
+  { id: "title_cazador", name: "Cazador", rarityBadge: "badge badge--grass", rarityLabel: "Poco Común", kind: "logro" as const, obtainedFrom: "Logro: derrota a tu primer Jefe de Cacería Slayer (cualquier Tier)." },
+  { id: "title_verdugo_draconico", name: "Verdugo Dracónico", rarityBadge: "badge badge--purple", rarityLabel: "Épica", kind: "logro" as const, obtainedFrom: "Logro: derrota al Jefe de Cacería Slayer Tier IV." },
+  { id: "title_campeon_liga", name: "Campeón", rarityBadge: "badge badge--purple", rarityLabel: "Épica", kind: "logro" as const, obtainedFrom: "Logro: derrota a los 5 entrenadores reales de la Liga Pokémon." },
+  { id: "title_completista", name: "Completista", rarityBadge: "badge badge--purple", rarityLabel: "Épica", kind: "logro" as const, obtainedFrom: "Logro: descubre los 27/27 Accesorios reales del servidor." },
+  { id: "title_naturalista", name: "Naturalista", rarityBadge: "badge", rarityLabel: "Rara", kind: "logro" as const, obtainedFrom: "Logro: captura 50 especies distintas de Pokémon." },
+  { id: "title_simpatizante", name: "Simpatizante", rarityBadge: "badge badge--grass", rarityLabel: "Poco Común", kind: "logro" as const, obtainedFrom: "Logro: vota por CobbleCraft (/vote) - próxima Beta." },
+];
+
+const futureTypes = [
+  { icon: "accesorio", name: "Cosmético de Jugador", note: "Insignias/emblemas coleccionables sin efecto en el mundo." },
+  { icon: "material", name: "Skin de Objeto", note: "Reskin visual de un ítem concreto, mismo funcionamiento." },
+  { icon: "cristal", name: "Efecto de Partículas", note: "Un efecto ambiental puramente decorativo." },
+];
+---
+
+<BaseLayout title="Cosméticos" description="Guía de Cosméticos de CobbleCraft: Skins de Pokémon, Skins de Armadura y Títulos, colección puramente visual, sin ninguna ventaja de combate, economía o progresión.">
+  <PageHero eyebrow="Guía CobbleCraft" title="COSMÉTICOS" subtitle="Skins de Pokémon, Skins de Armadura y Títulos - 100% visual. Nunca dan ventaja de combate, economía o progresión." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Cosméticos" }]} />
+
+        <div class="card intro-card">
+          <h2 style="margin-top:0;">Cero ventaja, 100% colección</h2>
+          <ul class="intro-rules">
+            <li>Un cosmético <strong>nunca</strong> mejora tus estadísticas, tu economía ni tu progresión.</li>
+            <li><strong>Skins de Pokémon</strong>: son un <strong>objeto físico</strong> - "Skin Pokémon: X". Al usarlo sobre un Pokémon compatible, cambia su aspecto (nunca especie, stats, IVs, EVs, naturaleza, habilidad, ataques, nivel ni si es shiny) y el objeto se consume. Un <strong>Extractor de Skin Pokémon</strong> (reutilizable, nunca se gasta) retira la skin y te devuelve el objeto - puedes volver a usarlo en otro Pokémon o venderlo. Un Pokémon con skin puesta <strong>no se puede listar en el Mercado</strong> hasta que le retires la skin - así nunca se regala una skin al vender.</li>
+            <li><strong>Skins de Armadura</strong>: se desbloquean con un <strong>Vale</strong> a nivel de cuenta (permanente) - equipar/quitar es libre e instantáneo desde el menú Cosméticos, sin gastar nada más. Puedes "<strong>Preparar para vender</strong>" una skin ya desbloqueada para recuperar su Vale, perdiendo el desbloqueo hasta que vuelvas a usarlo.</li>
+            <li><strong>Títulos</strong>: account-bound (o vale craftable la primera vez) y <strong>nunca comerciables</strong> una vez desbloqueados - no existe forma de "deshacer" un título en un vale.</li>
+            <li>Una Skin de Armadura cambia la apariencia de <strong>cualquier armadura que lleves puesta</strong> (Maestría, Slayer Gear o vanilla) - mismos stats, mismos encantamientos, mismos requisitos. Solo cambia cómo se ve.</li>
+            <li>Se gestionan desde el menú <strong>Cosméticos</strong> (menú principal del servidor) para Armor Skins/Títulos; las Skins de Pokémon se aplican con clic derecho sobre el objeto. Todo aparece contado en <strong>Colecciones → Cosméticos</strong>.</li>
+            <li>Solo puedes llevar <strong>una</strong> Skin de Armadura y <strong>un</strong> Título a la vez - equipar uno nuevo del mismo tipo reemplaza al anterior.</li>
+            <li>Si ya tienes un Título/Armor Skin desbloqueado, el Cofre de Cosméticos nunca te da una segunda copia inútil - vuelve a tirar entre el resto de recompensas. Las Skins de Pokémon son objetos normales: puedes tener varias copias.</li>
+          </ul>
+        </div>
+
+        <h2 class="section-title">Skins de Pokémon</h2>
+        <p class="section-intro">
+          Objeto físico comerciable - se consume al aplicarse a UN Pokémon compatible concreto.
+          1 skin real disponible hoy - más en camino, ver "Próximamente".
+        </p>
+        <div class="cosmetic-grid">
+          {pokemonSkins.map((s) => (
+            <div class="card cosmetic-card">
+              <div class="cosmetic-card__head">
+                <div class="icon-tile icon-tile--gold"><Icon name="captura" /></div>
+                <div>
+                  <h3>{s.name}</h3>
+                  <div class="cosmetic-card__badges">
+                    <span class={s.rarityBadge}>{s.rarityLabel}</span>
+                    <span class="badge badge--muted">Objeto físico</span>
+                  </div>
+                </div>
+              </div>
+              <p class="cosmetic-card__effect"><strong>Especie compatible:</strong> {s.species}</p>
+              <p class="cosmetic-card__obtain"><strong>Obtención:</strong> {s.obtainedFrom}</p>
+            </div>
+          ))}
+        </div>
+
+        <h2 class="section-title">Skins de Armadura</h2>
+        <p class="section-intro">
+          Trim vanilla real de Minecraft (visible en cualquier cliente, sin mod adicional) aplicado
+          a cualquier pieza de armadura que lleves puesta. 7 skins reales disponibles hoy - todas
+          se desbloquean con un Vale físico y pueden "Prepararse para vender" de vuelta.
+        </p>
+        <div class="cosmetic-grid">
+          {armorSkins.map((s) => (
+            <div class="card cosmetic-card">
+              <div class="cosmetic-card__head">
+                <div class="icon-tile icon-tile--cyan"><Icon name="escudo" /></div>
+                <div>
+                  <h3>{s.name}</h3>
+                  <div class="cosmetic-card__badges">
+                    <span class={s.rarityBadge}>{s.rarityLabel}</span>
+                    <span class="badge badge--muted">Vale → desbloqueo</span>
+                  </div>
+                </div>
+              </div>
+              <p class="cosmetic-card__effect"><strong>Trim:</strong> {s.trim}</p>
+              <p class="cosmetic-card__obtain"><strong>Obtención:</strong> {s.obtainedFrom}</p>
+            </div>
+          ))}
+        </div>
+
+        <h2 class="section-title">Títulos</h2>
+        <div class="cosmetic-grid">
+          {titles.map((t) => (
+            <div class="card cosmetic-card">
+              <div class="cosmetic-card__head">
+                <div class="icon-tile icon-tile--purple"><Icon name="cosmetico" /></div>
+                <div>
+                  <h3>{t.name}</h3>
+                  <div class="cosmetic-card__badges">
+                    <span class={t.rarityBadge}>{t.rarityLabel}</span>
+                    <span class={t.kind === "logro" ? "badge badge--gold" : "badge badge--muted"}>{t.kind === "logro" ? "Logro" : "Comerciable"}</span>
+                  </div>
+                </div>
+              </div>
+              <p class="cosmetic-card__effect">Prefijo visible en tab list y nombre. Sin ningún otro efecto.</p>
+              <p class="cosmetic-card__obtain"><strong>Obtención:</strong> {t.obtainedFrom}</p>
+            </div>
+          ))}
+        </div>
+
+        <h2 class="section-title">Próximamente</h2>
+        <p class="future-intro">
+          La arquitectura ya soporta estos tipos de extremo a extremo (desbloqueo, persistencia,
+          Colecciones, menú), pero <strong>todavía no existe ningún arte real</strong> para ellos -
+          por eso no se listan como cosméticos concretos todavía.
+        </p>
+        <p class="future-intro">
+          Más Skins de Pokémon en camino (arte pendiente, arquitectura ya lista):{" "}
+          {pokemonSkinsComingSoon.join(" · ")}.
+        </p>
+        <div class="future-grid">
+          {futureTypes.map((t) => (
+            <div class="card future-card">
+              <div class="icon-tile"><Icon name={t.icon as any} /></div>
+              <div>
+                <h3>{t.name}</h3>
+                <p>{t.note}</p>
+                <span class="badge badge--muted">Arte pendiente</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .intro-card {
+    margin-bottom: 30px;
+  }
+  .intro-rules {
+    margin: 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 8px;
+  }
+  .section-title {
+    font-size: 1.2rem;
+    color: var(--gold-ink);
+    letter-spacing: 0.02em;
+    margin: 30px 0 6px;
+  }
+  .section-intro {
+    color: var(--text-muted);
+    max-width: 70ch;
+    margin: 0 0 14px;
+  }
+  .cosmetic-grid,
+  .future-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .cosmetic-card__head {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .cosmetic-card__head h3 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+  }
+  .cosmetic-card__badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .cosmetic-card__effect {
+    margin: 0 0 8px;
+    font-size: 0.88rem;
+  }
+  .cosmetic-card__obtain {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  .future-intro {
+    color: var(--text-muted);
+    max-width: 70ch;
+    margin: 0 0 16px;
+  }
+  .future-card {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .future-card h3 {
+    margin: 0 0 4px;
+    font-size: 0.98rem;
+  }
+  .future-card p {
+    margin: 0 0 8px;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+  }
+</style>

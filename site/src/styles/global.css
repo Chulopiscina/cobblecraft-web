@@ -1,0 +1,1228 @@
+/* Rediseño visual V3 - pradera Minecraft + acento "criatura de colección" sobre un fondo mucho
+   más claro y colorido (pedido explícito: reducir muchísimo el negro/fondos oscuros del V2).
+   Colores de marca EXACTOS (dorado/cyan) tomados de web/shared/site.config.ts - el resto de la
+   paleta (pradera/cielo/morado) es nueva, puramente de presentación. Cada color de marca tiene
+   una variante "-ink" más oscura para texto/iconos sobre fondo claro (el tono brillante original
+   se reserva para fondos, bordes y glows, nunca para texto de cuerpo - por contraste). Tipografía
+   sin cambios: Orbitron (display/voxel), Baloo 2 (acento puntual), Inter (cuerpo). */
+
+:root {
+  --bg: #f6fbf1;
+  --bg-elevated: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fbfff4;
+  --bg-soft: #eef6e4;
+  --border: #dbe9cd;
+  --border-soft: #e8f1de;
+  --text: #21301c;
+  --text-muted: #5c6b53;
+
+  --gold: #d4af37;
+  --gold-soft: #f0c860;
+  --gold-ink: #8a6d1f;
+  --cyan: #3fe0e0;
+  --cyan-soft: #7ff0f0;
+  --cyan-ink: #0f7d7d;
+  --purple: #9b7fe6;
+  --purple-soft: #c6b4f5;
+  --purple-ink: #6a4bc4;
+
+  --grass: #58b04a;
+  --grass-light: #93de75;
+  --grass-dark: #2f7a2c;
+  --sky: #5fb8ef;
+  --sky-soft: #cdeeff;
+  --sky-ink: #1f6fa8;
+  --dirt: #8b6239;
+  --dirt-dark: #6b4a29;
+  --sand: #e3c78f;
+
+  /* Marco tipo "cartel de madera" (rediseño V4, solo para el panel de título del hero) - tono
+     propio, nunca una textura de madera copiada, solo una gama de marrón cálido para bordes. */
+  --plank: #b98a52;
+  --plank-dark: #7c5a34;
+  --plank-light: #ecd9b3;
+
+  --danger: #c94040;
+  --danger-bg: #fbe4e2;
+  --success: #2f9e52;
+  --success-bg: #e4f6e6;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --max-width: 1160px;
+
+  --font-display: "Orbitron", "Rajdhani", system-ui, sans-serif;
+  --font-accent: "Baloo 2", system-ui, sans-serif;
+  --font-body:
+    "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --shadow-soft: 0 10px 28px -14px rgba(40, 70, 25, 0.28);
+  --shadow-gold: 0 10px 24px -6px rgba(212, 175, 55, 0.45);
+  --shadow-cyan: 0 10px 24px -6px rgba(63, 224, 224, 0.4);
+  --shadow-grass: 0 10px 24px -6px rgba(47, 122, 44, 0.35);
+  --shadow-purple: 0 10px 24px -6px rgba(155, 127, 230, 0.35);
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Enlace "saltar al contenido" - invisible hasta recibir foco por teclado. */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 12px;
+  z-index: 100;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--shadow-soft);
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Textura de fondo MUY sutil (grid fino verde, nunca una imagen pesada) - puro CSS. */
+body {
+  margin: 0;
+  background:
+    linear-gradient(rgba(47, 122, 44, 0.035) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(90deg, rgba(47, 122, 44, 0.035) 1px, transparent 1px) 0 0 / 48px 48px,
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--cyan-ink);
+  text-decoration: none;
+  transition: color 0.15s var(--ease);
+}
+a:hover {
+  color: var(--grass-dark);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+h1 {
+  font-size: clamp(2.1rem, 5.4vw, 3.6rem);
+  letter-spacing: 0.005em;
+}
+h2 {
+  font-size: clamp(1.5rem, 3.4vw, 2.15rem);
+}
+h3 {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+p {
+  margin: 0 0 1em;
+  color: var(--text-muted);
+}
+
+/* Palabra/frase de acento puntual - Baloo 2, SOLO para callouts cortos, nunca párrafos. */
+.accent-word {
+  font-family: var(--font-accent);
+  font-weight: 700;
+  color: var(--grass-dark);
+}
+
+.text-gradient-gold {
+  background: linear-gradient(120deg, var(--gold-ink), var(--gold) 60%, var(--gold-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-gradient-cyan {
+  background: linear-gradient(120deg, var(--cyan-ink), var(--cyan) 65%, var(--cyan-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-gradient-grass {
+  background: linear-gradient(120deg, var(--grass-dark), var(--grass) 65%, var(--grass-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--grass-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+}
+.eyebrow::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--grass));
+}
+
+.section {
+  padding: 76px 0;
+  position: relative;
+}
+.section--alt {
+  background: var(--bg-soft);
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+.section--tight {
+  padding: 44px 0;
+}
+
+.section-head {
+  max-width: 640px;
+  margin-bottom: 32px;
+}
+.section-head--center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+/* ---- Divisor decorativo (cristal de energía sobre línea, puro CSS) ---- */
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0 auto;
+  max-width: 220px;
+  opacity: 0.85;
+}
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border));
+}
+.divider::after {
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+.divider__glyph {
+  width: 9px;
+  height: 9px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, var(--grass), var(--gold));
+  box-shadow: 0 0 10px rgba(88, 176, 74, 0.4);
+  flex: none;
+}
+
+/* ---- Botones ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  border: 1px solid transparent;
+  cursor: pointer;
+  position: relative;
+  transition:
+    transform 0.18s var(--ease),
+    box-shadow 0.18s var(--ease),
+    background 0.18s var(--ease),
+    border-color 0.18s var(--ease);
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+.btn:active {
+  transform: translateY(0);
+}
+.btn .icon {
+  width: 18px;
+  height: 18px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+  color: #241c07;
+  box-shadow: var(--shadow-gold);
+}
+.btn-primary:hover {
+  box-shadow:
+    0 14px 30px -8px rgba(212, 175, 55, 0.55),
+    0 0 0 3px rgba(245, 215, 122, 0.3);
+  color: #241c07;
+}
+.btn-secondary {
+  background: linear-gradient(135deg, var(--grass-light), var(--grass));
+  color: #10280d;
+  box-shadow: var(--shadow-grass);
+}
+.btn-secondary:hover {
+  box-shadow:
+    0 14px 30px -8px rgba(47, 122, 44, 0.5),
+    0 0 0 3px rgba(147, 222, 117, 0.35);
+  color: #10280d;
+}
+.btn-ghost {
+  background: #fff;
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-ghost:hover {
+  border-color: var(--grass);
+  color: var(--grass-dark);
+  box-shadow: var(--shadow-soft);
+}
+.btn[disabled],
+.btn.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+.btn-block {
+  width: 100%;
+  justify-content: center;
+}
+.btn-lg {
+  padding: 17px 34px;
+  font-size: 1.02rem;
+}
+
+/* ---- Tarjetas ---- */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+  transition:
+    border-color 0.2s var(--ease),
+    transform 0.2s var(--ease),
+    box-shadow 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+.card:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+  background: var(--bg-card-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 34px -14px rgba(40, 70, 25, 0.32);
+}
+
+/* Panel con esquinas "voxel" (corte de gema/bloque, sutil - nunca pixel-art literal). Uso
+   reservado a bloques destacados (hero cards, CTA), no en toda la web. */
+.panel-notch {
+  clip-path: polygon(
+    14px 0,
+    100% 0,
+    100% calc(100% - 14px),
+    calc(100% - 14px) 100%,
+    0 100%,
+    0 14px
+  );
+  position: relative;
+}
+.panel-notch::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  clip-path: inherit;
+  background: linear-gradient(135deg, var(--gold), var(--grass) 55%, var(--cyan));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+}
+.grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid--4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+@media (max-width: 900px) {
+  .grid--3,
+  .grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 560px) {
+  .grid--3,
+  .grid--4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(63, 224, 224, 0.2);
+  color: var(--cyan-ink);
+  border: 1px solid rgba(63, 224, 224, 0.4);
+}
+.badge--gold {
+  background: rgba(212, 175, 55, 0.22);
+  color: var(--gold-ink);
+  border-color: rgba(212, 175, 55, 0.45);
+}
+.badge--purple {
+  background: rgba(155, 127, 230, 0.2);
+  color: var(--purple-ink);
+  border-color: rgba(155, 127, 230, 0.4);
+}
+.badge--grass {
+  background: rgba(88, 176, 74, 0.2);
+  color: var(--grass-dark);
+  border-color: rgba(88, 176, 74, 0.4);
+}
+.badge--muted {
+  background: rgba(92, 107, 83, 0.1);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+/* Guía CobbleCraft (2026-09-05) - 6a variante para representar la rareza "Mítica" (la Guía
+   necesita 6 tonos distintos - Común/Poco Común/Rara/Épica/Legendaria/Mítica - reutiliza
+   `--sky`, ya definido para el cielo del hero pero sin variante de badge propia todavía). */
+.badge--sky {
+  background: rgba(95, 184, 239, 0.2);
+  color: var(--sky-ink);
+  border-color: rgba(95, 184, 239, 0.45);
+}
+
+/* ---- Icono decorativo (tile) - usado en FeatureCard y bloques temáticos ---- */
+.icon-tile {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.28), rgba(88, 176, 74, 0.16));
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  color: var(--gold-ink);
+  transition:
+    box-shadow 0.2s var(--ease),
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+.icon-tile .icon {
+  width: 24px;
+  height: 24px;
+}
+.card:hover .icon-tile {
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.16);
+  border-color: var(--gold);
+}
+.icon-tile--cyan {
+  color: var(--cyan-ink);
+  background: linear-gradient(135deg, rgba(63, 224, 224, 0.3), rgba(155, 127, 230, 0.16));
+  border-color: rgba(63, 224, 224, 0.45);
+}
+.card:hover .icon-tile--cyan {
+  box-shadow: 0 0 0 4px rgba(63, 224, 224, 0.18);
+  border-color: var(--cyan);
+}
+.icon-tile--grass {
+  color: var(--grass-dark);
+  background: linear-gradient(135deg, rgba(88, 176, 74, 0.32), rgba(212, 175, 55, 0.16));
+  border-color: rgba(88, 176, 74, 0.45);
+}
+.card:hover .icon-tile--grass {
+  box-shadow: 0 0 0 4px rgba(88, 176, 74, 0.18);
+  border-color: var(--grass);
+}
+.icon-tile--purple {
+  color: var(--purple-ink);
+  background: linear-gradient(135deg, rgba(155, 127, 230, 0.32), rgba(63, 224, 224, 0.14));
+  border-color: rgba(155, 127, 230, 0.45);
+}
+.card:hover .icon-tile--purple {
+  box-shadow: 0 0 0 4px rgba(155, 127, 230, 0.18);
+  border-color: var(--purple);
+}
+
+/* ---- Orbe de captura (motivo decorativo propio, INSPIRADO en el gesto de "captura" de los
+   juegos de monstruos coleccionables - círculo partido con banda central - nunca los colores ni
+   el diseño exacto de ninguna Poké Ball real). Se usa en numeración de pasos y como viñeta. ---- */
+.orb {
+  --orb-top: var(--gold);
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--text);
+  background: linear-gradient(
+    to bottom,
+    var(--orb-top) 0%,
+    var(--orb-top) 46%,
+    var(--text) 46%,
+    var(--text) 54%,
+    #fff 54%,
+    #fff 100%
+  );
+  box-shadow: var(--shadow-soft);
+}
+.orb--sky {
+  --orb-top: var(--sky);
+}
+.orb--grass {
+  --orb-top: var(--grass);
+}
+.orb--purple {
+  --orb-top: var(--purple);
+}
+.orb--sm {
+  width: 12px;
+  height: 12px;
+  border-width: 1.5px;
+}
+
+/* ---- Header / nav ---- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-soft);
+}
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+.brand img {
+  width: 34px;
+  height: 34px;
+  filter: drop-shadow(0 2px 6px rgba(212, 175, 55, 0.4));
+}
+.nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.nav a {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  border-radius: 999px;
+  transition:
+    color 0.15s var(--ease),
+    background 0.15s var(--ease);
+}
+.nav a:hover {
+  color: var(--gold-ink);
+  background: rgba(212, 175, 55, 0.1);
+}
+.nav a[aria-current="page"] {
+  color: var(--gold-ink);
+  background: rgba(212, 175, 55, 0.16);
+}
+.nav-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 8px 10px;
+  cursor: pointer;
+}
+@media (max-width: 760px) {
+  .nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 20px 20px;
+    display: none;
+    gap: 6px;
+    box-shadow: var(--shadow-soft);
+  }
+  .nav a {
+    padding: 12px 14px;
+  }
+  .nav.is-open {
+    display: flex;
+  }
+  .nav-toggle {
+    display: inline-flex;
+  }
+}
+
+/* ---- Footer ---- */
+.site-footer {
+  border-top: 1px solid var(--border-soft);
+  padding: 48px 0 36px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  background: var(--bg-soft);
+}
+.site-footer a {
+  color: var(--text-muted);
+}
+.site-footer a:hover {
+  color: var(--grass-dark);
+}
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+.footer-links a {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+.footer-links a:hover {
+  border-color: var(--grass);
+}
+.site-footer__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-bottom: 28px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+/* ---- Placa de título del hero (rediseño V4) - panel tipo "cartel" para integrar mejor el
+   título/subtítulo dentro de la escena, con un marco cálido inspirado en madera (nunca una
+   textura de madera copiada, solo un degradado propio + esquinas en corte voxel). Vidrio
+   esmerilado claro por debajo para que el texto siga siendo perfectamente legible sobre
+   cualquier parte de la escena. ---- */
+.hero-plaque {
+  position: relative;
+  margin: 0 auto;
+  max-width: 620px;
+  padding: 34px 40px;
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(10px);
+  border: 3px solid var(--plank-dark);
+  border-radius: 20px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.6),
+    0 20px 40px -20px rgba(50, 36, 16, 0.4);
+  clip-path: polygon(
+    20px 0,
+    calc(100% - 20px) 0,
+    100% 20px,
+    100% calc(100% - 20px),
+    calc(100% - 20px) 100%,
+    20px 100%,
+    0 calc(100% - 20px),
+    0 20px
+  );
+}
+/* Defensa contra `clip-path` cortando texto: una palabra larga que no cabe en el ancho del panel
+   se desborda por defecto en CSS en vez de partirse - como el panel usa clip-path (que recorta
+   TODO lo que se pinte fuera de su polígono, incluido contenido desbordado), esa palabra
+   desbordada quedaba literalmente cortada a la mitad (bug real encontrado: "ENCONTRADA" del 404
+   se veía como "ENCONTRAD"). break-word garantiza que esto no vuelva a pasar en ningún texto que
+   se ponga dentro de la placa, sin tener que ajustar a mano el ancho para cada título. */
+.hero-plaque h1,
+.hero-plaque p {
+  overflow-wrap: break-word;
+}
+.hero-plaque::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  clip-path: inherit;
+  border: 1px solid var(--plank-light);
+  pointer-events: none;
+}
+.hero-plaque--sm {
+  max-width: 460px;
+  padding: 26px 32px;
+}
+/* h1 más contenido dentro de la placa compacta: `clamp()` con unidades vw escala con el ANCHO DEL
+   VIEWPORT, no con el ancho (mucho más estrecho) del panel que lo contiene - a 1440px de viewport
+   el h1 general sigue tocando su tope de 3.6rem igual que en un hero sin placa, y una sola
+   palabra de ~10 letras (p.ej. "ENCONTRADA", "PRIVACIDAD") no cabe en los ~380px útiles de este
+   panel a ese tamaño (bug real visto en el navegador: rompía la palabra a media letra con
+   overflow-wrap). Tamaño fijo más pequeño en vez de vw, pensado para el ancho real del panel. */
+.hero-plaque--sm h1 {
+  font-size: clamp(1.5rem, 4.4vw, 2.3rem);
+}
+/* Bug real visto en el navegador (viewport móvil, 375px): "COBBLECRAFT" (11 letras, fuente
+   display ancha) no cabe en el ancho útil del panel al tamaño base del h1 (clamp con suelo
+   2.1rem) y se parte a media palabra ("COBBLECRA/FT") pese al `overflow-wrap: break-word` de
+   arriba (ese solo evita el corte LITERAL de una letra, no un salto de línea feo). Mismo criterio
+   que `.hero-plaque--sm h1`: bajar el suelo del clamp en viewports estrechos para que el nombre
+   del servidor quepa en una sola línea. */
+@media (max-width: 480px) {
+  .hero-plaque:not(.hero-plaque--sm) h1 {
+    font-size: clamp(1.3rem, 7.2vw, 1.75rem);
+  }
+}
+.hero-plaque__bolt {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--plank);
+  border: 1px solid var(--plank-dark);
+}
+.hero-plaque__bolt--tl {
+  top: 12px;
+  left: 12px;
+}
+.hero-plaque__bolt--tr {
+  top: 12px;
+  right: 12px;
+}
+.hero-plaque__bolt--bl {
+  bottom: 12px;
+  left: 12px;
+}
+.hero-plaque__bolt--br {
+  bottom: 12px;
+  right: 12px;
+}
+
+/* ---- Hero (fondo de pradera vía <MeadowScene>, ver components/MeadowScene.astro) ---- */
+.hero {
+  position: relative;
+  padding: 108px 0 80px;
+  text-align: center;
+  overflow: hidden;
+}
+.hero__ring {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  translate: -50% 0;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  border: 1px solid rgba(63, 224, 224, 0.25);
+  z-index: -1;
+  pointer-events: none;
+}
+.hero__ring::before {
+  content: "";
+  position: absolute;
+  inset: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+}
+.hero__logo {
+  width: 108px;
+  height: 108px;
+  margin: 0 auto 22px;
+  filter: drop-shadow(0 6px 18px rgba(212, 175, 55, 0.45));
+  animation: float-soft 6s ease-in-out infinite;
+}
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.hero__actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-soft);
+}
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.status-dot--online {
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+}
+.status-dot--offline {
+  background: var(--danger);
+}
+.status-dot--unknown {
+  background: #9aa596;
+}
+
+/* ---- Stat destacado (número grande, uso puntual en Home) ---- */
+.stat {
+  text-align: center;
+}
+.stat__value {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  color: var(--gold-ink);
+  line-height: 1;
+}
+.stat__label {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ---- Pasos numerados (timeline con marcador tipo "orbe de captura") ---- */
+.steps {
+  counter-reset: step;
+  display: grid;
+  gap: 0;
+  position: relative;
+}
+.step {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  position: relative;
+  padding-bottom: 30px;
+}
+.step:last-child {
+  padding-bottom: 0;
+}
+.step::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 40px;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, var(--border), transparent);
+}
+.step:last-child::before {
+  display: none;
+}
+.step__num {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(
+    to bottom,
+    var(--gold-soft) 0%,
+    var(--gold-soft) 46%,
+    var(--text) 46%,
+    var(--text) 54%,
+    #fff 54%,
+    #fff 100%
+  );
+  border: 2px solid var(--text);
+  color: var(--text);
+  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-soft);
+  z-index: 1;
+}
+.step__title {
+  font-weight: 800;
+  font-size: 1.02rem;
+}
+
+table.plain {
+  width: 100%;
+  border-collapse: collapse;
+}
+table.plain th,
+table.plain td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.92rem;
+}
+table.plain th {
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.notice {
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  background: rgba(212, 175, 55, 0.1);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+.notice strong {
+  color: var(--gold-ink);
+}
+.notice--error {
+  border-color: rgba(201, 64, 64, 0.4);
+  background: var(--danger-bg);
+  color: #7a2323;
+}
+.notice--success {
+  border-color: rgba(47, 158, 82, 0.4);
+  background: var(--success-bg);
+  color: #1f6b38;
+}
+
+/* ---- Formularios ---- */
+.field-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.input {
+  width: 100%;
+  padding: 13px 15px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: var(--font-body);
+  transition:
+    border-color 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
+}
+.input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(63, 224, 224, 0.2);
+  outline: none;
+}
+.input::placeholder {
+  color: #8a9581;
+}
+
+/* ---- Estados vacíos / carga ---- */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+}
+.spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--cyan-ink);
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* ---- Web CobbleCraft V1 (2026-09-04) - fondos fotográficos reales (hero horizontal + cuerpo
+   vertical, ambos capturas/arte reales de CobbleCraft), ahora usados en TODA la web vía
+   `PageHero`/`WorldBackdrop` (unificación visual 2026-09-05 - la antigua escena procedural
+   `MeadowScene` quedó sin ningún uso real y se eliminó). Overlay MÍNIMO a propósito (pedido
+   explícito: "no debe destruir la imagen") - la legibilidad del título la da la propia
+   <HeroPlaque> (vidrio esmerilado), no un velo oscuro sobre toda la foto. ---- */
+.hero--photo {
+  padding: 132px 0 96px;
+}
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 62%;
+  z-index: -2;
+}
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(15, 25, 10, 0.28) 0%, rgba(15, 25, 10, 0.06) 42%, var(--bg) 100%);
+}
+
+/* Envoltorio con la imagen vertical de fondo (real, "ambiente general" del mundo) detrás de las
+   secciones intermedias - `background-attachment: fixed` SOLO en desktop con movimiento permitido
+   (evita el conocido problema de rendimiento/compatibilidad de `fixed` en móvil). Degradados en
+   los bordes superior/inferior para fundirse sin cortes visibles con el hero y el resto de la
+   página - nunca `background-size: 100% 100%` (deformaría la imagen). */
+/* `background-attachment: fixed` NO se usa a propósito: con una imagen VERTICAL cubriendo un
+   envoltorio muy alto (varias secciones), "fixed" calcula `cover`/`position` contra el VIEWPORT
+   (no contra el elemento), así que el usuario vería siempre el mismo recorte fijo (el cielo)
+   durante todo el scroll en vez de recorrer la imagen - un bug real encontrado al verificar en
+   el navegador. Con adjunto normal (scroll), `cover` se calcula contra la altura REAL del
+   envoltorio y la imagen se estira una sola vez a lo largo de toda la sección, revelando distintas
+   partes de la foto a medida que se hace scroll - el efecto de "profundidad" real que se buscaba. */
+.world-bg {
+  position: relative;
+  background-image: var(--world-bg-image);
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+.world-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--bg) 0%, rgba(246, 251, 241, 0.2) 10%, rgba(246, 251, 241, 0.2) 90%, var(--bg) 100%);
+  pointer-events: none;
+}
+.world-bg > * {
+  position: relative;
+}
+/* Texto que cae directamente sobre la foto (fuera de una `.card` ya opaca) necesita su propio
+   respaldo de legibilidad - mismo criterio que `.hero-plaque`, aquí más discreto (sin marco). */
+.world-bg .section-head {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(6px);
+  border-radius: var(--radius);
+  padding: 18px 26px;
+}
+.world-bg .section-head--center {
+  display: block;
+  width: fit-content;
+  max-width: min(640px, 92%);
+}
+
+/* ---- Galería real (capturas del servidor) ---- */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 560px) {
+  .gallery {
+    grid-template-columns: 1fr;
+  }
+}
+.gallery__item {
+  position: relative;
+  display: block;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  cursor: zoom-in;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+}
+.gallery__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s var(--ease);
+}
+.gallery__item:hover img {
+  transform: scale(1.05);
+}
+.gallery__caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(0deg, rgba(10, 20, 5, 0.72), transparent);
+  text-align: left;
+}
+.lightbox {
+  border: none;
+  border-radius: var(--radius);
+  padding: 0;
+  max-width: min(92vw, 1100px);
+  background: transparent;
+  overflow: visible;
+}
+.lightbox::backdrop {
+  background: rgba(10, 16, 6, 0.78);
+}
+.lightbox__inner {
+  position: relative;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+.lightbox__inner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 82vh;
+  object-fit: contain;
+  background: #0c1408;
+}
+.lightbox__caption {
+  padding: 14px 18px;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+.lightbox__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(10, 16, 6, 0.6);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* ---- FAQ (acordeón nativo <details>/<summary>, cero JS) ---- */
+.faq {
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 20px;
+}
+.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 16px 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.faq-item summary::after {
+  content: "+";
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--gold-ink);
+  flex: none;
+}
+.faq-item[open] summary::after {
+  content: "−";
+}
+.faq-item p {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+}
+
+/* ---- /vote ---- */
+.vote-card {
+  max-width: 460px;
+  margin: 0 auto;
+  text-align: center;
+}
+.vote-card .icon-tile {
+  margin: 0 auto 16px;
+}

@@ -1,0 +1,57 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import Icon from "../../../components/Icon.astro";
+import { skills } from "../../../data/guide/skills";
+---
+
+<BaseLayout title="Skills" description="Las 8 Skills reales de CobbleCraft: cómo se sube cada una y qué desbloquean.">
+  <PageHero eyebrow="Guía CobbleCraft" title="SKILLS" subtitle="Las 8 habilidades del servidor." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Skills" }]} />
+
+        <div class="skill-grid">
+          {skills.map((s) => (
+            <div class="card skill-card" id={s.id}>
+              <div class="icon-tile icon-tile--cyan"><Icon name={s.icon as any} /></div>
+              <h2>{s.name}</h2>
+              <h3>Cómo sube</h3>
+              <p>{s.grantsXpFrom}</p>
+              <h3>Desbloquea</h3>
+              <p>{s.unlocks}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .skill-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .skill-card h2 {
+    margin: 0 0 10px;
+    font-size: 1.1rem;
+  }
+  .skill-card h3 {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--gold-ink);
+    margin: 12px 0 4px;
+  }
+  .skill-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+</style>

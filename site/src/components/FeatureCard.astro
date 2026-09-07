@@ -1,0 +1,23 @@
+---
+import Icon from "./Icon.astro";
+import type { IconName } from "../lib/icons";
+
+interface Props {
+  icon: IconName;
+  title: string;
+  description: string;
+  badge?: string;
+  variant?: "gold" | "cyan" | "grass" | "purple";
+}
+const { icon, title, description, badge, variant = "gold" } = Astro.props;
+const tileClass = variant === "gold" ? "icon-tile" : `icon-tile icon-tile--${variant}`;
+---
+
+<div class="card">
+  <div class={tileClass}>
+    <Icon name={icon} />
+  </div>
+  {badge && <span class="badge badge--muted" style="margin-bottom:8px;">{badge}</span>}
+  <h3 style="font-size:1.05rem;">{title}</h3>
+  <p style="margin:0;">{description}</p>
+</div>

@@ -1,0 +1,110 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import WorldBackdrop from "../../../components/WorldBackdrop.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import Icon from "../../../components/Icon.astro";
+import { claimTiers, protectionRocks } from "../../../data/guide/claims";
+---
+
+<BaseLayout title="Claims" description="Protege tu terreno en CobbleCraft: cómo crece tu límite de chunks con tus Skills y las Rocas de Protección del Topógrafo.">
+  <PageHero eyebrow="Guía CobbleCraft" title="CLAIMS" subtitle="Protege tu terreno con el Topógrafo." />
+
+  <WorldBackdrop>
+    <section class="section">
+      <div class="container" style="max-width:760px;">
+        <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Claims" }]} />
+
+        <div class="card" style="margin-bottom:26px;">
+          <p style="margin:0 0 10px;">
+            Un Claim protege tu terreno para que otros jugadores no puedan construir ni robar dentro de
+            él. Puedes añadir jugadores de confianza a tu claim para que también puedan actuar dentro.
+          </p>
+          <p style="margin:0;">
+            Tu límite de chunks reclamables no es una barra separada: crece directamente con el progreso
+            real de tus <a href="/guia/skills">Skills</a>.
+          </p>
+        </div>
+
+        <h2 style="font-size:1.2rem;">Progresión de límite de chunks</h2>
+        <div class="card" style="margin-bottom:26px;">
+          <table class="claim-table">
+            <thead>
+              <tr>
+                <th>Skills a nivel mínimo</th>
+                <th>Nivel mínimo</th>
+                <th>Límite de chunks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {claimTiers.map((row) => (
+                <tr>
+                  <td>{row.skillsRequired === 0 ? "-" : row.skillsRequired}</td>
+                  <td>{row.minSkillLevel === 0 ? "-" : row.minSkillLevel}</td>
+                  <td><strong>{row.limit} chunks</strong></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h2 style="font-size:1.2rem;">Rocas de Protección (Topógrafo)</h2>
+        <p>
+          El Topógrafo vende Rocas de Protección: al colocarlas, reclaman al instante un área cuadrada
+          alrededor tuyo.
+        </p>
+        <div class="rock-grid">
+          {protectionRocks.map((rock) => (
+            <div class="card rock-card">
+              <div class="icon-tile"><Icon name="escudo" /></div>
+              <h3>{rock.name}</h3>
+              <p>{rock.sideBlocks}x{rock.sideBlocks} bloques</p>
+              <span class="badge badge--gold">{rock.price} monedas</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </WorldBackdrop>
+</BaseLayout>
+
+<style>
+  .claim-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  .claim-table th,
+  .claim-table td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .claim-table th {
+    text-transform: uppercase;
+    font-size: 0.74rem;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+  }
+  .rock-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .rock-card {
+    text-align: center;
+  }
+  .rock-card .icon-tile {
+    margin: 0 auto 10px;
+  }
+  .rock-card h3 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+  }
+  .rock-card p {
+    margin: 0 0 10px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+</style>

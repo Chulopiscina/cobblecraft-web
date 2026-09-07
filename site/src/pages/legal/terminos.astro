@@ -1,0 +1,100 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Icon from "../../components/Icon.astro";
+import PageHero from "../../components/PageHero.astro";
+import { siteConfig } from "@shared/site.config";
+---
+
+<BaseLayout title="Términos de uso" description="Términos de uso del servidor y la Tienda.">
+  <PageHero eyebrow="Legal" title="TÉRMINOS DE USO" />
+
+  <section class="section section--tight">
+    <div class="container" style="max-width:680px; text-align:left;">
+      <div class="notice notice--error">
+        <strong>PLANTILLA - REQUIERE REVISIÓN HUMANA ANTES DE PRODUCCIÓN.</strong>
+        Este texto es un borrador de partida, no asesoría legal. Antes de publicar la Tienda con
+        pagos reales, un humano debe revisarlo contra la ley aplicable, las
+        <a href="https://www.minecraft.net/es-es/eula" target="_blank" rel="noopener">Minecraft Usage Guidelines</a>
+        y la política del proveedor de pago elegido (ver <code>web/docs/PRODUCTION_CHECKLIST.md</code>).
+      </div>
+
+      <div class="legal-content">
+        <h2>1. Qué es {siteConfig.serverName}</h2>
+        <p>
+          {siteConfig.serverName} es un servidor de Minecraft Java operado de forma independiente, sin
+          afiliación con Mojang, Microsoft, Nintendo, Game Freak, The Pokémon Company ni el proyecto
+          Cobblemon. Necesitas una cuenta de Minecraft Java original y válida para jugar.
+        </p>
+
+        <h2>2. Cuenta y uso del servidor</h2>
+        <p>
+          El acceso al servidor puede suspenderse o revocarse ante conductas contrarias a las normas de
+          la comunidad (a definir/documentar) o a estos términos. No garantizamos disponibilidad
+          ininterrumpida del servidor.
+        </p>
+
+        <h2>3. Compras en la Tienda</h2>
+        <p>
+          Los productos de la Tienda son cosméticos, de conveniencia o de apoyo al proyecto - nunca
+          ventajas de combate, economía o progresión (política "nunca pay-to-win", ver la propia
+          página de <a href="/tienda">Tienda</a>). El precio mostrado en el momento de la compra es el
+          precio final; el servidor nunca cobra un precio distinto al mostrado.
+        </p>
+
+        <h2>4. Entrega</h2>
+        <p>
+          La entrega se realiza de forma automática dentro del servidor tras confirmarse el pago,
+          vinculada al nombre de usuario de Minecraft Java que indiques en el momento de la compra.
+        </p>
+
+        <h2>5. Menores de edad</h2>
+        <p>
+          Si eres menor de edad, necesitas el permiso de tu madre/padre/tutor legal para realizar
+          cualquier compra.
+        </p>
+
+        <h2>6. Cambios</h2>
+        <p>Podemos actualizar estos términos; los cambios se publicarán en esta misma página.</p>
+      </div>
+
+      <p class="legal-nav">
+        <Icon name="libro" size={16} />
+        <a href="/legal/privacidad">Política de privacidad</a>
+        <span aria-hidden="true">·</span>
+        <a href="/legal/reembolsos">Política de reembolsos</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal-content {
+    margin-top: 28px;
+  }
+  .legal-content h2 {
+    font-size: 1.05rem;
+    margin: 30px 0 10px;
+    padding-left: 14px;
+    border-left: 3px solid var(--gold);
+  }
+  .legal-content h2:first-child {
+    margin-top: 0;
+  }
+  .legal-content p,
+  .legal-content ul {
+    margin: 0;
+  }
+  .legal-nav {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .legal-nav a {
+    font-weight: 600;
+  }
+</style>
