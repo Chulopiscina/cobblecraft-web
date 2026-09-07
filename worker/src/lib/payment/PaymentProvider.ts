@@ -12,6 +12,7 @@ export interface CheckoutRequest {
   cancelUrl: string;
   playerName: string;
   playerUuid: string;
+  customerIp?: string;
   providerPackageId?: string;
 }
 

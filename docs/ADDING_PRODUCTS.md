@@ -13,11 +13,12 @@ Añade una entrada al array `products`:
   "slug": "rango-vip",                      // usado en la URL /tienda/rango-vip
   "name": "Rango VIP",
   "description": "...",
-  "category": "rangos",                     // "rangos" | "cosmeticos" | "items" | "otros"
+  "category": "rangos",                     // "rangos" | "upgrades" | "skins" | "cosmeticos" | "items" | "otros"
   "icon": "/images/store/mi_icono.png",     // ver web/site/public/images/store/
   "priceCents": 1000,                       // SIEMPRE en céntimos, entero, nunca un float
   "currency": "EUR",
   "active": true,
+  "checkoutEnabled": false,                 // true solo con paquete Tebex real probado
   "devOnly": false,                         // false = visible tambien en produccion (revisa PRODUCTION_CHECKLIST.md antes)
   "delivery": { "type": "RANK", "rankId": "vip" },
   "limits": { "maxPerPlayer": null },
@@ -58,6 +59,8 @@ mod) - nunca se inventa un ID nuevo solo para la Tienda.
 
 - Revisar [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md) completo - especialmente la postura
   "nunca pay-to-win" y la revisión legal de Términos/Reembolsos.
+- Crear el paquete real en Tebex, copiar su ID numerico en `metadata.tebexPackageId` y dejar
+  `checkoutEnabled:true` solo cuando checkout, webhook y payout esten probados.
 - Probar el flujo completo en DEV primero (ver LOCAL_DEVELOPMENT.md) con el producto marcado
   `devOnly: true`.
 - Confirmar que `StoreCatalogConfigTest` pasa (`./gradlew test` en `mods-source/progression_core`).

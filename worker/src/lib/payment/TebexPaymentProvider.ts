@@ -33,7 +33,7 @@ function findString(value: unknown, keys: string[]): string | undefined {
  * Adapter Tebex Headless preparado para produccion, sin credenciales hardcodeadas.
  *
  * Flujo esperado:
- * 1. Crear basket en Headless API con URLs de exito/cancelacion y `custom.orderPublicId`.
+ * 1. Crear basket en Headless API con usuario Minecraft, IP, URLs y `custom.orderPublicId`.
  * 2. Anadir exactamente un paquete Tebex whitelisteado desde `metadata.tebexPackageId`.
  * 3. Redirigir al checkout hospedado por Tebex.
  * 4. Aceptar solo webhooks Tebex con `X-Signature` valida.
@@ -55,6 +55,8 @@ export class TebexPaymentProvider implements PaymentProvider {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
+        username: req.playerName,
+        ip_address: req.customerIp ?? "127.0.0.1",
         complete_url: req.successUrl,
         cancel_url: req.cancelUrl,
         complete_auto_redirect: true,

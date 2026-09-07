@@ -28,6 +28,8 @@ export function getProductBySlug(slug: string): Product | undefined {
 
 export const categoryLabels: Record<ProductCategory, string> = {
   rangos: "Rangos",
+  upgrades: "Upgrades",
+  skins: "Skins",
   kits: "Kits",
   ventajas: "Ventajas",
   cosmeticos: "Cosméticos",

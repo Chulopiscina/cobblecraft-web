@@ -1,17 +1,55 @@
 # Tebex para CobbleCraft
 
-Estado actual: preparado, no activo. No hay pagos reales, productos reales, precios ni claves en
-el repositorio.
+Estado actual: tienda web preparada, pagos reales bloqueados hasta completar Tebex.
 
-## Variables necesarias
+La web ya publica los 3 rangos permanentes y los 3 upgrades de diferencia en
+`store/catalog.json`, pero `checkoutEnabled=false` hasta que existan los paquetes reales de
+Tebex, el webhook firmado y el payout de la cuenta.
+
+## Productos
+
+| Producto | Precio | Entrega |
+| --- | ---: | --- |
+| Explorador | 14,99 EUR | `lp user {username} parent add explorer` |
+| Maestro | 29,99 EUR | `lp user {username} parent add master` |
+| Leyenda | 49,99 EUR | `lp user {username} parent add legend` |
+| Upgrade Explorador -> Maestro | 15,00 EUR | pasar a `master` |
+| Upgrade Maestro -> Leyenda | 20,00 EUR | pasar a `legend` |
+| Upgrade Explorador -> Leyenda | 35,00 EUR | pasar a `legend` |
+
+Los grupos reales verificados en LuckPerms son `explorer`, `master` y `legend`, con herencia
+`legend -> master -> explorer`.
+
+## Pasos manuales en Tebex
+
+1. Crear/verificar la cuenta Tebex y una tienda de tipo Minecraft.
+2. Completar identidad, datos fiscales y metodo de payout/banco desde el dashboard de Tebex.
+3. Crear los 3 paquetes de rango permanente: Explorador, Maestro y Leyenda.
+4. Configurar cada paquete para entregar el grupo LuckPerms correspondiente.
+5. Crear los upgrades/tiered packages para que Tebex cobre solo la diferencia.
+6. Crear el webhook hacia:
+   `https://cobblemon-server-store.cobblemon-server.workers.dev/api/webhook/tebex`
+7. Copiar el Headless/Public Token y el webhook secret.
+8. Sustituir los placeholders `PENDIENTE_TEBEX_PACKAGE_ID_*` por IDs numericos reales en
+   `store/catalog.json` y poner `checkoutEnabled=true` solo en productos ya probados.
+9. Hacer compra de prueba real minima antes de anunciar la tienda.
+
+## Secrets Cloudflare
 
 Worker:
 
 ```bash
-TEBEX_PUBLIC_TOKEN=
-TEBEX_WEBHOOK_SECRET=
-STORE_SERVER_TOKEN=
+wrangler secret put TEBEX_PUBLIC_TOKEN
+wrangler secret put TEBEX_WEBHOOK_SECRET
+wrangler secret put STORE_SERVER_TOKEN
+```
+
+Variables no sensibles:
+
+```bash
 PAYMENT_PROVIDER=tebex
+ENVIRONMENT=production
+CORS_ALLOWED_ORIGIN=https://cobblemon-server-site.pages.dev
 ```
 
 Pages:
@@ -22,65 +60,32 @@ PUBLIC_STORE_ENV=prod
 PUBLIC_SITE_URL=https://cobblemon-server-site.pages.dev
 ```
 
-Cuando exista dominio propio, `PUBLIC_SITE_URL` y `CORS_ALLOWED_ORIGIN` deben cambiar al dominio
-final.
+## Flujo tecnico
 
-## Flujo preparado
+1. El jugador abre `/tienda`, elige producto y escribe su usuario de Minecraft Java.
+2. El Worker valida ese nombre con Mojang y crea un pedido en D1.
+3. El Worker crea un basket Tebex Headless con `username`, `ip_address`, URLs de retorno y
+   `custom.orderPublicId`.
+4. El Worker anade el paquete Tebex whitelisteado por `metadata.tebexPackageId`.
+5. El jugador paga en checkout hospedado por Tebex.
+6. Tebex llama al webhook.
+7. El Worker valida `X-Signature`, registra el evento para idempotencia y marca el pedido como
+   `PAID`.
+8. El servidor Minecraft reclama pedidos pagados usando `STORE_SERVER_TOKEN` y entrega solo
+   acciones permitidas por su whitelist.
 
-1. Jugador entra en `/tienda`.
-2. Selecciona un producto real publicado en el catálogo.
-3. Escribe su usuario de Minecraft Java.
-4. El Worker valida el usuario con Mojang.
-5. El Worker crea un pedido en D1.
-6. El Worker crea un basket Tebex y añade el paquete configurado en `metadata.tebexPackageId`.
-7. El jugador paga en checkout hospedado por Tebex.
-8. Tebex llama a `POST /api/webhook/tebex`.
-9. El Worker valida `X-Signature`.
-10. El pedido pasa a `PAID`.
-11. El servidor Minecraft, cuando se active más adelante, reclama pedidos pendientes y entrega
-    usando su whitelist local.
+## Reembolsos y chargebacks
 
-## Pasos que debe hacer el propietario en Tebex
+El Worker ya clasifica eventos de refund/chargeback como `failed`/no entregables. Antes de activar
+ventas reales conviene decidir la politica operativa: retirada manual del rango, bloqueo de
+beneficios, o revision caso por caso desde Tebex.
 
-1. Crear cuenta Tebex.
-2. Crear una tienda Minecraft.
-3. Configurar moneda y datos de payout/retirada.
-4. Crear los paquetes reales, sin crates aleatorias de pago directo.
-5. Copiar el identificador público Headless/API de la tienda para `TEBEX_PUBLIC_TOKEN`.
-6. Crear un endpoint webhook apuntando a:
-   `https://cobblemon-server-store.cobblemon-server.workers.dev/api/webhook/tebex`
-7. Copiar el secreto de ese endpoint para `TEBEX_WEBHOOK_SECRET`.
-8. Configurar las URLs de éxito/cancelación usando el dominio actual o el dominio definitivo.
-9. Darme los IDs reales de paquetes Tebex para mapearlos en `web/store/catalog.json`.
-10. Hacer una compra de prueba de importe mínimo antes de anunciar la tienda.
+## Skins
 
-## Entrega futura con LuckPerms
+La categoria Skins queda en la web como `Proximamente`. No hay skins, precios ni productos reales
+todavia. Cuando existan, deben ser compra directa conocida con imagen/preview, nunca recompensa
+aleatoria.
 
-No se implementa desde la web. El servidor debe traducir `productId` a acciones permitidas en su
-propia whitelist. Para rangos, el concepto es:
+## Prohibido por defecto
 
-```text
-lp user <jugador> parent add <rango>
-```
-
-Para rangos temporales:
-
-```text
-lp user <jugador> parent addtemp <rango> <duracion>
-```
-
-No hay nombres de rangos reales todavía. La arquitectura deja espacio para rangos permanentes,
-rangos temporales, kits periódicos, comandos con permisos, cooldowns, teletransportes especiales
-y `/healing`, pero ninguna de esas ventajas está activada ni definida como producto comercial.
-
-## Seguridad
-
-- Secretos solo en Cloudflare Worker secrets.
-- Nada de claves Tebex en Astro/frontend.
-- Checkout hospedado por Tebex.
-- Webhooks firmados con `X-Signature`.
-- Idempotencia por `processed_webhooks(provider,event_id)`.
-- Entrega separada y autenticada por `STORE_SERVER_TOKEN`.
-- Reembolsos, chargebacks y cancelaciones quedan como eventos a revisar antes de activar pagos
-  reales.
-
+No se publican llaves de crates ni loot aleatorio por dinero real.

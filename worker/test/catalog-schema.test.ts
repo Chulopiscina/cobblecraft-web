@@ -43,6 +43,44 @@ describe("web/store/catalog.json (real file)", () => {
       }
     }
   });
+
+  it("publishes the three permanent ranks with the real LuckPerms groups", () => {
+    const catalog = CatalogSchema.parse(catalogRaw);
+    const products = visibleProducts(catalog, "prod");
+    expect(products.find((p) => p.productId === "rank_explorer")).toMatchObject({
+      name: "Explorador",
+      priceCents: 1499,
+      delivery: { type: "RANK", rankId: "explorer" },
+      devOnly: false,
+    });
+    expect(products.find((p) => p.productId === "rank_master")).toMatchObject({
+      name: "Maestro",
+      priceCents: 2999,
+      delivery: { type: "RANK", rankId: "master" },
+      devOnly: false,
+    });
+    expect(products.find((p) => p.productId === "rank_legend")).toMatchObject({
+      name: "Leyenda",
+      priceCents: 4999,
+      delivery: { type: "RANK", rankId: "legend" },
+      devOnly: false,
+    });
+  });
+
+  it("rank upgrades charge only the price difference", () => {
+    const catalog = CatalogSchema.parse(catalogRaw);
+    const products = visibleProducts(catalog, "prod");
+    expect(products.find((p) => p.productId === "upgrade_explorer_to_master")?.priceCents).toBe(1500);
+    expect(products.find((p) => p.productId === "upgrade_master_to_legend")?.priceCents).toBe(2000);
+    expect(products.find((p) => p.productId === "upgrade_explorer_to_legend")?.priceCents).toBe(3500);
+  });
+
+  it("does not publish paid crate keys or random-loot products", () => {
+    const catalog = CatalogSchema.parse(catalogRaw);
+    const paidProdProducts = visibleProducts(catalog, "prod");
+    const forbidden = paidProdProducts.filter((p) => /crate|key|llave|loot|aleatori/i.test(`${p.productId} ${p.slug} ${p.name} ${p.description} ${p.metadata.benefits ?? ""}`));
+    expect(forbidden).toEqual([]);
+  });
 });
 
 describe("validateCatalog rejects malformed catalogs", () => {

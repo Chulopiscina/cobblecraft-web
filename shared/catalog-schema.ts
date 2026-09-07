@@ -7,7 +7,7 @@ import { z } from "zod";
  * `web/docs/SECURITY.md`). UNA sola autoridad: nunca un segundo catálogo hardcodeado en el
  * frontend, nunca un precio distinto entre lo que se muestra y lo que se cobra.
  */
-export const ProductCategory = z.enum(["rangos", "kits", "ventajas", "cosmeticos", "items", "otros"]);
+export const ProductCategory = z.enum(["rangos", "upgrades", "skins", "kits", "ventajas", "cosmeticos", "items", "otros"]);
 export type ProductCategory = z.infer<typeof ProductCategory>;
 
 /**
@@ -61,6 +61,12 @@ export const ProductSchema = z.object({
   currency: z.literal("EUR"),
   active: z.boolean(),
   /**
+   * `active=true` significa visible. `checkoutEnabled=true` significa comprable.
+   * Permite publicar fichas/precios reales sin aceptar dinero hasta que existan los IDs reales
+   * de Tebex y la cuenta/payout esten verificados.
+   */
+  checkoutEnabled: z.boolean().default(true),
+  /**
    * true = producto de PRUEBA/placeholder (pedido explícito: "no inventes productos comerciales
    * reales ahora... crea productos DEV/placeholder que NO estén publicados en producción").
    * Filtrado incondicionalmente en PROD por `visibleProducts()`, independientemente de `active` -
@@ -95,6 +101,9 @@ export function validateCatalog(catalog: Catalog): string[] {
     if (p.delivery.type === "RANK" && !p.delivery.rankId) {
       issues.push(`${p.productId}: delivery RANK requiere rankId`);
     }
+    if (p.checkoutEnabled && !p.devOnly && p.metadata.tebexPackageId && !/^\d+$/.test(p.metadata.tebexPackageId)) {
+      issues.push(`${p.productId}: metadata.tebexPackageId debe ser numerico cuando checkoutEnabled=true`);
+    }
     if ((p.delivery.type === "CUSTOM_ITEM" || p.delivery.type === "COSMETIC") && !p.delivery.customItemId) {
       issues.push(`${p.productId}: delivery ${p.delivery.type} requiere customItemId`);
     }
@@ -115,5 +124,5 @@ export function visibleProducts(catalog: Catalog, env: "dev" | "prod"): Product[
 
 export function visibleCategories(catalog: Catalog, env: "dev" | "prod"): ProductCategory[] {
   const cats = new Set(visibleProducts(catalog, env).map((p) => p.category));
-  return (["rangos", "kits", "ventajas", "cosmeticos", "items", "otros"] as const).filter((c) => cats.has(c));
+  return (["rangos", "upgrades", "skins", "kits", "ventajas", "cosmeticos", "items", "otros"] as const).filter((c) => cats.has(c));
 }

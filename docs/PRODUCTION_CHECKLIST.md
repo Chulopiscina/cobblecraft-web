@@ -49,13 +49,13 @@ Dispara `.github/workflows/launcher-release.yml` automáticamente - ver
 [GITHUB_RELEASES_LAUNCHER.md](GITHUB_RELEASES_LAUNCHER.md).
 
 **8. Configurar Tebex** - ver [TEBEX_SETUP.md](TEBEX_SETUP.md) y
-[PAYMENT_PROVIDER.md](PAYMENT_PROVIDER.md). Confirma `PAYMENT_PROVIDER=tebex` (nunca `mock`) en
-`[env.production]`.
+[PAYMENT_PROVIDER.md](PAYMENT_PROVIDER.md). Confirma cuenta/payout, paquetes numericos,
+webhook firmado y `PAYMENT_PROVIDER=tebex` (nunca `mock`) antes de poner `checkoutEnabled:true`.
 
-**9. Crear el catálogo comercial real** - ver [ADDING_PRODUCTS.md](ADDING_PRODUCTS.md). Ningún
-producto real existe todavía; los 5 actuales son `devOnly:true` explícitamente no comerciales.
-Confirma que ningún producto da ventaja de combate/economía/progresión ("nunca pay-to-win", ya
-declarado en la propia web).
+**9. Revisar el catálogo comercial real** - ver [ADDING_PRODUCTS.md](ADDING_PRODUCTS.md). Los
+rangos permanentes y sus upgrades ya son visibles en produccion, pero el checkout sigue bloqueado
+hasta sustituir los placeholders de Tebex. Confirma que no hay llaves de crates ni loot aleatorio
+por dinero real.
 
 **10. Revisar legal** - `web/site/src/pages/legal/{terminos,privacidad,reembolsos}.astro` son
 PLANTILLAS marcadas "REQUIERE REVISIÓN HUMANA ANTES DE PRODUCCIÓN". Revisar también las Minecraft

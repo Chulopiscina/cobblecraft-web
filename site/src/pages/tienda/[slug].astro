@@ -11,6 +11,9 @@ export function getStaticPaths() {
 
 const { product } = Astro.props;
 const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + " €";
+const durationLabel = product.metadata.durationLabel;
+const benefits = product.metadata.benefits?.split("|").filter(Boolean) ?? [];
+const isUpgrade = product.metadata.kind === "upgrade";
 const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
 
 /**
@@ -44,7 +47,10 @@ const includes = deliverySummary(product.delivery);
         <div style="margin-top:6px;"><span class="badge badge--muted">DEV - no disponible en producción</span></div>
       </Fragment>
     )}
-    <div class="badge badge--gold" style="font-size:1.15rem; padding:8px 18px; margin-top:20px;">{priceLabel}</div>
+    <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:20px;">
+      <div class="badge badge--gold" style="font-size:1.15rem; padding:8px 18px;">{priceLabel}</div>
+      {durationLabel && <div class="badge badge--grass" style="font-size:1.15rem; padding:8px 18px;">{durationLabel}</div>}
+    </div>
   </PageHero>
 
   <section class="section section--tight">
@@ -55,8 +61,15 @@ const includes = deliverySummary(product.delivery);
           <h2 style="font-size:1.05rem; margin:0;">Qué incluye</h2>
         </div>
         <ul class="plain-list">
-          {includes.map((line) => <li>{line}</li>)}
+          {(benefits.length > 0 ? benefits : includes).map((line) => <li>{line}</li>)}
         </ul>
+
+        {isUpgrade && (
+          <p class="notice" style="margin-top:18px;">
+            Este producto es un upgrade: solo cobra la diferencia respecto al rango indicado.
+            No compres un upgrade si no tienes ya el rango de origen.
+          </p>
+        )}
 
         <div style="display:flex; align-items:center; gap:10px; margin:22px 0 4px;">
           <Icon name="candado" size={18} style="color:var(--gold-soft);" />
@@ -69,7 +82,7 @@ const includes = deliverySummary(product.delivery);
           <li>No se garantiza reembolso una vez entregado el producto - ver <a href="/legal/reembolsos">Política de reembolsos</a>.</li>
         </ul>
 
-        <form id="purchase-form" data-api-base={apiBaseUrl} data-product-id={product.productId} style="margin-top:26px; border-top:1px solid var(--border); padding-top:22px;">
+        <form id="purchase-form" data-api-base={apiBaseUrl} data-product-id={product.productId} data-checkout-enabled={String(product.checkoutEnabled)} style="margin-top:26px; border-top:1px solid var(--border); padding-top:22px;">
           <label for="player-name" class="field-label">Tu nombre de usuario de Minecraft</label>
           <input
             id="player-name"
@@ -82,14 +95,20 @@ const includes = deliverySummary(product.delivery);
             placeholder="Ej: Notch"
             class="input"
           />
-          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:16px;" id="purchase-submit">
-            Comprar por {priceLabel}
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:16px;" id="purchase-submit" disabled={!product.checkoutEnabled}>
+            {product.checkoutEnabled ? `Comprar por ${priceLabel}` : "Checkout Tebex pendiente"}
           </button>
           <p style="margin:12px 0 0; font-size:0.78rem; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px;">
             <Icon name="candado" size={14} />
             Checkout hospedado por Tebex · entrega validada por webhook firmado
           </p>
           <p id="purchase-error" class="notice notice--error" role="alert" aria-live="assertive" style="display:none; margin-top:12px;"></p>
+          {!product.checkoutEnabled && (
+            <p class="notice" style="margin-top:12px;">
+              Producto publicado en la tienda, pero los pagos se activarán cuando existan los
+              paquetes reales de Tebex, el webhook firmado y el payout de la cuenta.
+            </p>
+          )}
         </form>
       </div>
     </div>
@@ -143,9 +162,15 @@ const includes = deliverySummary(product.delivery);
     if (!submitBtn || !errorBox) return;
     const apiBase = form.getAttribute("data-api-base");
     const productId = form.getAttribute("data-product-id");
+    const checkoutEnabled = form.getAttribute("data-checkout-enabled") === "true";
     const playerName = (document.getElementById("player-name") as HTMLInputElement | null)?.value.trim();
 
     errorBox.style.display = "none";
+    if (!checkoutEnabled) {
+      errorBox.textContent = "El checkout Tebex de este producto todavía no está activado.";
+      errorBox.style.display = "block";
+      return;
+    }
     if (!apiBase) {
       errorBox.textContent = "La Tienda no está disponible ahora mismo (API no configurada).";
       errorBox.style.display = "block";

@@ -60,6 +60,17 @@ describe("POST /api/orders (handleCreateOrder)", () => {
     expect(res.status).toBe(404);
   });
 
+  it("rejects a published product whose Tebex checkout is not enabled yet", async () => {
+    const req = new Request("http://worker.local/api/orders", {
+      method: "POST",
+      body: JSON.stringify({ productId: "rank_explorer", playerName: "Notch" }),
+    });
+    const res = await handleCreateOrder(req, env, "http://localhost:4321");
+    expect(res.status).toBe(409);
+    const body = (await res.json()) as { code: string };
+    expect(body.code).toBe("CHECKOUT_DISABLED");
+  });
+
   it("rejects a devOnly product when ENVIRONMENT=production", async () => {
     const prodEnv = makeEnv(db, { ENVIRONMENT: "production", PAYMENT_PROVIDER: "stripe", STRIPE_SECRET_KEY: "sk_x", STRIPE_WEBHOOK_SECRET: "whsec_x" });
     const req = new Request("http://worker.local/api/orders", {

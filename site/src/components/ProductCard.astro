@@ -6,10 +6,12 @@ interface Props {
 }
 const { product } = Astro.props;
 const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + " €";
+const durationLabel = product.metadata.durationLabel;
 ---
 
 <a class="card product-card" href={`/tienda/${product.slug}`}>
   {product.devOnly && <span class="badge badge--muted product-card__dev">DEV</span>}
+  {!product.checkoutEnabled && !product.devOnly && <span class="badge badge--muted product-card__dev">Tebex pendiente</span>}
   <div class="product-card__icon">
     {/* alt="" deliberado (WCAG): el icono es puramente redundante con el <h3> inmediatamente debajo - un alt real duplicaría el anuncio en un lector de pantalla ("Rango Mecenas... Rango Mecenas"). */}
     <img src={product.icon} alt="" width="64" height="64" />
@@ -17,7 +19,10 @@ const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + " �
   <h3 style="font-size:1.02rem; text-align:center;">{product.name}</h3>
   <p style="font-size:0.88rem; min-height:2.6em; text-align:center;">{product.description}</p>
   <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; padding-top:10px;">
-    <span class="badge badge--gold">{priceLabel}</span>
+    <span style="display:flex; gap:6px; flex-wrap:wrap;">
+      <span class="badge badge--gold">{priceLabel}</span>
+      {durationLabel && <span class="badge badge--grass">{durationLabel}</span>}
+    </span>
     <span class="product-card__cta">Ver detalles →</span>
   </div>
 </a>

@@ -49,7 +49,7 @@ Ver [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md) para el detalle compl
 - [DOMAIN_SETUP.md](docs/DOMAIN_SETUP.md) - qué hacer cuando se compre el dominio
 - [GITHUB_ACTIONS.md](docs/GITHUB_ACTIONS.md) - CI/CD, secrets necesarios
 - [STORE_ARCHITECTURE.md](docs/STORE_ARCHITECTURE.md) - modelo de pedidos, estados, D1
-- [PAYMENT_PROVIDER.md](docs/PAYMENT_PROVIDER.md) - abstracción de pago, Mock, Stripe
+- [PAYMENT_PROVIDER.md](docs/PAYMENT_PROVIDER.md) - abstracción de pago, Mock, Tebex y adapter legacy Stripe
 - [MINECRAFT_DELIVERY.md](docs/MINECRAFT_DELIVERY.md) - cómo el servidor Minecraft entrega pedidos
 - [ADDING_PRODUCTS.md](docs/ADDING_PRODUCTS.md) - cómo añadir un producto nuevo a la Tienda
 - [LAUNCHER_DOWNLOAD.md](docs/LAUNCHER_DOWNLOAD.md) - cómo se resuelve la descarga del Launcher

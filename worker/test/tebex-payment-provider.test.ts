@@ -19,7 +19,9 @@ describe("TebexPaymentProvider", () => {
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       if (url.endsWith("/accounts/public-token/baskets")) {
         expect(init?.method).toBe("POST");
-        const body = JSON.parse(String(init?.body)) as { custom: { orderPublicId: string; playerName: string; playerUuid: string } };
+        const body = JSON.parse(String(init?.body)) as { username: string; ip_address: string; custom: { orderPublicId: string; playerName: string; playerUuid: string } };
+        expect(body.username).toBe("Notch");
+        expect(body.ip_address).toBe("203.0.113.10");
         expect(body.custom).toEqual({ orderPublicId: "ord_abc", playerName: "Notch", playerUuid: "uuid" });
         return new Response(JSON.stringify({ data: { ident: "basket_123" } }), { status: 200 });
       }
@@ -42,6 +44,7 @@ describe("TebexPaymentProvider", () => {
       cancelUrl: "https://site/tienda/producto",
       playerName: "Notch",
       playerUuid: "uuid",
+      customerIp: "203.0.113.10",
       providerPackageId: "12345",
     });
 
@@ -89,4 +92,3 @@ describe("TebexPaymentProvider", () => {
     expect(event).toBeNull();
   });
 });
-

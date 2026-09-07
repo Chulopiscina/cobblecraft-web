@@ -32,6 +32,9 @@ export async function handleCreateOrder(request: Request, env: Env, siteBaseUrl:
   if (!product) {
     return errorResponse(env, request, 404, "Producto no encontrado o no disponible.", ErrorCode.PRODUCT_NOT_FOUND);
   }
+  if (!product.checkoutEnabled) {
+    return errorResponse(env, request, 409, "Este producto esta preparado, pero el checkout Tebex aun no esta activado.", ErrorCode.CHECKOUT_DISABLED);
+  }
 
   let profile;
   try {
@@ -71,6 +74,7 @@ export async function handleCreateOrder(request: Request, env: Env, siteBaseUrl:
       cancelUrl: `${siteBaseUrl}/tienda/${product.slug}`,
       playerName: profile.name,
       playerUuid: profile.uuid,
+      customerIp: clientKey(request),
       providerPackageId: product.metadata.tebexPackageId,
     });
     await markPendingPayment(env, order.public_id, session.providerPaymentId);

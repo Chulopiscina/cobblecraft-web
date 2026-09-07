@@ -35,9 +35,9 @@ Según la documentación oficial de Tebex, la firma de webhook se valida calcula
 firma con `timingSafeEqual`, registra `processed_webhooks(provider,event_id)` y solo entonces
 marca el pedido como `PAID`.
 
-No hay productos reales publicados todavía. Para activar uno hay que crear antes el paquete real
-en Tebex y añadir su ID como `metadata.tebexPackageId` en `web/store/catalog.json`, con
-`devOnly:false`.
+Los rangos reales ya estan publicados como fichas de tienda, pero el checkout queda bloqueado
+con `checkoutEnabled=false` hasta sustituir cada placeholder `metadata.tebexPackageId` por un ID
+numerico real de Tebex y activar el producto de forma consciente.
 
 ## StripePaymentProvider - legacy
 
@@ -52,4 +52,3 @@ verificado server-side por `processProviderWebhook`.
 
 Si el jugador cierra el navegador a mitad del pago, el pedido igual se marca `PAID` cuando Tebex
 envíe el webhook. La entrega Minecraft queda separada y autenticada con `STORE_SERVER_TOKEN`.
-
