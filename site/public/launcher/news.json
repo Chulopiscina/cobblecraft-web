@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "title": "Cliente oficial en marcha",
+      "body": "El launcher instala y repara automaticamente Fabric, Cobblemon y los ficheros del pack con hashes SHA-256.",
+      "tag": "Launcher"
+    },
+    {
+      "title": "CobbleCraft sigue en beta",
+      "body": "La experiencia combina survival, progresion RPG, Pesca, Slayer, Liga Pokemon, Mercado, Claims y Maestria.",
+      "tag": "Desarrollo"
+    },
+    {
+      "title": "Sin P2W",
+      "body": "La tienda y los rangos se preparan para apoyar el proyecto sin vender poder competitivo.",
+      "tag": "Comunidad"
+    }
+  ]
+}

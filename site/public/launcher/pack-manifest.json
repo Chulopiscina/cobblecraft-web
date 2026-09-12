@@ -1,0 +1,150 @@
+{
+  "packVersion": "1.6.4-beta.1-rp1.4.6",
+  "minecraftVersion": "1.21.1",
+  "fabricLoaderVersion": "0.19.3",
+  "fabricInstallerVersion": "1.1.2",
+  "requiredFiles": [
+    {
+      "id": "fabric-api",
+      "displayName": "Fabric API",
+      "relativePath": "mods/fabric-api-0.116.15+1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/P7dR8mSH/versions/Nlt8gI9z/fabric-api-0.116.15%2B1.21.1.jar",
+      "sha256": "a61a10f730ab8aa45ff42486ee65699e6e51c28a0c168deb161e7d4029473aa3",
+      "size": 2452718,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblemon",
+      "displayName": "Cobblemon",
+      "relativePath": "mods/Cobblemon-fabric-1.7.3+1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/MdwFAVRL/versions/kF7CvxTo/Cobblemon-fabric-1.7.3%2B1.21.1.jar",
+      "sha256": "f7c25955176badc444ad6211fc556514fedbdba776227f105fe899f8819d74e3",
+      "size": 135801550,
+      "category": "MANAGED"
+    },
+    {
+      "id": "creativecore",
+      "displayName": "CreativeCore",
+      "relativePath": "mods/CreativeCore_FABRIC_v2.13.14_mc1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/OsZiaDHq/versions/IAULUUTE/CreativeCore_FABRIC_v2.13.14_mc1.21.1.jar",
+      "sha256": "c07f322040671f7708a51cda16b81375b24cf313669ebd562e0e8dd4ff4ed3eb",
+      "size": 1239340,
+      "category": "MANAGED"
+    },
+    {
+      "id": "watermedia",
+      "displayName": "WATERMeDIA",
+      "relativePath": "mods/watermedia-2.1.36.jar",
+      "url": "https://cdn.modrinth.com/data/G922NeHS/versions/yezkkXsZ/watermedia-2.1.36.jar",
+      "sha256": "9f2b54c4d5c9d680ee8a50e0bed1d982d0667d3ee7097765effcae6b2478d690",
+      "size": 37858040,
+      "category": "MANAGED"
+    },
+    {
+      "id": "waterframes",
+      "displayName": "WATERFrAMES",
+      "relativePath": "mods/waterframes-FABRIC-mc1.21.1-v2.1.21.jar",
+      "url": "https://cdn.modrinth.com/data/eBzFuVTM/versions/AzjBs33G/waterframes-FABRIC-mc1.21.1-v2.1.21.jar",
+      "sha256": "928def611d386cc87cecaeda01571c94de93c06b18bac5dc02c7989b7d908823",
+      "size": 266133,
+      "category": "MANAGED"
+    },
+    {
+      "id": "geckolib",
+      "displayName": "GeckoLib",
+      "relativePath": "mods/geckolib-fabric-1.21.1-4.9.2.jar",
+      "url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/dnJdtm0u/geckolib-fabric-1.21.1-4.9.2.jar",
+      "sha256": "eac4cf55e1cb99b22cb91ea87c774d2a670c1711a80f4aff50e6ad56b6c58e7e",
+      "size": 660416,
+      "category": "MANAGED"
+    },
+    {
+      "id": "voidcrates",
+      "displayName": "Void Crates (cofres físicos)",
+      "relativePath": "mods/void-crates-visual-v23-1.0.23.jar",
+      "url": "https://cdn.modrinth.com/data/uYkA7rQt/versions/bsLNEeh7/void-crates-visual-v23-1.0.23.jar",
+      "sha256": "dc272af812eb1a63be6b9ef7de8d3ea64ff2ef6de1993daf0d6a06709c357d88",
+      "size": 266255,
+      "category": "MANAGED"
+    },
+    {
+      "id": "fishing_client",
+      "displayName": "Minijuego de Pesca (CobbleCraft)",
+      "relativePath": "mods/fishing_client-0.1.0.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/fishing_client-0.1.0.jar",
+      "sha256": "1f636ed5746c2d17b8a3b89e788483e460dff8bb87c2085593fd34ac345e70a1",
+      "size": 35603,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblecraft-client",
+      "displayName": "Cliente oficial CobbleCraft",
+      "relativePath": "mods/cobblecraft-client-0.1.3.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.3.jar",
+      "sha256": "dafa8ad1127b1066dcc44d7e88bd0729453b0bf5f7e46f13b866f9c1d544f096",
+      "size": 4075234,
+      "category": "MANAGED"
+    },
+    {
+      "id": "emi",
+      "displayName": "EMI (visor de recetas)",
+      "relativePath": "mods/emi-1.1.23+1.21.1+fabric.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/emi-1.1.23+1.21.1+fabric.jar",
+      "sha256": "5bb6d4f43e3f11aa3842f371395de3b222696e4f6b3a5a0ab712dd5c86dc059f",
+      "size": 1097491,
+      "category": "MANAGED"
+    },
+    {
+      "id": "hub-map-final",
+      "displayName": "Mural del Hub (imagen)",
+      "relativePath": "config/hub_map_final.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/hub_map_final.png",
+      "sha256": "fe3d67de64336ff28b3f03124ed71f0561a76ec626d326dea93137a0b9ef95e7",
+      "size": 2991505,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblemon-config",
+      "displayName": "Config de Cobblemon (cliente)",
+      "relativePath": "config/cobblemon/main.json",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblemon-main-client.json",
+      "sha256": "ace10decf4ca96ddab2af355352532dc115ce81f5d2b02b1a330f3a2a9d6c8c0",
+      "size": 3408,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblecraft-resourcepack",
+      "displayName": "Resource pack oficial CobbleCraft",
+      "relativePath": "resourcepacks/CobbleCraft-ResourcePack-1.4.6.zip",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/CobbleCraft-ResourcePack-1.4.6.zip",
+      "sha256": "cf8eddc55b94d46fdad20d57f9fbeab6039958f3d18c06abc286fb4fa11dab39",
+      "size": 8284628,
+      "category": "MANAGED"
+    },
+    {
+      "id": "yunque-arcano-guia",
+      "displayName": "Guia del Yunque Arcano",
+      "relativePath": "config/yunque_arcano_guia.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/yunque_arcano_guia.png",
+      "sha256": "47874c9a973a3097cbeeaa9761e77d363f43bd2231d65e5aadcea1af1290dee9",
+      "size": 1827008,
+      "category": "MANAGED"
+    },
+    {
+      "id": "xaeros-minimap",
+      "displayName": "Xaero's Minimap (HUD)",
+      "relativePath": "mods/Xaeros_Minimap_25.2.10_Fabric_1.21.jar",
+      "url": "https://cdn.modrinth.com/data/1bokaNcj/versions/IaH8q5hM/Xaeros_Minimap_25.2.10_Fabric_1.21.jar",
+      "sha256": "0a4352f406baa851b1c0e1ab85595449c3c277b5abb239e5bb054bacb0a7c525",
+      "size": 1745107,
+      "category": "MANAGED"
+    }
+  ],
+  "optionalFiles": [],
+  "server": {
+    "displayName": "CobbleCraft",
+    "address": "194.213.3.150",
+    "port": 25602
+  },
+  "environment": "PROD"
+}
