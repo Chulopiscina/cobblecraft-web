@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.6.6-beta.1-rp1.4.6",
+  "packVersion": "1.6.7-beta.1-rp1.4.6",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -77,15 +77,6 @@
       "category": "MANAGED"
     },
     {
-      "id": "cobblecraft-client",
-      "displayName": "Cliente oficial CobbleCraft",
-      "relativePath": "mods/cobblecraft-client-0.1.5.jar",
-      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.5.jar",
-      "sha256": "6686dd917bbd2123e24184a9308b4960fa06e29ee03e93797f0ba9f8e174f983",
-      "size": 4079676,
-      "category": "MANAGED"
-    },
-    {
       "id": "emi",
       "displayName": "EMI (visor de recetas)",
       "relativePath": "mods/emi-1.1.23+1.21.1+fabric.jar",
@@ -131,12 +122,30 @@
       "category": "MANAGED"
     },
     {
-      "id": "xaeros-minimap",
-      "displayName": "Xaero's Minimap (HUD)",
-      "relativePath": "mods/Xaeros_Minimap_25.2.10_Fabric_1.21.jar",
-      "url": "https://cdn.modrinth.com/data/1bokaNcj/versions/IaH8q5hM/Xaeros_Minimap_25.2.10_Fabric_1.21.jar",
-      "sha256": "0a4352f406baa851b1c0e1ab85595449c3c277b5abb239e5bb054bacb0a7c525",
-      "size": 1745107,
+      "id": "cobblecraft-client",
+      "displayName": "Cliente oficial CobbleCraft",
+      "relativePath": "mods/cobblecraft-client-0.1.6.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.6.jar",
+      "sha256": "5511ff80bcbea5016f9225d65d40e9e8fe2bc0301ab5d6f5263fcee102a82d09",
+      "size": 4087237,
+      "category": "MANAGED"
+    },
+    {
+      "id": "journeymap",
+      "displayName": "JourneyMap - minimapa y radar",
+      "relativePath": "mods/journeymap-fabric-1.21.1-6.0.0-beta.56.jar",
+      "url": "https://cdn.modrinth.com/data/lfHFW1mp/versions/BoGPY3Lg/journeymap-fabric-1.21.1-6.0.0-beta.56.jar",
+      "sha256": "b3a49d1c44e2ca136dd54b6101a6adcb96c44992fc4e45823765f6a8e5e13be3",
+      "size": 3591362,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblemon-minimap-icons",
+      "displayName": "Iconos Pokemon para JourneyMap (Maxi U11)",
+      "relativePath": "resourcepacks/CobbleCraft-Pokemon-Minimap-Icons-U11.zip",
+      "url": "https://cdn.modrinth.com/data/ENCwFpBk/versions/XeZeOIZW/Maxi%27s-JM%2BCM_Pixel-U11.zip",
+      "sha256": "69b895090273093492ea7eded6d7dfb0ff5a8460ec4bc50d369f300aabad299d",
+      "size": 2784083,
       "category": "MANAGED"
     }
   ],
