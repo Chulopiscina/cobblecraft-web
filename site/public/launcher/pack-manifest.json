@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.6.7-beta.1-rp1.4.6",
+  "packVersion": "1.6.8-beta.1-rp1.4.6",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -122,15 +122,6 @@
       "category": "MANAGED"
     },
     {
-      "id": "cobblecraft-client",
-      "displayName": "Cliente oficial CobbleCraft",
-      "relativePath": "mods/cobblecraft-client-0.1.6.jar",
-      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.6.jar",
-      "sha256": "5511ff80bcbea5016f9225d65d40e9e8fe2bc0301ab5d6f5263fcee102a82d09",
-      "size": 4087237,
-      "category": "MANAGED"
-    },
-    {
       "id": "journeymap",
       "displayName": "JourneyMap - minimapa y radar",
       "relativePath": "mods/journeymap-fabric-1.21.1-6.0.0-beta.56.jar",
@@ -146,6 +137,15 @@
       "url": "https://cdn.modrinth.com/data/ENCwFpBk/versions/XeZeOIZW/Maxi%27s-JM%2BCM_Pixel-U11.zip",
       "sha256": "69b895090273093492ea7eded6d7dfb0ff5a8460ec4bc50d369f300aabad299d",
       "size": 2784083,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblecraft-client",
+      "displayName": "Cliente oficial CobbleCraft",
+      "relativePath": "mods/cobblecraft-client-0.1.7.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.7.jar",
+      "sha256": "da34c5e7208e7dbbbf7c7f11233410f7e8ffba8c1a30da9eb4b0ccec1d8914aa",
+      "size": 4087872,
       "category": "MANAGED"
     }
   ],
