@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.7.1-beta.1-rp1.4.6",
+  "packVersion": "1.8.0-beta.1-rp1.4.6",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -60,7 +60,7 @@
     },
     {
       "id": "voidcrates",
-      "displayName": "Void Crates (cofres f\u00edsicos)",
+      "displayName": "Void Crates (cofres físicos)",
       "relativePath": "mods/void-crates-visual-v23-1.0.23.jar",
       "url": "https://cdn.modrinth.com/data/uYkA7rQt/versions/bsLNEeh7/void-crates-visual-v23-1.0.23.jar",
       "sha256": "dc272af812eb1a63be6b9ef7de8d3ea64ff2ef6de1993daf0d6a06709c357d88",
@@ -204,7 +204,7 @@
     },
     {
       "id": "owo-lib",
-      "displayName": "o\u03c9o (owo-lib)",
+      "displayName": "oωo (owo-lib)",
       "relativePath": "mods/owo-lib-0.13.0-alpha.15+1.21.jar",
       "url": "https://cdn.modrinth.com/data/ccKDOlHs/versions/m3XmDd8j/owo-lib-0.13.0-alpha.15%2B1.21.jar",
       "sha256": "bf14fd85d3d360e5c1f8e4e2294a8b2ee5c0baf7f3788160473b6d217ef3816f",
@@ -299,6 +299,51 @@
       "url": "https://cdn.modrinth.com/data/LwFVdT1s/versions/4sHgGPN1/datapackportals-1.2.3-1.21.jar",
       "sha256": "56b614ed9c0a5e914db762fc1cf1d434a5181c72dcd1d2c7b90210fe379254b3",
       "size": 235387,
+      "category": "MANAGED"
+    },
+    {
+      "id": "balm",
+      "displayName": "Balm",
+      "relativePath": "mods/balm-fabric-1.21.1-21.0.65.jar",
+      "url": "https://cdn.modrinth.com/data/MBAkmtvl/versions/VynBiUHt/balm-fabric-1.21.1-21.0.65.jar",
+      "sha256": "195c4f64ce30d47896b0667ac38fcefe21278b91c9f83b7251329947b5ac1be3",
+      "size": 806784,
+      "category": "MANAGED"
+    },
+    {
+      "id": "waystones",
+      "displayName": "Waystones",
+      "relativePath": "mods/waystones-fabric-1.21.1-21.1.45.jar",
+      "url": "https://cdn.modrinth.com/data/LOpKHB2A/versions/kcpLmG41/waystones-fabric-1.21.1-21.1.45.jar",
+      "sha256": "df489f97b1ee26d658f2b07a6653b3507cc583d955d84fcef14a6f358a7577a1",
+      "size": 1245242,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblemon-utility-plus",
+      "displayName": "Cobblemon Utility+",
+      "relativePath": "mods/Cobblemon-Utility+-fabric-1.7.3.jar",
+      "url": "https://cdn.modrinth.com/data/ePxok8ID/versions/kZU5eRE1/Cobblemon-Utility%2B-fabric-1.7.3.jar",
+      "sha256": "4745d846ac64d3f6abb15ba2ff806c5c1a9b512e7caba755aca499d0e4e41001",
+      "size": 161380,
+      "category": "MANAGED"
+    },
+    {
+      "id": "tmcraft",
+      "displayName": "TMCraft",
+      "relativePath": "mods/tmcraft-1.4.19+1.7.3.jar",
+      "url": "https://cdn.modrinth.com/data/HU6mkUZs/versions/XAsmlreW/tmcraft-1.4.19%2B1.7.3.jar",
+      "sha256": "c6e17e934bc30c634a3f5c59f4b1dce9d229e97e5a468da0073cd97925aba1f2",
+      "size": 6505565,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblecuisine",
+      "displayName": "CobbleCuisine",
+      "relativePath": "mods/cobblecuisine-2.0.1-1.7-rc1.jar",
+      "url": "https://cdn.modrinth.com/data/dlx62Wp3/versions/KQwSroDP/cobblecuisine-2.0.1-1.7-rc1.jar",
+      "sha256": "081d9ba2ddaae3f9b3240c0b4d49b75c4f93ab2b6e9bbb7bb69a3bc05520e1d9",
+      "size": 683115,
       "category": "MANAGED"
     }
   ],
