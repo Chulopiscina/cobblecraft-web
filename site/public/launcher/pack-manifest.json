@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.7.0-beta.1-rp1.4.6",
+  "packVersion": "1.7.1-beta.1-rp1.4.6",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -60,7 +60,7 @@
     },
     {
       "id": "voidcrates",
-      "displayName": "Void Crates (cofres físicos)",
+      "displayName": "Void Crates (cofres f\u00edsicos)",
       "relativePath": "mods/void-crates-visual-v23-1.0.23.jar",
       "url": "https://cdn.modrinth.com/data/uYkA7rQt/versions/bsLNEeh7/void-crates-visual-v23-1.0.23.jar",
       "sha256": "dc272af812eb1a63be6b9ef7de8d3ea64ff2ef6de1993daf0d6a06709c357d88",
@@ -204,7 +204,7 @@
     },
     {
       "id": "owo-lib",
-      "displayName": "oωo (owo-lib)",
+      "displayName": "o\u03c9o (owo-lib)",
       "relativePath": "mods/owo-lib-0.13.0-alpha.15+1.21.jar",
       "url": "https://cdn.modrinth.com/data/ccKDOlHs/versions/m3XmDd8j/owo-lib-0.13.0-alpha.15%2B1.21.jar",
       "sha256": "bf14fd85d3d360e5c1f8e4e2294a8b2ee5c0baf7f3788160473b6d217ef3816f",
@@ -290,6 +290,15 @@
       "url": "https://cdn.modrinth.com/data/bI8Nt3uA/versions/cGFERrtC/cobblenav-fabric-2.3.3.jar",
       "sha256": "e66eb486f5cfbeef2215910193eba0000c191bbf774fa59f3e0b955ce13cae45",
       "size": 1090821,
+      "category": "MANAGED"
+    },
+    {
+      "id": "datapackportals",
+      "displayName": "Datapack Portals",
+      "relativePath": "mods/datapackportals-1.2.3-1.21.jar",
+      "url": "https://cdn.modrinth.com/data/LwFVdT1s/versions/4sHgGPN1/datapackportals-1.2.3-1.21.jar",
+      "sha256": "56b614ed9c0a5e914db762fc1cf1d434a5181c72dcd1d2c7b90210fe379254b3",
+      "size": 235387,
       "category": "MANAGED"
     }
   ],
