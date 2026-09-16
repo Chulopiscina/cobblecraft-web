@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.6.11-beta.1-rp1.4.6",
+  "packVersion": "1.7.0-beta.1-rp1.4.6",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -140,15 +140,6 @@
       "category": "MANAGED"
     },
     {
-      "id": "cobblecraft-client",
-      "displayName": "Cliente oficial CobbleCraft",
-      "relativePath": "mods/cobblecraft-client-0.1.10.jar",
-      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.10.jar",
-      "sha256": "adbba23adbaec93c8f910923e26b8df8473dcf14e67985217f20685080197f81",
-      "size": 7805838,
-      "category": "MANAGED"
-    },
-    {
       "id": "sodium",
       "displayName": "Sodium (rendimiento grafico)",
       "relativePath": "mods/sodium-fabric-0.6.13+mc1.21.1.jar",
@@ -164,6 +155,141 @@
       "url": "https://cdn.modrinth.com/data/YL57xq9U/versions/zsoi0dso/iris-fabric-1.8.8%2Bmc1.21.1.jar",
       "sha256": "b5ad39a6cb113ca0a1765f06689f9f4b29ccd0c81247de90b06c42f5da1092f5",
       "size": 2690177,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblecraft-client",
+      "displayName": "Cliente oficial CobbleCraft",
+      "relativePath": "mods/cobblecraft-client-0.1.11.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.11.jar",
+      "sha256": "330c097b68d3491afef072310fcee87339d332e92569213429230b559374449f",
+      "size": 7805862,
+      "category": "MANAGED"
+    },
+    {
+      "id": "terralith",
+      "displayName": "Terralith (worldgen)",
+      "relativePath": "mods/Terralith_1.21.x_v2.6.2.jar",
+      "url": "https://cdn.modrinth.com/data/8oi3bsk5/versions/eWDLFabb/Terralith_1.21.x_v2.6.2.jar",
+      "sha256": "9cd4d402fde0f523e5b430ac8fd479ce05aea7a50fe0c8c26901f5f769272214",
+      "size": 2813817,
+      "category": "MANAGED"
+    },
+    {
+      "id": "tectonic",
+      "displayName": "Tectonic (worldgen)",
+      "relativePath": "mods/tectonic-3.0.28-fabric-21.1.jar",
+      "url": "https://cdn.modrinth.com/data/lWDHr9jE/versions/WdDiEKMn/tectonic-3.0.28-fabric-21.1.jar",
+      "sha256": "d4e16f9fd714cd0dfd3d785fee5a7628a6f1addeaca2f0ce931ac504346cb3be",
+      "size": 458013,
+      "category": "MANAGED"
+    },
+    {
+      "id": "midnightlib",
+      "displayName": "MidnightLib",
+      "relativePath": "mods/midnightlib-fabric-1.9.3+1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/codAaoxh/versions/as2ZKoB1/midnightlib-fabric-1.9.3%2B1.21.1.jar",
+      "sha256": "ec05a4c29789cc7fd44489eecc368bc3993b95182f2028cefbed705804a27433",
+      "size": 58781,
+      "category": "MANAGED"
+    },
+    {
+      "id": "architectury-api",
+      "displayName": "Architectury API",
+      "relativePath": "mods/architectury-13.0.11-fabric.jar",
+      "url": "https://cdn.modrinth.com/data/lhGA9TYQ/versions/Pzc2FP5K/architectury-13.0.11-fabric.jar",
+      "sha256": "ab17d5c7d8d8c93cc713437ed426f0ff0d6f802a48fff0c579a9bd3aaa833efd",
+      "size": 600921,
+      "category": "MANAGED"
+    },
+    {
+      "id": "owo-lib",
+      "displayName": "oωo (owo-lib)",
+      "relativePath": "mods/owo-lib-0.13.0-alpha.15+1.21.jar",
+      "url": "https://cdn.modrinth.com/data/ccKDOlHs/versions/m3XmDd8j/owo-lib-0.13.0-alpha.15%2B1.21.jar",
+      "sha256": "bf14fd85d3d360e5c1f8e4e2294a8b2ee5c0baf7f3788160473b6d217ef3816f",
+      "size": 1963544,
+      "category": "MANAGED"
+    },
+    {
+      "id": "accessories",
+      "displayName": "Accessories",
+      "relativePath": "mods/accessories-fabric-1.1.0-beta.53+1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/jtmvUHXj/versions/Xlt4eWBe/accessories-fabric-1.1.0-beta.53%2B1.21.1.jar",
+      "sha256": "51e6f6d52cb2523199ad36e5bc04802230f86904c35ac3dbf36e59c86b2c30d1",
+      "size": 1095802,
+      "category": "MANAGED"
+    },
+    {
+      "id": "lithostitched",
+      "displayName": "Lithostitched",
+      "relativePath": "mods/lithostitched-1.8.0+beta6-fabric-21.1.jar",
+      "url": "https://cdn.modrinth.com/data/XaDC71GB/versions/LC0qLyud/lithostitched-1.8.0%2Bbeta6-fabric-21.1.jar",
+      "sha256": "e32f7b1b36e7ab1955fd4972cc0b992512edbda866798a86096dde0835189274",
+      "size": 970257,
+      "category": "MANAGED"
+    },
+    {
+      "id": "resourceful-lib",
+      "displayName": "Resourceful Lib",
+      "relativePath": "mods/resourcefullib-fabric-1.21-3.0.12.jar",
+      "url": "https://cdn.modrinth.com/data/G1hIVOrD/versions/Hf91FuVF/resourcefullib-fabric-1.21-3.0.12.jar",
+      "sha256": "93064c5aff85bf5e6385470f311fd1c7de172f58b02fefb1d2920db76f8cd8b5",
+      "size": 485586,
+      "category": "MANAGED"
+    },
+    {
+      "id": "athena-ctm",
+      "displayName": "Athena (Connected Textures)",
+      "relativePath": "mods/athena-fabric-1.21.1-4.0.6.jar",
+      "url": "https://cdn.modrinth.com/data/b1ZV3DIJ/versions/JfyYsWKP/athena-fabric-1.21.1-4.0.6.jar",
+      "sha256": "e17aad84c690ac4e46300a4180b3ae4077ffa4f526dbc82d117afbbff4ee83e4",
+      "size": 88425,
+      "category": "MANAGED"
+    },
+    {
+      "id": "chipped",
+      "displayName": "Chipped",
+      "relativePath": "mods/chipped-fabric-1.21.1-4.0.2.jar",
+      "url": "https://cdn.modrinth.com/data/BAscRYKm/versions/6h2mVZcb/chipped-fabric-1.21.1-4.0.2.jar",
+      "sha256": "1721c94365fd8d2d3c3fdcac7efbfd7e605daa7dfb8adc4c126c5bbde2820c79",
+      "size": 15016830,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblemonraiddens",
+      "displayName": "Cobblemon Raid Dens",
+      "relativePath": "mods/cobblemonraiddens-fabric-0.11.7+1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/GebWh45l/versions/3iILerfL/cobblemonraiddens-fabric-0.11.7%2B1.21.1.jar",
+      "sha256": "d180cf553e0c851713ed7c0178b8b3c75b22ab704e71f30ff96d2b21721cc68f",
+      "size": 2691582,
+      "category": "MANAGED"
+    },
+    {
+      "id": "legendary-monuments",
+      "displayName": "Cobblemon: Legendary Monuments",
+      "relativePath": "mods/legendarymonuments-fabric-1.21.1-8.1-Love_for_All.jar",
+      "url": "https://cdn.modrinth.com/data/m6RyHSbV/versions/F6Ub0Gga/legendarymonuments-fabric-1.21.1-8.1-Love_for_All.jar",
+      "sha256": "64c04db1d9757c52d2cc805cdc242688db8c3d837a17500593c5095b666783b3",
+      "size": 16611506,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblemon-mega-showdown",
+      "displayName": "Cobblemon: Mega Showdown",
+      "relativePath": "mods/mega_showdown-fabric-1.9.9+1.7.3+1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/SszvX85I/versions/13b1fBn2/mega_showdown-fabric-1.9.9%2B1.7.3%2B1.21.1.jar",
+      "sha256": "fd627eb84c67579ad6a4436da0de88b4ef2221d1e45e8ce25425e6b5039a5f17",
+      "size": 20450537,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblemon-pokenav",
+      "displayName": "Cobblemon PokeNav",
+      "relativePath": "mods/cobblenav-fabric-2.3.3.jar",
+      "url": "https://cdn.modrinth.com/data/bI8Nt3uA/versions/cGFERrtC/cobblenav-fabric-2.3.3.jar",
+      "sha256": "e66eb486f5cfbeef2215910193eba0000c191bbf774fa59f3e0b955ce13cae45",
+      "size": 1090821,
       "category": "MANAGED"
     }
   ],
