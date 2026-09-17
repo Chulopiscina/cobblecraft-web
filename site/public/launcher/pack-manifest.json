@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.0-beta.1-rp1.4.6",
+  "packVersion": "1.8.1-beta.1-rp1.4.6",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -344,6 +344,33 @@
       "url": "https://cdn.modrinth.com/data/dlx62Wp3/versions/KQwSroDP/cobblecuisine-2.0.1-1.7-rc1.jar",
       "sha256": "081d9ba2ddaae3f9b3240c0b4d49b75c4f93ab2b6e9bbb7bb69a3bc05520e1d9",
       "size": 683115,
+      "category": "MANAGED"
+    },
+    {
+      "id": "hub-map-final-v2",
+      "displayName": "Mural del Hub (mapa actual)",
+      "relativePath": "config/hub_map_finalv2.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/hub_map_finalv2.png",
+      "sha256": "59ecabc50d6bdf2b73a4a9dd65932267302d54373f4daf47307c998aff8c0d90",
+      "size": 2484723,
+      "category": "MANAGED"
+    },
+    {
+      "id": "onboarding-guide",
+      "displayName": "Panel de bienvenida",
+      "relativePath": "config/onboarding_guide.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/onboarding_guide.png",
+      "sha256": "c20acc027d30ec25f131fb3dabb9da0a940659082f5a2338484dad18c42d67f9",
+      "size": 2509215,
+      "category": "MANAGED"
+    },
+    {
+      "id": "liga-pokemon",
+      "displayName": "Cartel de la Liga Pokemon",
+      "relativePath": "config/liga_pokemon.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/liga_pokemon.png",
+      "sha256": "84b29577b455fd5ba96242a834423dc3ca41ac7541438f3e4b581fa10c536c6e",
+      "size": 2246375,
       "category": "MANAGED"
     }
   ],
