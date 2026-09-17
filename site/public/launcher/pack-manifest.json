@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.3-beta.1-rp1.4.6",
+  "packVersion": "1.8.4-beta.1-rp1.4.7",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -106,10 +106,10 @@
     {
       "id": "cobblecraft-resourcepack",
       "displayName": "Resource pack oficial CobbleCraft",
-      "relativePath": "resourcepacks/CobbleCraft-ResourcePack-1.4.6.zip",
-      "url": "https://cobblemon-server-site.pages.dev/launcher/files/CobbleCraft-ResourcePack-1.4.6.zip",
-      "sha256": "cf8eddc55b94d46fdad20d57f9fbeab6039958f3d18c06abc286fb4fa11dab39",
-      "size": 8284628,
+      "relativePath": "resourcepacks/CobbleCraft-ResourcePack-1.4.7.zip",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/CobbleCraft-ResourcePack-1.4.7.zip",
+      "sha256": "26424534a1897b31a09c05b6465b025229bfe7c0a1f7b982edb95335a5b95935",
+      "size": 8294509,
       "category": "MANAGED"
     },
     {
