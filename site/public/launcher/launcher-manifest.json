@@ -1,12 +1,12 @@
 {
-  "environment": "PROD",
-  "version": "1.1.0",
-  "mandatory": true,
-  "downloadUrl": "https://github.com/Chulopiscina/cobblecraft-web/releases/download/launcher-v1.1.0/CobbleCraft-Launcher-latest.zip",
-  "sha256": "6c0e9c4b8dbe0e36eee78184c8620c84956faf7ddc4d0db73ac1a0eae9aa3675",
-  "size": 86398235,
-  "publishedAt": "2026-09-11T12:26:40Z",
-  "notes": [
-    "Beta cerrada: distribucion Windows, perfil de produccion aislado y actualizaciones obligatorias."
-  ]
+    "environment":  "PROD",
+    "version":  "1.2.0",
+    "mandatory":  true,
+    "downloadUrl":  "https://github.com/Chulopiscina/cobblecraft-web/releases/download/launcher-v1.2.0/CobbleCraft-Launcher-latest.zip",
+    "sha256":  "46e2d12acba192436f52ce8343b8f81b8c71705c027d4cf81727771e4f358496",
+    "size":  85596555,
+    "publishedAt":  "2026-09-17T15:27:40Z",
+    "notes":  [
+                  "Beta cerrada: distribucion Windows, perfil de produccion aislado y actualizaciones obligatorias."
+              ]
 }
