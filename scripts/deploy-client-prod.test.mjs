@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { assertEmptyIndex, assertNotDowngrade, commitFiles, config, prepareRelease, safePath, validateManifest, verifyBytes, verifySnapshot } from './deploy-client-prod.mjs';
+import { allPublished, assertEmptyIndex, assertNotDowngrade, commitFiles, config, prepareRelease, safePath, validateManifest, verifyBytes, verifySnapshot } from './deploy-client-prod.mjs';
 
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const zip = Buffer.from([80, 75, 3, 4, 1, 2]);
@@ -72,6 +72,23 @@ test('checks artifact hashes, sizes and binary signatures', () => {
   assert.throws(() => verifyBytes(zip, { ...file, relativePath: 'config/x.png' }), /PNG/);
 });
 
+test('JourneyMap replacement requires icons and rejects two minimaps or retired mods', () => {
+  const m = fixture();
+  const old = m.requiredFiles.find(f => f.id === 'xaeros-minimap');
+  const jm = { ...old, id: 'journeymap', relativePath: 'mods/journeymap.jar', url: 'https://cdn.modrinth.com/journeymap.jar' };
+  m.requiredFiles = m.requiredFiles.filter(f => f.id !== old.id).concat(jm);
+  assert.throws(() => validateManifest(m), /iconos/);
+  m.requiredFiles.push({ ...old, id: 'cobblemon-minimap-icons', relativePath: 'resourcepacks/CobbleCraft-Pokemon-Minimap-Icons-U11.zip', url: 'https://cdn.modrinth.com/icons.zip' });
+  assert.equal(validateManifest(m), m);
+  m.requiredFiles.push(old);
+  assert.throws(() => validateManifest(m), /exactamente un minimapa/);
+  m.requiredFiles.pop();
+  m.optionalFiles.push(old);
+  assert.throws(() => validateManifest(m), /segundo minimapa/);
+  m.optionalFiles = [{ ...old, id: 'unrelated-id', relativePath: 'mods/moonlight.jar' }];
+  assert.throws(() => validateManifest(m), /Moonlight/);
+});
+
 test('release allowlist rejects unrelated web files and corrupt artifacts', async () => {
   const root = await mkdtemp(join(tmpdir(), 'cc-release-test-'));
   await mkdir(join(root, 'web/launcher/files'), { recursive: true });
@@ -111,4 +128,24 @@ test('snapshot mismatch prevents deploying unrelated local build changes', async
   const root = await mkdtemp(join(tmpdir(), 'cc-snapshot-test-'));
   await writeFile(join(root, 'index.html'), 'dirty local build');
   await assert.rejects(verifySnapshot(root, config.origin, async () => ({ sha256: sha('published build'), size: 15 })), /distinto al publicado/);
+});
+
+test('a release that only changes the launcher manifest is not treated as already published', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'cc-published-test-'));
+  await mkdir(join(root, 'web/launcher'), { recursive: true });
+  const pack = Buffer.from('{"packVersion":"1.8.6-beta.1-rp1.4.9"}');
+  const launcher = Buffer.from('{"version":"1.3.0"}');
+  await writeFile(join(root, 'web/launcher/pack-manifest.json'), pack);
+  await writeFile(join(root, 'web/launcher/launcher-manifest.json'), launcher);
+  const release = { source: join(root, 'web'), names: ['launcher/pack-manifest.json', 'launcher/launcher-manifest.json'] };
+  const production = new Map([['pack', pack], ['launcher', launcher]]);
+  const read = async url => production.get(url.includes('launcher-manifest') ? 'launcher' : 'pack');
+  assert.equal(await allPublished(release, read), true);
+  production.set('launcher', Buffer.from('{"version":"1.2.0"}'));
+  assert.equal(await allPublished(release, read), false);
+  production.set('launcher', null);
+  assert.equal(await allPublished(release, read), false);
+  production.set('launcher', launcher);
+  production.set('pack', Buffer.from('{"packVersion":"1.8.5-beta.1-rp1.4.8"}'));
+  assert.equal(await allPublished(release, read), false);
 });

@@ -16,6 +16,11 @@ export const config = Object.freeze({
 });
 const web = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = 'launcher/pack-manifest.json';
+// El manifest de ACTUALIZACION DEL LAUNCHER viaja en el mismo despliegue que el pack (2026-09-17):
+// es otro endpoint estatico del mismo release, y publicarlo por separado obligaria a un deploy
+// completo del sitio (que arrastraria trabajo ajeno sin verificar). Se valida con las mismas
+// garantias que el pack: PROD, HTTPS, version y hash con formato correcto.
+const launcherManifestPath = 'launcher/launcher-manifest.json';
 const supportFiles = ['scripts/deploy-client-prod.mjs', 'scripts/deploy-client-prod.test.mjs', 'docs/CLIENT_PROD_DEPLOY.md'];
 // These non-public Pages controls belong to the verified production build, not dirty public/.
 const controls = {
@@ -57,10 +62,18 @@ export function validateManifest(manifest) {
       assert(/^launcher\/files\/[^/]+$/.test(path), `Asset web no permitido: ${path}`);
     }
   }
-  for (const id of ['cobblecraft-client', 'cobblecraft-resourcepack', 'xaeros-minimap', 'hub-map-final', 'yunque-arcano-guia']) {
+  for (const id of ['cobblecraft-client', 'cobblecraft-resourcepack', 'hub-map-final', 'yunque-arcano-guia']) {
     assert(manifest.requiredFiles.some(f => f.id === id), `Falta archivo obligatorio: ${id}`);
   }
-  assert(![...ids].some(id => /map.?atlases|moonlight/i.test(id)), 'No reintroducir Map Atlases/Moonlight.');
+  const minimaps = manifest.requiredFiles.filter(f => ['xaeros-minimap', 'journeymap'].includes(f.id));
+  assert(minimaps.length === 1, 'Debe haber exactamente un minimapa obligatorio.');
+  assert(!manifest.optionalFiles.some(f => /xaero|journeymap/i.test(f.id + ' ' + f.relativePath)), 'No instalar un segundo minimapa opcional.');
+  if (minimaps[0].id === 'journeymap') {
+    assert(manifest.requiredFiles.some(f => f.id === 'cobblemon-minimap-icons'
+      && f.relativePath === 'resourcepacks/CobbleCraft-Pokemon-Minimap-Icons-U11.zip'), 'Faltan los iconos de Pokemon para JourneyMap.');
+    assert(![...paths].some(p => /xaero/i.test(p)), 'Xaero debe retirarse al instalar JourneyMap.');
+  }
+  assert(![...ids, ...paths].some(id => /map.?atlases|moonlight/i.test(id)), 'No reintroducir Map Atlases/Moonlight.');
   return manifest;
 }
 
@@ -90,6 +103,24 @@ export function verifyBytes(bytes, file) {
   if (file.relativePath.endsWith('.png')) assert(bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])), `PNG no valido: ${file.id}`);
 }
 
+/**
+ * Valida el manifest de actualizacion del launcher cuando viaja en el release. Nunca se acepta
+ * un manifest que no sea PROD, con version vacia, sin SHA-256 valido o con una URL que no sea la
+ * release HTTPS del repositorio de publicacion.
+ */
+export function validateLauncherManifest(release) {
+  assert(release.environment === 'PROD', 'Solo se permite un manifest de launcher PROD.');
+  assert(typeof release.version === 'string' && /^\d+\.\d+\.\d+$/.test(release.version), 'Version de launcher no valida.');
+  assert(release.mandatory === true, 'La actualizacion del launcher debe ser obligatoria.');
+  assert(/^[a-f0-9]{64}$/.test(release.sha256) && Number.isSafeInteger(release.size) && release.size > 0, 'Metadatos del launcher invalidos.');
+  const url = new URL(release.downloadUrl);
+  assert(url.protocol === 'https:' && url.hostname === 'github.com'
+    && /^\/Chulopiscina\/cobblecraft-web\/releases\/download\/launcher-v\d+\.\d+\.\d+\/CobbleCraft-Launcher-latest\.zip$/.test(url.pathname),
+  'URL de descarga del launcher no permitida.');
+  assert(url.pathname.includes(`launcher-v${release.version}/`), 'La URL de descarga no corresponde a la version declarada.');
+  return release;
+}
+
 export async function prepareRelease(release) {
   const source = join(resolve(release), 'web');
   const manifest = validateManifest(await json(join(source, manifestPath)));
@@ -98,8 +129,9 @@ export async function prepareRelease(release) {
     .map(f => [decodeURIComponent(new URL(f.url).pathname.slice(1)), f]));
   const names = await files(source);
   for (const name of names) {
-    assert(name === manifestPath || entries.has(name), `Archivo ajeno en la actualizacion: ${name}`);
-    if (name !== manifestPath) verifyBytes(await readFile(join(source, name)), entries.get(name));
+    assert(name === manifestPath || name === launcherManifestPath || entries.has(name), `Archivo ajeno en la actualizacion: ${name}`);
+    if (name === launcherManifestPath) validateLauncherManifest(await json(join(source, name)));
+    else if (name !== manifestPath) verifyBytes(await readFile(join(source, name)), entries.get(name));
   }
   return { source, manifest, names };
 }
@@ -142,6 +174,27 @@ async function downloadHash(url, allow404 = false) {
   let size = 0;
   for await (const chunk of r.body) { digest.update(chunk); size += chunk.length; }
   return { sha256: digest.digest('hex'), size };
+}
+
+/**
+ * "Ya esta publicado" solo si CADA archivo de la actualizacion coincide byte a byte con lo que
+ * sirve produccion. Mirar unicamente `launcher/pack-manifest.json` daba por publicada una entrega
+ * que solo cambiaba `launcher/launcher-manifest.json` (release del launcher sin cambio de pack):
+ * el script se saltaba el Direct Upload y despues fallaba al verificar su propio build contra
+ * Pages. Acepta un lector inyectable para poder probarlo sin red.
+ */
+export async function allPublished(release, readRemote = downloadBytes) {
+  for (const name of release.names) {
+    const local = await readFile(join(release.source, name));
+    const remote = await readRemote(`${config.origin}/${name}`);
+    if (!remote || hash(remote) !== hash(local)) return false;
+  }
+  return true;
+}
+
+async function downloadBytes(url) {
+  const response = await get(url, { allow404: true });
+  return response.status === 404 ? null : Buffer.from(await response.arrayBuffer());
 }
 
 async function verifyRequired(manifest, releaseSource, releaseNames = []) {
@@ -294,6 +347,7 @@ export async function main(argv) {
   for (const name of release.names) {
     const bytes = await readFile(join(release.source, name));
     if (name === manifestPath) assert(hash(bytes) === hash(manifestBytes), 'Manifest modificado durante el despliegue.');
+    else if (name === launcherManifestPath) validateLauncherManifest(JSON.parse(bytes.toString('utf8')));
     else verifyBytes(bytes, release.manifest.requiredFiles.concat(release.manifest.optionalFiles).find(f => new URL(f.url).origin === config.origin && decodeURIComponent(new URL(f.url).pathname.slice(1)) === name));
     await mkdir(dirname(join(stage, name)), { recursive: true });
     await writeFile(join(stage, name), bytes);
@@ -307,7 +361,7 @@ export async function main(argv) {
   const audit = { packVersion: release.manifest.packVersion, commit, previousDeployment: deployment.url,
     previousDeploymentId: deployment.id, stage, changed: release.names, previousFiles: before };
   await writeFile(join(run, 'deployment.json'), JSON.stringify(audit, null, 2));
-  const identical = (await downloadHash(`${config.origin}/${manifestPath}`)).sha256 === hash(manifestBytes);
+  const identical = await allPublished(release);
   let finalDeployment = deployment;
   if (!identical) {
     console.log(`Publicando solo el cliente en Pages PROD/main (${commit.slice(0, 7)})...`);

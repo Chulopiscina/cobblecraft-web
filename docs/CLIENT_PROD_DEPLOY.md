@@ -28,7 +28,10 @@ No usa `git add .`, force-push, reset, borrados ni rollback automatico.
 Despues del push hace Direct Upload con Wrangler a PROD/main, espera hasta cinco
 minutos y verifica el manifest canonico, todos sus binarios por SHA256/tamano y
 el resto del sitio byte a byte. Repetir una version ya publicada solo verifica;
-no crea commits vacios ni despliegues duplicados.
+no crea commits vacios ni despliegues duplicados. "Ya publicada" se decide
+comparando **todos** los archivos de la entrega contra produccion, no solo
+`pack-manifest.json`: una entrega que solo cambia `launcher-manifest.json`
+(release del launcher sin cambio de pack) tambien se despliega.
 
 Requiere la autenticacion Git existente y `wrangler login` (o un
 `CLOUDFLARE_API_TOKEN` ya configurado). Nunca almacena ni imprime credenciales.
