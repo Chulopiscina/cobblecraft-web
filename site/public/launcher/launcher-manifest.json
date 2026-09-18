@@ -1,12 +1,12 @@
 {
     "environment":  "PROD",
-    "version":  "1.2.0",
+    "version":  "1.3.0",
     "mandatory":  true,
-    "downloadUrl":  "https://github.com/Chulopiscina/cobblecraft-web/releases/download/launcher-v1.2.0/CobbleCraft-Launcher-latest.zip",
-    "sha256":  "46e2d12acba192436f52ce8343b8f81b8c71705c027d4cf81727771e4f358496",
-    "size":  85596555,
-    "publishedAt":  "2026-09-17T15:27:40Z",
+    "downloadUrl":  "https://github.com/Chulopiscina/cobblecraft-web/releases/download/launcher-v1.3.0/CobbleCraft-Launcher-latest.zip",
+    "sha256":  "a236037ead7595d3bafe1859cbe4f6f593ad54a40a3b3de93b360ebd58babe22",
+    "size":  85617102,
+    "publishedAt":  "2026-09-18T10:55:02Z",
     "notes":  [
-                  "Beta cerrada: distribucion Windows, perfil de produccion aislado y actualizaciones obligatorias."
+                  "Rediseno visual del launcher: nueva pantalla principal con el Hub de fondo, boton JUGAR destacado, estado del servidor en vivo y Ajustes redisenados. Se actualiza solo al abrir el launcher."
               ]
 }
