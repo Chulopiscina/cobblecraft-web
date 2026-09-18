@@ -1,12 +1,13 @@
 {
     "environment":  "PROD",
-    "version":  "1.3.0",
+    "version":  "1.3.1",
     "mandatory":  true,
-    "downloadUrl":  "https://github.com/Chulopiscina/cobblecraft-web/releases/download/launcher-v1.3.0/CobbleCraft-Launcher-latest.zip",
-    "sha256":  "a236037ead7595d3bafe1859cbe4f6f593ad54a40a3b3de93b360ebd58babe22",
-    "size":  85617102,
-    "publishedAt":  "2026-09-18T10:55:02Z",
+    "downloadUrl":  "https://github.com/Chulopiscina/cobblecraft-web/releases/download/launcher-v1.3.1/CobbleCraft-Launcher-latest.zip",
+    "sha256":  "c463ea751ac639cee0ba13df631858f8cc3ab93b1c23df280ac8577bae142a46",
+    "size":  85617459,
+    "publishedAt":  "2026-09-18T11:08:25Z",
     "notes":  [
-                  "Rediseno visual del launcher: nueva pantalla principal con el Hub de fondo, boton JUGAR destacado, estado del servidor en vivo y Ajustes redisenados. Se actualiza solo al abrir el launcher."
+                  "Rediseno visual del launcher: nueva pantalla principal con el Hub de fondo, boton JUGAR destacado, estado del servidor en vivo y Ajustes redisenados.",
+                  "Correccion: cuando hay una actualizacion obligatoria del launcher, el boton ACTUALIZAR la descarga y la verifica (en la 1.3.0 quedaba deshabilitado y no habia forma de actualizar)."
               ]
 }
