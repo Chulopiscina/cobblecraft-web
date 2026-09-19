@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.9-beta.1-rp1.4.10",
+  "packVersion": "1.8.10-beta.1-rp1.4.10",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -160,10 +160,10 @@
     {
       "id": "cobblecraft-client",
       "displayName": "Cliente oficial CobbleCraft",
-      "relativePath": "mods/cobblecraft-client-0.1.15.jar",
-      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.15.jar",
-      "sha256": "8acf15ebef3dfc11afd63a11746c3fdcf3aa1b702c2e3f0a015e1455cebe96e8",
-      "size": 6744221,
+      "relativePath": "mods/cobblecraft-client-0.1.16.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.16.jar",
+      "sha256": "eb8add0fdfcd254b7c50ea9ad5142cf1e0e5a51110afd018f7d1412676c23a8b",
+      "size": 6754834,
       "category": "MANAGED"
     },
     {
@@ -308,6 +308,15 @@
       "url": "https://cdn.modrinth.com/data/MBAkmtvl/versions/VynBiUHt/balm-fabric-1.21.1-21.0.65.jar",
       "sha256": "195c4f64ce30d47896b0667ac38fcefe21278b91c9f83b7251329947b5ac1be3",
       "size": 806784,
+      "category": "MANAGED"
+    },
+    {
+      "id": "trashslot",
+      "displayName": "TrashSlot",
+      "relativePath": "mods/trashslot-fabric-1.21.1-21.1.11.jar",
+      "url": "https://cdn.modrinth.com/data/vRYk0bv7/versions/apJG54CW/trashslot-fabric-1.21.1-21.1.11.jar",
+      "sha256": "28b1ed22a2968e9d1b2760ef8dfeb2a95ab89036d13968182f4d8c326e3763fd",
+      "size": 78842,
       "category": "MANAGED"
     },
     {
