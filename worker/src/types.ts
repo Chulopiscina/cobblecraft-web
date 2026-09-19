@@ -17,9 +17,13 @@ export interface Env {
   STRIPE_SECRET_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
   TEBEX_PUBLIC_TOKEN?: string; // Identificador publico Headless API de la tienda Tebex.
+  TEBEX_PRIVATE_KEY?: string; // Private Key Headless API. Solo server-side; necesaria para basket Minecraft atribuido.
+  TEBEX_CHECKOUT_ENABLED?: string; // Activar solo tras validar credenciales, paquetes y entrega PROD.
+  SERVER_STATUS_TOKEN?: string; // Token exclusivo de heartbeat, sin permisos de entrega.
   TEBEX_WEBHOOK_SECRET?: string; // Secreto de firma X-Signature para webhooks Tebex.
   GITHUB_LAUNCHER_REPO?: string; // "owner/repo" para /api/launcher/latest
   MC_STATUS_HOST?: string;
   MC_STATUS_PORT?: string;
+  SERVER_STATUS_TTL_SECONDS?: string;
   VOTE_SIGNING_SECRET?: string; // HMAC compartido con progression_core (VoteConfig) para firmar/verificar el token de /vote
 }

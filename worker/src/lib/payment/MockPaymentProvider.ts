@@ -1,4 +1,4 @@
-import type { CheckoutRequest, CheckoutSession, PaymentProvider, WebhookEvent } from "./PaymentProvider";
+import type { CheckoutRequest, CheckoutSession, PaymentProvider, ResumeCheckoutRequest, WebhookEvent } from "./PaymentProvider";
 import { timingSafeEqual } from "../security";
 
 async function hmacHex(secret: string, message: string): Promise<string> {
@@ -30,6 +30,11 @@ export class MockPaymentProvider implements PaymentProvider {
     const providerPaymentId = `mock_${req.orderPublicId}`;
     const checkoutUrl = `${this.siteBaseUrl}/tienda/mock-checkout?order=${encodeURIComponent(req.orderPublicId)}`;
     return { checkoutUrl, providerPaymentId };
+  }
+
+  async resumeCheckout(req: ResumeCheckoutRequest): Promise<CheckoutSession> {
+    const checkoutUrl = `${this.siteBaseUrl}/tienda/mock-checkout?order=${encodeURIComponent(req.orderPublicId)}`;
+    return { checkoutUrl, providerPaymentId: req.providerPaymentId };
   }
 
   async verifyWebhook(rawBody: string, headers: Headers): Promise<WebhookEvent | null> {

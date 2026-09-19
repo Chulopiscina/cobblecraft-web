@@ -101,9 +101,6 @@ export function validateCatalog(catalog: Catalog): string[] {
     if (p.delivery.type === "RANK" && !p.delivery.rankId) {
       issues.push(`${p.productId}: delivery RANK requiere rankId`);
     }
-    if (p.checkoutEnabled && !p.devOnly && p.metadata.tebexPackageId && !/^\d+$/.test(p.metadata.tebexPackageId)) {
-      issues.push(`${p.productId}: metadata.tebexPackageId debe ser numerico cuando checkoutEnabled=true`);
-    }
     if ((p.delivery.type === "CUSTOM_ITEM" || p.delivery.type === "COSMETIC") && !p.delivery.customItemId) {
       issues.push(`${p.productId}: delivery ${p.delivery.type} requiere customItemId`);
     }

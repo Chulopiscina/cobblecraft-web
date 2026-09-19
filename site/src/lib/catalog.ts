@@ -1,7 +1,15 @@
 import catalogRaw from "@store/catalog.json";
+import tebexPackageRaw from "@store/tebex-packages.json";
 import { CatalogSchema, validateCatalog, visibleProducts, visibleCategories, type Product, type ProductCategory } from "@shared/catalog-schema";
+import { TebexPackageConfigSchema, validateTebexPackageConfig, withEffectiveTebexCheckout } from "@shared/tebex-packages";
 
-const catalog = CatalogSchema.parse(catalogRaw);
+const rawCatalog = CatalogSchema.parse(catalogRaw);
+const tebexPackageConfig = TebexPackageConfigSchema.parse(tebexPackageRaw);
+const tebexIssues = validateTebexPackageConfig(tebexPackageConfig, rawCatalog);
+if (tebexIssues.length > 0) {
+  throw new Error(`web/store/tebex-packages.json inválido:\n${tebexIssues.join("\n")}`);
+}
+const catalog = withEffectiveTebexCheckout(rawCatalog, tebexPackageConfig);
 const issues = validateCatalog(catalog);
 if (issues.length > 0) {
   throw new Error(`web/store/catalog.json inválido:\n${issues.join("\n")}`);

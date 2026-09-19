@@ -21,7 +21,11 @@ export interface CheckoutSession {
   providerPaymentId: string;
 }
 
-export type WebhookEventStatus = "paid" | "failed" | "ignored";
+export interface ResumeCheckoutRequest extends CheckoutRequest {
+  providerPaymentId: string;
+}
+
+export type WebhookEventStatus = "paid" | "failed" | "ignored" | "validation";
 
 export interface WebhookEvent {
   /** Identificador ÚNICO del evento en el proveedor - usado para idempotencia real (processed_webhooks). */
@@ -29,11 +33,14 @@ export interface WebhookEvent {
   providerPaymentId: string;
   status: WebhookEventStatus;
   orderPublicId?: string;
+  purchase?: { packageId: string; playerName: string; playerUuid: string; recipientId: string; basePriceCents: number; currency: string };
+  reversal?: boolean;
 }
 
 export interface PaymentProvider {
   readonly id: "mock" | "stripe" | "tebex";
   createCheckout(req: CheckoutRequest): Promise<CheckoutSession>;
+  resumeCheckout?(req: ResumeCheckoutRequest): Promise<CheckoutSession>;
   /**
    * Verifica la AUTENTICIDAD real del webhook (firma) antes de confiar en su contenido - nunca
    * "el navegador dice que pagó". Devuelve `null` si la firma no es válida (el llamador debe

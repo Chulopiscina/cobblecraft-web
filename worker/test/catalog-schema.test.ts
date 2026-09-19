@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import catalogRaw from "../../store/catalog.json";
+import tebexPackageRaw from "../../store/tebex-packages.json";
 import { CatalogSchema, validateCatalog, visibleProducts, visibleCategories } from "../../shared/catalog-schema";
+import { TebexPackageConfigSchema, validateTebexPackageConfig, withEffectiveTebexCheckout } from "../../shared/tebex-packages";
 
 describe("web/store/catalog.json (real file)", () => {
   it("parses against the schema without throwing", () => {
@@ -67,12 +69,30 @@ describe("web/store/catalog.json (real file)", () => {
     });
   });
 
-  it("rank upgrades charge only the price difference", () => {
+  it("publishes only the three current paid rank products in production", () => {
     const catalog = CatalogSchema.parse(catalogRaw);
     const products = visibleProducts(catalog, "prod");
-    expect(products.find((p) => p.productId === "upgrade_explorer_to_master")?.priceCents).toBe(1500);
-    expect(products.find((p) => p.productId === "upgrade_master_to_legend")?.priceCents).toBe(2000);
-    expect(products.find((p) => p.productId === "upgrade_explorer_to_legend")?.priceCents).toBe(3500);
+    expect(products.map((p) => p.productId).filter((id) => id.startsWith("rank_")).sort()).toEqual(["rank_explorer", "rank_legend", "rank_master"]);
+    expect(products.some((p) => p.category === "upgrades" || p.productId.startsWith("upgrade_"))).toBe(false);
+  });
+
+  it("has one Tebex package mapping slot for each real rank, enabling checkout with real ids", () => {
+    const catalog = CatalogSchema.parse(catalogRaw);
+    const tebexPackageConfig = TebexPackageConfigSchema.parse(tebexPackageRaw);
+    expect(validateTebexPackageConfig(tebexPackageConfig, catalog)).toEqual([]);
+    expect(tebexPackageConfig.packages.map((entry) => [entry.productId, entry.packageId]).sort()).toEqual([
+      ["rank_explorer", "7664019"],
+      ["rank_legend", "7664026"],
+      ["rank_master", "7664024"],
+    ]);
+    const effectiveCatalog = withEffectiveTebexCheckout(catalog, tebexPackageConfig);
+    for (const productId of [
+      "rank_explorer",
+      "rank_legend",
+      "rank_master",
+    ]) {
+      expect(effectiveCatalog.products.find((product) => product.productId === productId)?.checkoutEnabled).toBe(true);
+    }
   });
 
   it("does not publish paid crate keys or random-loot products", () => {

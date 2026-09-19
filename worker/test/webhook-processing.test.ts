@@ -75,6 +75,11 @@ describe("processProviderWebhook", () => {
     expect(reloaded?.status).toBe("PENDING_PAYMENT");
   });
 
+  it("a validation event returns the validation id without touching orders", async () => {
+    const result = await processProviderWebhook(env, new FakeProvider({ eventId: "validation_123", providerPaymentId: "validation_123", status: "validation" }), "{}", new Headers());
+    expect(result).toEqual({ ok: true, result: "validation", validationId: "validation_123" });
+  });
+
   it("a failed payment event is recorded but never marks the order PAID", async () => {
     const order = await createOrder(env, { playerUuid: "u1", playerName: "A", productId: "p1", priceCents: 100, currency: "EUR", paymentProvider: "mock" });
     await markPendingPayment(env, order.public_id, "pay_1");

@@ -31,14 +31,22 @@ describe("createPaymentProvider - Parte M: MockPaymentProvider nunca en PROD", (
   });
 
   it("succeeds in production with Tebex only when Tebex secrets are present", () => {
-    const env = makeEnv({ ENVIRONMENT: "production", PAYMENT_PROVIDER: "tebex", TEBEX_PUBLIC_TOKEN: "public-token", TEBEX_WEBHOOK_SECRET: "webhook-secret" });
+    const env = makeEnv({ ENVIRONMENT: "production", PAYMENT_PROVIDER: "tebex", TEBEX_PUBLIC_TOKEN: "public-token", TEBEX_PRIVATE_KEY: "test-private", TEBEX_WEBHOOK_SECRET: "webhook-secret" });
     const provider = createPaymentProvider(env, "https://example.com");
     expect(provider.id).toBe("tebex");
   });
 
-  it("throws in production Tebex mode without Tebex configuration", () => {
+  it("throws in production Tebex checkout mode without the public token", () => {
     const env = makeEnv({ ENVIRONMENT: "production", PAYMENT_PROVIDER: "tebex" });
-    expect(() => createPaymentProvider(env, "https://example.com")).toThrow(/TEBEX_PUBLIC_TOKEN/);
+    expect(() => createPaymentProvider(env, "https://example.com")).toThrow(/TEBEX_WEBHOOK_SECRET/);
+    const envWithWebhook = makeEnv({ ENVIRONMENT: "production", PAYMENT_PROVIDER: "tebex", TEBEX_WEBHOOK_SECRET: "webhook-secret" });
+    expect(() => createPaymentProvider(envWithWebhook, "https://example.com")).toThrow(/TEBEX_PUBLIC_TOKEN/);
+  });
+
+  it("can build a Tebex webhook verifier without the public checkout token", () => {
+    const env = makeEnv({ ENVIRONMENT: "development", PAYMENT_PROVIDER: "mock", TEBEX_WEBHOOK_SECRET: "webhook-secret" });
+    const provider = createPaymentProvider(env, "http://localhost:4321", "tebex", "webhook");
+    expect(provider.id).toBe("tebex");
   });
 
   it("succeeds in development with mock when STORE_MOCK_SECRET is configured", () => {

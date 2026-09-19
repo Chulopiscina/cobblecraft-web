@@ -1,12 +1,13 @@
 import type { Env } from "./types";
-import { corsHeaders, securityHeaders, errorResponse } from "./lib/security";
-import { handleCreateOrder, handleGetOrder } from "./routes/orders";
+import { corsHeaders, securityHeaders, errorResponse, jsonResponse } from "./lib/security";
+import { checkoutAvailable } from "./lib/store-readiness";
+import { handleCreateOrder, handleGetOrder, handleResumeOrderCheckout } from "./routes/orders";
 import { handleWebhook } from "./routes/webhook";
 import { handleSimulateMockPayment } from "./routes/payments-mock";
 import { handleListPending, handleClaim, handleAck } from "./routes/delivery";
 import { handleStartLink, handleLinkStatus, handleConfirmLink } from "./routes/link";
 import { handleLauncherLatest } from "./routes/launcher";
-import { handleServerStatus } from "./routes/server-status";
+import { handleServerStatus, handleServerStatusHeartbeat } from "./routes/server-status";
 import { handleHealth } from "./routes/health";
 import { handleVoteStatus, handleVoteSubmit, handleVoteRewardPending, handleVoteRewardClaim, handleVoteRewardAck } from "./routes/vote";
 
@@ -26,16 +27,20 @@ export default {
     }
 
     try {
+      if (path === "/api/store/status" && request.method === "GET") return jsonResponse(env, request, { checkoutAvailable: checkoutAvailable(env) });
       if (path === "/api/orders" && request.method === "POST") return await handleCreateOrder(request, env, siteBaseUrl);
+
+      const resumeCheckoutMatch = path.match(/^\/api\/orders\/([^/]+)\/checkout$/);
+      if (resumeCheckoutMatch && request.method === "POST") return await handleResumeOrderCheckout(request, env, siteBaseUrl, resumeCheckoutMatch[1]);
 
       const orderMatch = path.match(/^\/api\/orders\/([^/]+)$/);
       if (orderMatch && request.method === "GET") return await handleGetOrder(request, env, orderMatch[1]);
 
       if (path === "/api/webhook/mock" && request.method === "POST" && env.PAYMENT_PROVIDER === "mock") {
-        return await handleWebhook(request, env, siteBaseUrl);
+        return await handleWebhook(request, env, siteBaseUrl, "mock");
       }
-      if (path === "/api/webhook/stripe" && request.method === "POST") return await handleWebhook(request, env, siteBaseUrl);
-      if (path === "/api/webhook/tebex" && request.method === "POST") return await handleWebhook(request, env, siteBaseUrl);
+      if (path === "/api/webhook/stripe" && request.method === "POST") return await handleWebhook(request, env, siteBaseUrl, "stripe");
+      if (path === "/api/webhook/tebex" && request.method === "POST") return await handleWebhook(request, env, siteBaseUrl, "tebex");
 
       if (path === "/api/payments/mock/simulate" && request.method === "POST") return await handleSimulateMockPayment(request, env, siteBaseUrl);
 
@@ -50,6 +55,7 @@ export default {
 
       if (path === "/api/launcher/latest" && request.method === "GET") return await handleLauncherLatest(request, env);
       if (path === "/api/server/status" && request.method === "GET") return await handleServerStatus(request, env);
+      if (path === "/api/server/status/heartbeat" && request.method === "POST") return await handleServerStatusHeartbeat(request, env);
 
       if (path === "/api/vote/status" && request.method === "GET") return await handleVoteStatus(request, env);
       if (path === "/api/vote/submit" && request.method === "POST") return await handleVoteSubmit(request, env);

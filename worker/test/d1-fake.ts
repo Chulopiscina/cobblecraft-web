@@ -80,6 +80,16 @@ export class FakeD1Database {
   close(): void {
     this.raw.close();
   }
+
+  async batch(statements: FakeD1PreparedStatement[]): Promise<FakeD1Result[]> {
+    this.raw.exec("BEGIN");
+    try {
+      const results: FakeD1Result[] = [];
+      for (const statement of statements) results.push(await statement.run());
+      this.raw.exec("COMMIT");
+      return results;
+    } catch (e) { this.raw.exec("ROLLBACK"); throw e; }
+  }
 }
 
 /** Aplica todas las migraciones .sql reales (web/worker/migrations/*.sql) en orden, sobre la DB de test. */

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "packages": [
+    {
+      "productId": "rank_explorer",
+      "product": "Explorador",
+      "packageId": "7664019",
+      "action": "rank",
+      "rankId": "explorer"
+    },
+    {
+      "productId": "rank_master",
+      "product": "Maestro",
+      "packageId": "7664024",
+      "action": "rank",
+      "rankId": "master"
+    },
+    {
+      "productId": "rank_legend",
+      "product": "Leyenda",
+      "packageId": "7664026",
+      "action": "rank",
+      "rankId": "legend"
+    }
+  ]
+}

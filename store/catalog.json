@@ -21,7 +21,6 @@
         "kind": "rank",
         "luckPermsGroup": "explorer",
         "permissionNode": "progression.rank.explorer",
-        "tebexPackageId": "PENDIENTE_TEBEX_PACKAGE_ID_EXPLORADOR",
         "benefits": "2 homes|/healing cada 60 min|Teleports basicos del Hub|Kit semanal basico|Identidad visual premium|Prioridad de entrada sobre jugadores normales"
       }
     },
@@ -46,7 +45,6 @@
         "inherits": "explorer",
         "luckPermsGroup": "master",
         "permissionNode": "progression.rank.master",
-        "tebexPackageId": "PENDIENTE_TEBEX_PACKAGE_ID_MAESTRO",
         "benefits": "Todo Explorador|4 homes|/healing cada 30 min|/pcremoto cada 60 min|Todos los teleports relevantes del Hub|Kit semanal mejorado|Prioridad superior a Explorador"
       }
     },
@@ -71,80 +69,7 @@
         "inherits": "master",
         "luckPermsGroup": "legend",
         "permissionNode": "progression.rank.legend",
-        "tebexPackageId": "PENDIENTE_TEBEX_PACKAGE_ID_LEYENDA",
         "benefits": "Todo Maestro|6 homes|/healing cada 15 min|/pcremoto cada 30 min|Todos los teleports premium|Kit semanal premium equilibrado|Prioridad maxima de entrada"
-      }
-    },
-    {
-      "productId": "upgrade_explorer_to_master",
-      "slug": "upgrade-explorador-a-maestro",
-      "name": "Upgrade Explorador a Maestro",
-      "description": "Subida permanente de Explorador a Maestro pagando solo la diferencia.",
-      "category": "upgrades",
-      "icon": "/images/store/rank_crown.svg",
-      "priceCents": 1500,
-      "currency": "EUR",
-      "active": true,
-      "checkoutEnabled": false,
-      "devOnly": false,
-      "delivery": { "type": "RANK", "rankId": "master" },
-      "limits": { "maxPerPlayer": 1 },
-      "metadata": {
-        "durationLabel": "Permanente",
-        "kind": "upgrade",
-        "upgradeFrom": "explorer",
-        "upgradeTo": "master",
-        "luckPermsGroup": "master",
-        "tebexPackageId": "PENDIENTE_TEBEX_PACKAGE_ID_UPGRADE_EXPLORADOR_MAESTRO",
-        "benefits": "Mantiene Explorador|Activa Maestro|Paga solo 15,00 euros de diferencia|Entrega el grupo master"
-      }
-    },
-    {
-      "productId": "upgrade_master_to_legend",
-      "slug": "upgrade-maestro-a-leyenda",
-      "name": "Upgrade Maestro a Leyenda",
-      "description": "Subida permanente de Maestro a Leyenda pagando solo la diferencia.",
-      "category": "upgrades",
-      "icon": "/images/store/rank_crown.svg",
-      "priceCents": 2000,
-      "currency": "EUR",
-      "active": true,
-      "checkoutEnabled": false,
-      "devOnly": false,
-      "delivery": { "type": "RANK", "rankId": "legend" },
-      "limits": { "maxPerPlayer": 1 },
-      "metadata": {
-        "durationLabel": "Permanente",
-        "kind": "upgrade",
-        "upgradeFrom": "master",
-        "upgradeTo": "legend",
-        "luckPermsGroup": "legend",
-        "tebexPackageId": "PENDIENTE_TEBEX_PACKAGE_ID_UPGRADE_MAESTRO_LEYENDA",
-        "benefits": "Mantiene Maestro|Activa Leyenda|Paga solo 20,00 euros de diferencia|Entrega el grupo legend"
-      }
-    },
-    {
-      "productId": "upgrade_explorer_to_legend",
-      "slug": "upgrade-explorador-a-leyenda",
-      "name": "Upgrade Explorador a Leyenda",
-      "description": "Subida permanente directa de Explorador a Leyenda pagando solo la diferencia.",
-      "category": "upgrades",
-      "icon": "/images/store/rank_crown.svg",
-      "priceCents": 3500,
-      "currency": "EUR",
-      "active": true,
-      "checkoutEnabled": false,
-      "devOnly": false,
-      "delivery": { "type": "RANK", "rankId": "legend" },
-      "limits": { "maxPerPlayer": 1 },
-      "metadata": {
-        "durationLabel": "Permanente",
-        "kind": "upgrade",
-        "upgradeFrom": "explorer",
-        "upgradeTo": "legend",
-        "luckPermsGroup": "legend",
-        "tebexPackageId": "PENDIENTE_TEBEX_PACKAGE_ID_UPGRADE_EXPLORADOR_LEYENDA",
-        "benefits": "Mantiene Explorador|Activa Leyenda|Paga solo 35,00 euros de diferencia|Entrega el grupo legend"
       }
     },
     {

@@ -1,9 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { FakeD1Database, applyRealMigrations } from "./d1-fake";
 import type { Env } from "../src/types";
-import { handleCreateOrder, handleGetOrder } from "../src/routes/orders";
+import { handleCreateOrder, handleGetOrder, handleResumeOrderCheckout } from "../src/routes/orders";
+import { handleWebhook } from "../src/routes/webhook";
 import { handleListPending, handleClaim, handleAck } from "../src/routes/delivery";
 import { handleStartLink, handleConfirmLink, handleLinkStatus } from "../src/routes/link";
+import { handleServerStatus, handleServerStatusHeartbeat } from "../src/routes/server-status";
 import { markPaid, markPendingPayment, createOrder } from "../src/lib/orders";
 
 function makeEnv(db: FakeD1Database, overrides: Partial<Env> = {}): Env {
@@ -19,6 +21,17 @@ function makeEnv(db: FakeD1Database, overrides: Partial<Env> = {}): Env {
   };
 }
 
+async function sha256Hex(message: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(message));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function hmacHex(secret: string, message: string): Promise<string> {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 describe("POST /api/orders (handleCreateOrder)", () => {
   let db: FakeD1Database;
   let env: Env;
@@ -30,7 +43,7 @@ describe("POST /api/orders (handleCreateOrder)", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async (url: string) => {
-        if (url.includes("api.mojang.com")) {
+        if (url.includes("api.minecraftservices.com") || url.includes("api.mojang.com")) {
           return new Response(JSON.stringify({ id: "069a79f444e94726a5befca90e38aaf5", name: "Notch" }), { status: 200 });
         }
         throw new Error(`unexpected fetch in test: ${url}`);
@@ -60,15 +73,16 @@ describe("POST /api/orders (handleCreateOrder)", () => {
     expect(res.status).toBe(404);
   });
 
-  it("rejects a published product whose Tebex checkout is not enabled yet", async () => {
+  it("creates checkout for a published rank once its Tebex package id exists", async () => {
     const req = new Request("http://worker.local/api/orders", {
       method: "POST",
       body: JSON.stringify({ productId: "rank_explorer", playerName: "Notch" }),
     });
     const res = await handleCreateOrder(req, env, "http://localhost:4321");
-    expect(res.status).toBe(409);
-    const body = (await res.json()) as { code: string };
-    expect(body.code).toBe("CHECKOUT_DISABLED");
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { orderId: string; checkoutUrl: string };
+    expect(body.orderId).toBeTruthy();
+    expect(body.checkoutUrl).toContain("mock-checkout");
   });
 
   it("rejects a devOnly product when ENVIRONMENT=production", async () => {
@@ -119,6 +133,24 @@ describe("POST /api/orders (handleCreateOrder)", () => {
     const statusRes = await handleGetOrder(new Request("http://worker.local/api/orders/x"), env, body.orderId);
     const statusBody = (await statusRes.json()) as { status: string };
     expect(statusBody.status).toBe("PENDING_PAYMENT");
+  });
+
+  it("resumes a pending checkout without creating a second order", async () => {
+    const order = await createOrder(env, {
+      playerUuid: "069a79f4-44e9-4726-a5be-fca90e38aaf5",
+      playerName: "Notch",
+      productId: "rank_explorer",
+      priceCents: 1499,
+      currency: "EUR",
+      paymentProvider: env.PAYMENT_PROVIDER,
+    });
+    await markPendingPayment(env, order.public_id, `mock_${order.public_id}`);
+
+    const res = await handleResumeOrderCheckout(new Request("http://worker.local/api/orders/x/checkout", { method: "POST" }), env, "http://localhost:4321", order.public_id);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { orderId: string; checkoutUrl: string };
+    expect(body.orderId).toBe(order.public_id);
+    expect(body.checkoutUrl).toContain("mock-checkout");
   });
 });
 
@@ -216,6 +248,100 @@ describe("Minecraft delivery endpoints require server auth", () => {
     expect(ack2.status).toBe(200);
     const ack2Body = (await ack2.json()) as { alreadyDelivered: boolean };
     expect(ack2Body.alreadyDelivered).toBe(true);
+  });
+});
+
+describe("server status heartbeat", () => {
+  let db: FakeD1Database;
+  let env: Env;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-09T10:00:00.000Z"));
+    db = new FakeD1Database();
+    applyRealMigrations(db);
+    env = makeEnv(db, { SERVER_STATUS_TTL_SECONDS: "60" });
+  });
+  afterEach(() => {
+    db.close();
+    vi.useRealTimers();
+  });
+
+  it("is offline until an authenticated heartbeat marks the server online", async () => {
+    const initial = await handleServerStatus(new Request("http://worker.local/api/server/status"), env);
+    expect(await initial.json()).toMatchObject({ state: "offline", playersOnline: 0 });
+
+    const unauth = await handleServerStatusHeartbeat(
+      new Request("http://worker.local/api/server/status/heartbeat", {
+        method: "POST",
+        body: JSON.stringify({ state: "online", playersOnline: 0, maxPlayers: 20 }),
+      }),
+      env,
+    );
+    expect(unauth.status).toBe(401);
+
+    const ok = await handleServerStatusHeartbeat(
+      new Request("http://worker.local/api/server/status/heartbeat", {
+        method: "POST",
+        headers: { Authorization: "Bearer test-server-token" },
+        body: JSON.stringify({ state: "online", playersOnline: 2, maxPlayers: 20, description: "CobbleCraft" }),
+      }),
+      env,
+    );
+    expect(ok.status).toBe(200);
+
+    const online = await handleServerStatus(new Request("http://worker.local/api/server/status"), env);
+    expect(await online.json()).toMatchObject({ state: "online", online: true, playersOnline: 2, maxPlayers: 20 });
+  });
+
+  it("expires stale heartbeats by TTL", async () => {
+    await handleServerStatusHeartbeat(
+      new Request("http://worker.local/api/server/status/heartbeat", {
+        method: "POST",
+        headers: { Authorization: "Bearer test-server-token" },
+        body: JSON.stringify({ state: "online", playersOnline: 1, maxPlayers: 20 }),
+      }),
+      env,
+    );
+
+    vi.setSystemTime(new Date("2026-09-09T10:01:01.000Z"));
+    const res = await handleServerStatus(new Request("http://worker.local/api/server/status"), env);
+    expect(await res.json()).toMatchObject({ state: "offline", online: false, playersOnline: 0, maxPlayers: 20 });
+  });
+});
+
+describe("POST /api/webhook/tebex", () => {
+  let db: FakeD1Database;
+  let env: Env;
+
+  beforeEach(() => {
+    db = new FakeD1Database();
+    applyRealMigrations(db);
+    env = makeEnv(db, {
+      PAYMENT_PROVIDER: "mock",
+      TEBEX_WEBHOOK_SECRET: "webhook-secret",
+    });
+  });
+  afterEach(() => db.close());
+
+  it("responds to Tebex validation with exactly the expected id payload", async () => {
+    const rawBody = JSON.stringify({ id: "validation_123", type: "validation.webhook" });
+    const bodyHash = await sha256Hex(rawBody);
+    const signature = await hmacHex("webhook-secret", bodyHash);
+
+    const res = await handleWebhook(
+      new Request("http://worker.local/api/webhook/tebex", {
+        method: "POST",
+        headers: { "X-Signature": signature },
+        body: rawBody,
+      }),
+      env,
+      "http://localhost:4321",
+      "tebex",
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ id: "validation_123" });
   });
 });
 

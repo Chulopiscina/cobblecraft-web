@@ -1,143 +1,134 @@
-import type { CheckoutRequest, CheckoutSession, PaymentProvider, WebhookEvent } from "./PaymentProvider";
+import { z } from "zod";
+import type { CheckoutRequest, CheckoutSession, PaymentProvider, ResumeCheckoutRequest, WebhookEvent } from "./PaymentProvider";
 import { timingSafeEqual } from "../security";
 
-const TEBEX_API_BASE = "https://headless.tebex.io/api";
+const API = "https://headless.tebex.io/api";
+const Basket = z.object({
+  ident: z.string().min(1), complete: z.boolean().optional(),
+  username: z.string().nullable().optional(),
+  base_price: z.number().nonnegative().optional(), currency: z.string().optional(),
+  custom: z.object({ orderPublicId: z.string(), playerUuid: z.string() }).passthrough().nullable().optional(),
+  packages: z.array(z.object({ id: z.coerce.string(), in_basket: z.object({ quantity: z.number() }) })).optional(),
+  links: z.object({ checkout: z.string().optional() }).optional(),
+});
+type BasketData = z.infer<typeof Basket>;
+const Username = z.object({ id: z.union([z.string(), z.number()]).optional(), username: z.string() });
+const PaidSubject = z.object({
+  transaction_id: z.string().min(1),
+  custom: z.object({ orderPublicId: z.string(), playerUuid: z.string() }),
+  products: z.array(z.object({
+    id: z.coerce.string(), quantity: z.literal(1), username: Username,
+    base_price: z.object({ amount: z.number().nonnegative(), currency: z.string() }),
+  })).length(1),
+});
 
-async function sha256Hex(message: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(message));
-  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+export function safeTebexCheckoutUrl(raw: string): string {
+  const url = new URL(raw);
+  if (url.protocol !== "https:" || url.hostname !== "checkout.tebex.io" || url.username || url.password ||
+      url.port || !url.pathname.startsWith("/checkout/")) throw new Error("URL de checkout Tebex invalida.");
+  return url.href;
 }
 
-async function hmacHex(secret: string, message: string): Promise<string> {
+async function signatureFor(secret: string, body: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(body));
+  const hex = (bytes: ArrayBuffer) => [...new Uint8Array(bytes)].map(b => b.toString(16).padStart(2, "0")).join("");
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message));
-  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hex(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(hex(digest))));
 }
 
-function findString(value: unknown, keys: string[]): string | undefined {
-  if (!value || typeof value !== "object") return undefined;
-  const record = value as Record<string, unknown>;
-  for (const key of keys) {
-    const direct = record[key];
-    if (typeof direct === "string" && direct.length > 0) return direct;
-    if (typeof direct === "number") return String(direct);
-  }
-  for (const child of Object.values(record)) {
-    const found = findString(child, keys);
-    if (found) return found;
-  }
-  return undefined;
-}
-
-/**
- * Adapter Tebex Headless preparado para produccion, sin credenciales hardcodeadas.
- *
- * Flujo esperado:
- * 1. Crear basket en Headless API con usuario Minecraft, IP, URLs y `custom.orderPublicId`.
- * 2. Anadir exactamente un paquete Tebex whitelisteado desde `metadata.tebexPackageId`.
- * 3. Redirigir al checkout hospedado por Tebex.
- * 4. Aceptar solo webhooks Tebex con `X-Signature` valida.
- */
+/** Minecraft Headless: server-side identity, one basket/package, hosted checkout only. */
 export class TebexPaymentProvider implements PaymentProvider {
   readonly id = "tebex" as const;
+  constructor(private readonly publicToken: string | undefined, private readonly webhookSecret: string, private readonly privateKey?: string) {}
 
-  constructor(
-    private readonly publicToken: string,
-    private readonly webhookSecret: string,
-  ) {}
-
-  async createCheckout(req: CheckoutRequest): Promise<CheckoutSession> {
-    if (!req.providerPackageId) {
-      throw new Error("Producto sin metadata.tebexPackageId: no se puede crear checkout Tebex.");
-    }
-
-    const basketRes = await fetch(`${TEBEX_API_BASE}/accounts/${encodeURIComponent(this.publicToken)}/baskets`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        username: req.playerName,
-        ip_address: req.customerIp ?? "127.0.0.1",
-        complete_url: req.successUrl,
-        cancel_url: req.cancelUrl,
-        complete_auto_redirect: true,
-        custom: {
-          orderPublicId: req.orderPublicId,
-          playerName: req.playerName,
-          playerUuid: req.playerUuid,
+  private async request(path: string, operation: string, body?: unknown, method = "POST", authenticated = false): Promise<unknown> {
+    try {
+      const res = await fetch(`${API}${path}`, {
+        method, redirect: "error", signal: AbortSignal.timeout(8000),
+        headers: { Accept: "application/json", "Content-Type": "application/json",
+          ...(authenticated ? { Authorization: `Basic ${btoa(`${this.publicToken}:${this.privateKey}`)}` } : {}),
         },
-      }),
-    });
-    if (!basketRes.ok) {
-      throw new Error(`Tebex create basket respondio ${basketRes.status}`);
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+      if (!res.ok) { await res.body?.cancel(); throw new Error(`HTTP ${res.status}`); }
+      if (res.status === 204) return null;
+      return await res.json();
+    } catch (e) {
+      // Never log an upstream body, URL containing credentials, basket contents or customer IP.
+      const reason = e instanceof Error && /^HTTP \d{3}$/.test(e.message) ? e.message : "timeout/red/formato";
+      throw new Error(`Tebex ${operation}: ${reason}`);
     }
-    const basket = (await basketRes.json()) as Record<string, unknown>;
-    const basketIdent = findString(basket, ["ident", "basket_ident", "basketIdent"]);
-    if (!basketIdent) throw new Error("Tebex create basket no devolvio ident.");
-
-    const packageRes = await fetch(`${TEBEX_API_BASE}/baskets/${encodeURIComponent(basketIdent)}/packages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        package_id: Number(req.providerPackageId),
-        quantity: 1,
-      }),
-    });
-    if (!packageRes.ok) {
-      throw new Error(`Tebex add package respondio ${packageRes.status}`);
-    }
-    const updatedBasket = (await packageRes.json()) as Record<string, unknown>;
-    const checkoutUrl =
-      findString(updatedBasket, ["checkout_url", "checkoutUrl"]) ??
-      findString(updatedBasket, ["checkout"]) ??
-      findString(updatedBasket, ["url"]) ??
-      `https://checkout.tebex.io/checkout/${encodeURIComponent(basketIdent)}`;
-
-    return { checkoutUrl, providerPaymentId: basketIdent };
   }
-
+  private check(req: CheckoutRequest): void {
+    if (!req.providerPackageId || !/^\d+$/.test(req.providerPackageId)) throw new Error("Producto sin packageId valido en web/store/tebex-packages.json.");
+    if (!this.publicToken) throw new Error("TEBEX_PUBLIC_TOKEN no configurado.");
+    if (!this.privateKey) throw new Error("TEBEX_PRIVATE_KEY no configurado para checkout Minecraft server-side.");
+  }
+  private unwrap(raw: unknown): BasketData {
+    const record = raw as { data?: unknown } | null;
+    return Basket.parse(record?.data ?? raw);
+  }
+  private accountPath(): string { return `/accounts/${encodeURIComponent(this.publicToken!)}`; }
+  private verifyIdentity(basket: BasketData, req: CheckoutRequest): void {
+    if (basket.complete) throw new Error("El basket ya esta completado.");
+    if (basket.username?.toLowerCase() !== req.playerName.toLowerCase() ||
+        basket.custom?.orderPublicId !== req.orderPublicId ||
+        basket.custom?.playerUuid !== req.playerUuid) throw new Error("La identidad del basket no coincide con el pedido.");
+  }
+  private session(basket: BasketData, req: CheckoutRequest): CheckoutSession {
+    this.verifyIdentity(basket, req);
+    if (basket.packages?.length !== 1 || basket.packages[0]?.id !== req.providerPackageId || basket.packages[0].in_basket.quantity !== 1) {
+      throw new Error("El basket debe contener exactamente el paquete solicitado, cantidad 1.");
+    }
+    if (!basket.links?.checkout) throw new Error("Tebex no devolvio links.checkout.");
+    if (basket.currency !== req.currency || Math.round((basket.base_price ?? -1) * 100) !== req.priceCents) {
+      throw new Error("El precio base o moneda de Tebex no coincide con el catalogo.");
+    }
+    return { checkoutUrl: safeTebexCheckoutUrl(basket.links.checkout), providerPaymentId: basket.ident };
+  }
+  async createCheckout(req: CheckoutRequest): Promise<CheckoutSession> {
+    this.check(req);
+    if (!z.string().ip().safeParse(req.customerIp).success) throw new Error("Falta IP real del cliente para Tebex.");
+    const basket = this.unwrap(await this.request(`${this.accountPath()}/baskets`, "crear basket", {
+      username: req.playerName, ip_address: req.customerIp,
+      complete_url: req.successUrl, cancel_url: req.cancelUrl, complete_auto_redirect: true,
+      custom: { orderPublicId: req.orderPublicId, playerName: req.playerName, playerUuid: req.playerUuid },
+    }, "POST", true));
+    this.verifyIdentity(basket, req);
+    const updated = this.unwrap(await this.request(`/baskets/${encodeURIComponent(basket.ident)}/packages`, "anadir paquete", {
+      package_id: req.providerPackageId, quantity: 1,
+    }));
+    if (updated.ident !== basket.ident) throw new Error("Basket inesperado al anadir paquete.");
+    return this.session(updated, req);
+  }
+  async resumeCheckout(req: ResumeCheckoutRequest): Promise<CheckoutSession> {
+    this.check(req);
+    // Resume is read-only: POST add increments quantity when a basket is reused.
+    const basket = this.unwrap(await this.request(`${this.accountPath()}/baskets/${encodeURIComponent(req.providerPaymentId)}`, "consultar basket", undefined, "GET", true));
+    if (basket.ident !== req.providerPaymentId) throw new Error("Basket inesperado al reanudar.");
+    return this.session(basket, req);
+  }
   async verifyWebhook(rawBody: string, headers: Headers): Promise<WebhookEvent | null> {
     const signature = headers.get("X-Signature");
-    if (!signature) return null;
-    const bodyHash = await sha256Hex(rawBody);
-    const expected = await hmacHex(this.webhookSecret, bodyHash);
-    if (!timingSafeEqual(signature, expected)) return null;
-
-    let payload: Record<string, unknown>;
+    if (!signature || !/^[a-f0-9]{64}$/i.test(signature) || !timingSafeEqual(signature.toLowerCase(), await signatureFor(this.webhookSecret, rawBody))) return null;
     try {
-      payload = JSON.parse(rawBody) as Record<string, unknown>;
-    } catch {
-      return null;
-    }
-
-    const type = findString(payload, ["type", "event_type", "event"])?.toLowerCase() ?? "";
-    const eventId = findString(payload, ["id", "event_id", "transaction_id"]) ?? crypto.randomUUID();
-    const orderPublicId = findString(payload, ["orderPublicId", "order_public_id"]);
-    const providerPaymentId =
-      findString(payload, ["basket_ident", "basketIdent", "ident"]) ??
-      findString(payload, ["transaction_id", "payment_id"]) ??
-      "unknown";
-    const statusText = findString(payload, ["status", "payment_status"])?.toLowerCase() ?? "";
-    const isPaid =
-      type === "payment.completed" ||
-      type === "payment.complete" ||
-      type === "payment.paid" ||
-      statusText === "complete" ||
-      statusText === "completed" ||
-      statusText === "paid";
-    const isFailed =
-      type === "payment.declined" ||
-      type === "payment.refunded" ||
-      type === "payment.chargeback" ||
-      statusText === "declined" ||
-      statusText === "failed" ||
-      statusText === "refunded" ||
-      statusText === "chargeback";
-
-    return {
-      eventId,
-      providerPaymentId,
-      orderPublicId,
-      status: isPaid ? "paid" : isFailed ? "failed" : "ignored",
-    };
+      const payload = z.object({ id: z.string().min(1).max(200), type: z.string(), subject: z.unknown().optional() }).parse(JSON.parse(rawBody));
+      if (payload.type === "validation.webhook") return { eventId: payload.id, providerPaymentId: payload.id, status: "validation" };
+      if (payload.type === "payment.completed") {
+        const subject = PaidSubject.parse(payload.subject);
+        const product = subject.products[0]!;
+        return {
+          eventId: payload.id, providerPaymentId: subject.transaction_id, orderPublicId: subject.custom.orderPublicId, status: "paid",
+          purchase: { packageId: product.id, playerName: product.username.username, playerUuid: subject.custom.playerUuid,
+            recipientId: String(product.username.id ?? ""), basePriceCents: Math.round(product.base_price.amount * 100), currency: product.base_price.currency },
+        };
+      }
+      if (["payment.refunded", "payment.dispute.opened", "payment.dispute.lost"].includes(payload.type)) {
+        const subject = z.object({ transaction_id: z.string().min(1) }).parse(payload.subject);
+        return { eventId: payload.id, providerPaymentId: subject.transaction_id, status: "failed", reversal: true };
+      }
+      // A decline is not final for a basket. Only payment.completed can queue delivery.
+      return { eventId: payload.id, providerPaymentId: payload.id, status: "ignored" };
+    } catch { return null; }
   }
 }

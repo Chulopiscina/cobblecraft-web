@@ -37,8 +37,8 @@ const rankComparisonRows = [
 ];
 ---
 
-<BaseLayout title="Tienda" description="Tienda oficial de CobbleCraft con rangos permanentes preparados para Tebex y categoria Skins próximamente.">
-  <PageHero eyebrow="Tienda oficial" title="TIENDA" subtitle="Rangos permanentes preparados para Tebex. Los pagos se activarán cuando la tienda Tebex real y sus paquetes estén configurados." />
+<BaseLayout title="Tienda" description="Tienda oficial de CobbleCraft con rangos permanentes y checkout Tebex hospedado.">
+  <PageHero eyebrow="Tienda oficial" title="TIENDA" subtitle="Rangos permanentes con checkout hospedado por Tebex y entrega validada por webhook firmado." />
 
   {products.length === 0 && (
     <div class="container section">
@@ -67,8 +67,8 @@ const rankComparisonRows = [
         <span class="eyebrow">Rangos</span>
         <h2>Permanentes y acumulativos</h2>
         <p>
-          Maestro incluye Explorador. Leyenda incluye Maestro y Explorador. Si ya tienes un rango,
-          los upgrades están separados para pagar únicamente la diferencia.
+          Maestro incluye Explorador. Leyenda incluye Maestro y Explorador. Los upgrades no están
+          disponibles todavía; ahora solo están activos los tres rangos completos.
         </p>
       </div>
       <div class="grid grid--3">
@@ -119,8 +119,7 @@ const rankComparisonRows = [
         </table>
       </div>
       <p class="notice" style="margin-top:18px;">
-        Los upgrades existen para evitar pagar dos veces: Explorador → Maestro cuesta 15,00 €,
-        Maestro → Leyenda cuesta 20,00 € y Explorador → Leyenda cuesta 35,00 €.
+        Los upgrades se activarán más adelante. Por ahora la tienda solo permite comprar los rangos completos.
       </p>
     </div>
   </section>

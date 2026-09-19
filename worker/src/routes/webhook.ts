@@ -8,12 +8,15 @@ import { processProviderWebhook } from "../lib/webhook-processing";
  * PAID. "Payment Provider -> webhook firmado -> Worker verifica firma -> pedido PAID" - nunca al
  * revés, nunca porque el navegador diga que pagó.
  */
-export async function handleWebhook(request: Request, env: Env, siteBaseUrl: string): Promise<Response> {
+export async function handleWebhook(request: Request, env: Env, siteBaseUrl: string, providerKind: Env["PAYMENT_PROVIDER"] = env.PAYMENT_PROVIDER): Promise<Response> {
   const rawBody = await request.text();
-  const provider = createPaymentProvider(env, siteBaseUrl);
+  const provider = createPaymentProvider(env, siteBaseUrl, providerKind, "webhook");
   const result = await processProviderWebhook(env, provider, rawBody, request.headers);
   if (!result.ok) {
     return errorResponse(env, request, 400, "Firma de webhook inválida.");
+  }
+  if (result.result === "validation") {
+    return jsonResponse(env, request, { id: result.validationId });
   }
   return jsonResponse(env, request, { received: true, result: result.result });
 }

@@ -1,12 +1,13 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
+import { publicApiBaseUrl } from "../../lib/api-base";
 
-const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+const apiBaseUrl = publicApiBaseUrl;
 ---
 
 <BaseLayout title="Estado del pedido" description="Consulta el estado de tu pedido.">
-  <PageHero eyebrow="Tienda" title="ESTADO DEL PEDIDO" subtitle="Nunca confirmamos un pedido solo porque hayas vuelto a esta página - el estado real se confirma siempre contra el servidor." />
+  <PageHero eyebrow="Tienda" title="ESTADO DEL PEDIDO" subtitle="Consulta la confirmación de tu pago y la entrega de tu compra." />
 
   <section class="section section--tight">
     <div class="container" style="max-width:520px;">
@@ -45,15 +46,15 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
 
   async function poll() {
     if (!statusText || !detail) return;
-    if (!orderId || !apiBase) {
+    if (!orderId || !/^ord_[A-Z2-9]{20}$/.test(orderId) || !apiBase) {
       statusText.textContent = "No se pudo identificar el pedido.";
       spinner?.remove();
       return;
     }
     try {
-      const res = await fetch(`${apiBase}/api/orders/${encodeURIComponent(orderId)}`);
+      const res = await fetch(`${apiBase}/api/orders/${encodeURIComponent(orderId)}`, { signal: AbortSignal.timeout(5000) });
       if (!res.ok) {
-        statusText.textContent = "Pedido no encontrado.";
+        statusText.textContent = res.status === 404 ? "Pedido no encontrado." : "No se pudo consultar el pedido. Recarga para volver a intentarlo.";
         spinner?.remove();
         return;
       }
@@ -67,7 +68,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
         detail.textContent = "Entrega confirmada. ¡Gracias por tu apoyo!";
         return;
       }
-      if (data.status === "FAILED") {
+      if (data.status === "FAILED" || data.status === "REFUNDED") {
         spinner?.remove();
         detail.style.display = "block";
         detail.className = "notice notice--error";
@@ -81,11 +82,15 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
       } else {
         spinner?.remove();
         detail.style.display = "block";
-        detail.textContent = "Esto está tardando más de lo normal. Puedes cerrar esta página - la entrega seguirá procesándose en el servidor.";
+        detail.textContent = "El pedido sigue pendiente. Conserva esta página para consultar su estado o contacta con soporte.";
       }
     } catch {
       attempts += 1;
       if (attempts < MAX_ATTEMPTS) setTimeout(poll, 3000);
+      else {
+        spinner?.remove();
+        statusText.textContent = "No se pudo consultar el pedido. Recarga para volver a intentarlo.";
+      }
     }
   }
 

@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Icon from "../../components/Icon.astro";
 import PageHero from "../../components/PageHero.astro";
+import { publicApiBaseUrl } from "../../lib/api-base";
 import { getVisibleProducts, categoryLabels } from "../../lib/catalog";
 import type { DeliveryAction } from "@shared/catalog-schema";
 
@@ -14,7 +15,7 @@ const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + " �
 const durationLabel = product.metadata.durationLabel;
 const benefits = product.metadata.benefits?.split("|").filter(Boolean) ?? [];
 const isUpgrade = product.metadata.kind === "upgrade";
-const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+const apiBaseUrl = publicApiBaseUrl;
 
 /**
  * Descripción de "qué incluye" en lenguaje de jugador - nunca expone el `DeliveryAction` técnico
@@ -76,7 +77,7 @@ const includes = deliverySummary(product.delivery);
           <h2 style="font-size:1.05rem; margin:0;">Condiciones</h2>
         </div>
         <ul class="plain-list">
-          <li>La entrega se realiza automáticamente en el servidor una vez confirmado el pago - no es instantánea al 100%: puede tardar hasta un minuto mientras el servidor recoge el pedido.</li>
+          <li>La entrega queda pendiente hasta que el servidor confirme el pago y procese el pedido. Puedes consultar su estado tras la compra.</li>
           <li>Necesitas una cuenta de Minecraft Java válida y el nombre EXACTO de tu personaje.</li>
           {product.limits.maxPerPlayer && <li>Límite de {product.limits.maxPerPlayer} por jugador.</li>}
           <li>No se garantiza reembolso una vez entregado el producto - ver <a href="/legal/reembolsos">Política de reembolsos</a>.</li>
@@ -95,8 +96,12 @@ const includes = deliverySummary(product.delivery);
             placeholder="Ej: Notch"
             class="input"
           />
-          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:16px;" id="purchase-submit" disabled={!product.checkoutEnabled}>
-            {product.checkoutEnabled ? `Comprar por ${priceLabel}` : "Checkout Tebex pendiente"}
+          <label style="display:flex; align-items:flex-start; gap:10px; margin-top:14px;">
+            <input type="checkbox" required name="confirmedName" />
+            <span>He comprobado que el nombre de Minecraft es correcto.</span>
+          </label>
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:16px;" id="purchase-submit" data-label={`Comprar por ${priceLabel}`} disabled>
+            Comprobando disponibilidad...
           </button>
           <p style="margin:12px 0 0; font-size:0.78rem; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px;">
             <Icon name="candado" size={14} />
@@ -156,21 +161,32 @@ const includes = deliverySummary(product.delivery);
   const form = document.getElementById("purchase-form") as HTMLFormElement | null;
   const submitBtn = document.getElementById("purchase-submit") as HTMLButtonElement | null;
   const errorBox = document.getElementById("purchase-error");
+  let available = false;
+  const resumeOrder = new URLSearchParams(window.location.search).get("resumeOrder");
+  const validResume = resumeOrder && /^ord_[A-Z2-9]{20}$/.test(resumeOrder) ? resumeOrder : null;
 
-  form?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!submitBtn || !errorBox) return;
-    const apiBase = form.getAttribute("data-api-base");
-    const productId = form.getAttribute("data-product-id");
-    const checkoutEnabled = form.getAttribute("data-checkout-enabled") === "true";
-    const playerName = (document.getElementById("player-name") as HTMLInputElement | null)?.value.trim();
-
-    errorBox.style.display = "none";
-    if (!checkoutEnabled) {
-      errorBox.textContent = "El checkout Tebex de este producto todavía no está activado.";
+  async function checkAvailability() {
+    if (!form || !submitBtn || !errorBox) return;
+    try {
+      const response = await fetch(`${form.dataset.apiBase}/api/store/status`, { signal: AbortSignal.timeout(5000) });
+      const status = await response.json();
+      available = response.ok && status.checkoutAvailable === true && form.dataset.checkoutEnabled === "true";
+      submitBtn.disabled = !available;
+      submitBtn.textContent = available ? validResume ? "Reanudar pedido en Tebex" : submitBtn.dataset.label ?? "Comprar" : "Pagos temporalmente no disponibles";
+      if (validResume) {
+        for (const input of form.querySelectorAll("input")) { input.required = false; input.disabled = true; }
+      }
+    } catch {
+      submitBtn.textContent = "Tienda no disponible";
+      errorBox.textContent = "No se pudo consultar la tienda. Vuelve a intentarlo más tarde.";
       errorBox.style.display = "block";
-      return;
     }
+  }
+  void checkAvailability();
+
+  async function redirectToCheckout(path: string, body?: Record<string, unknown>) {
+    if (!submitBtn || !errorBox || !form) return;
+    const apiBase = form.getAttribute("data-api-base");
     if (!apiBase) {
       errorBox.textContent = "La Tienda no está disponible ahora mismo (API no configurada).";
       errorBox.style.display = "block";
@@ -179,21 +195,44 @@ const includes = deliverySummary(product.delivery);
 
     submitBtn.disabled = true;
     submitBtn.textContent = "Procesando...";
+    const res = await fetch(`${apiBase}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(30000),
+    });
+    const data = (await res.json()) as { checkoutUrl?: string; error?: string };
+    if (!res.ok || !data.checkoutUrl) {
+      errorBox.textContent = data.error ?? "No se pudo crear el pedido. Comprueba tu nombre de usuario.";
+      errorBox.style.display = "block";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Reintentar";
+      return;
+    }
+    const target = new URL(data.checkoutUrl);
+    const hosted = target.protocol === "https:" && target.hostname === "checkout.tebex.io" && !target.username && !target.password && !target.port && target.pathname.startsWith("/checkout/");
+    const localMock = import.meta.env.DEV && target.origin === window.location.origin && target.pathname.startsWith("/tienda/");
+    if (!hosted && !localMock) throw new Error("Destino de pago no autorizado.");
+    window.location.href = target.href;
+  }
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!submitBtn || !errorBox) return;
+    const productId = form.getAttribute("data-product-id");
+    const checkoutEnabled = form.getAttribute("data-checkout-enabled") === "true";
+    const playerName = (document.getElementById("player-name") as HTMLInputElement | null)?.value.trim();
+
+    errorBox.style.display = "none";
+    if (!checkoutEnabled || !available) {
+      errorBox.textContent = "El checkout Tebex de este producto todavía no está activado.";
+      errorBox.style.display = "block";
+      return;
+    }
+
     try {
-      const res = await fetch(`${apiBase}/api/orders`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, playerName }),
-      });
-      const data = (await res.json()) as { checkoutUrl?: string; error?: string };
-      if (!res.ok || !data.checkoutUrl) {
-        errorBox.textContent = data.error ?? "No se pudo crear el pedido. Comprueba tu nombre de usuario.";
-        errorBox.style.display = "block";
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Reintentar";
-        return;
-      }
-      window.location.href = data.checkoutUrl;
+      if (validResume) await redirectToCheckout(`/api/orders/${encodeURIComponent(validResume)}/checkout`);
+      else await redirectToCheckout("/api/orders", { productId, playerName });
     } catch {
       errorBox.textContent = "No se pudo contactar con el servidor de pagos. Inténtalo de nuevo.";
       errorBox.style.display = "block";
