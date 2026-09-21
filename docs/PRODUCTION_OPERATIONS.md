@@ -60,7 +60,9 @@ No detener webhook/entregas de pedidos ya pagados al cerrar checkout.
 | rank_master | Maestro | 7664024 | 29,99 | EUR | rango master permanente |
 | rank_legend | Leyenda | 7664026 | 49,99 | EUR | rango legend permanente |
 
-Mapeo local validado. Cotejo autenticado/Test Payment y entrega real pendientes; compras bloqueadas.
+Mapeo local y panel autenticado de Tebex cotejados el 21/09/2026: nombres, IDs y precios coinciden.
+Test Payment y entrega real pendientes; compras bloqueadas. El panel todavia muestra
+`Submit for Review`: la revision de la tienda debe resolverse antes de abrir pagos reales.
 No hay upgrades ni nuevos productos. No conceder un rango manualmente para simular exito.
 
 ## Diagnostico y pedidos
