@@ -3,6 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProductCard from "../../components/ProductCard.astro";
 import Icon from "../../components/Icon.astro";
 import PageHero from "../../components/PageHero.astro";
+import OperationsStatus from "../../components/OperationsStatus.astro";
 import { getVisibleProducts, getVisibleCategories, categoryLabels } from "../../lib/catalog";
 import type { IconName } from "../../lib/icons";
 import type { ProductCategory } from "@shared/catalog-schema";
@@ -39,6 +40,7 @@ const rankComparisonRows = [
 
 <BaseLayout title="Tienda" description="Tienda oficial de CobbleCraft con rangos permanentes y checkout Tebex hospedado.">
   <PageHero eyebrow="Tienda oficial" title="TIENDA" subtitle="Rangos permanentes con checkout hospedado por Tebex y entrega validada por webhook firmado." />
+  <OperationsStatus />
 
   {products.length === 0 && (
     <div class="container section">

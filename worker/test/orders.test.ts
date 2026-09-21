@@ -157,7 +157,7 @@ describe("orders (real SQLite semantics)", () => {
   it("ackDelivered on an order that was never claimed does not deliver it", async () => {
     const order = await createOrder(env, { playerUuid: "u1", playerName: "A", productId: "p1", priceCents: 100, currency: "EUR", paymentProvider: "mock" });
     const result = await ackDelivered(env, order.public_id, "some-token");
-    expect(result).toBe("ALREADY_DELIVERED"); // 0 filas afectadas - nunca se entregó nada
+    expect(result).toBe("STALE_CLAIM"); // Never acknowledge an order that was not claimed.
     const reloaded = await getOrderByPublicId(env, order.public_id);
     expect(reloaded?.status).toBe("CREATED");
   });

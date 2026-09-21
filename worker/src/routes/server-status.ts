@@ -2,12 +2,26 @@ import { z } from "zod";
 import type { Env } from "../types";
 import { jsonResponse, errorResponse, ErrorCode } from "../lib/security";
 import { requireServerAuth } from "./delivery";
+import { recordServiceHealth, type ServiceHealthRow } from "../lib/operations";
+
+const time = z.number().int().nonnegative().nullable();
+const code = z.string().regex(/^[A-Z0-9_]{1,60}$/).nullable();
+const Diagnostics = z.object({
+  profile: z.enum(["PROD", "DEV"]),
+  discord: z.object({ online: z.boolean(), lastConnectedAt: time, lastErrorAt: time, lastError: code }),
+  pebble: z.object({ configured: z.boolean(), verified: z.boolean(), lastQueryAt: time, lastSuccessAt: time,
+    lastError: code, retryAt: z.number().nonnegative(), resources: z.object({ memoryBytes: z.number().nonnegative(), cpuPercent: z.number().nonnegative(), uptimeMs: z.number().nonnegative() }).nullable() }),
+  bridge: z.enum(["fresh", "disabled", "stale", "unavailable"]),
+});
 
 const HeartbeatBody = z.object({
   state: z.enum(["online", "offline"]).default("online"),
-  playersOnline: z.number().int().min(0).optional(),
-  maxPlayers: z.number().int().min(0).optional(),
+  playersOnline: z.number().int().min(0).nullable().optional(),
+  maxPlayers: z.number().int().min(0).nullable().optional(),
   description: z.string().trim().max(120).optional(),
+  version: z.string().max(100).nullable().optional(),
+  latencyMs: z.number().int().nonnegative().nullable().optional(),
+  diagnostics: Diagnostics.optional(),
 });
 
 interface HeartbeatRow {
@@ -28,10 +42,11 @@ function offlinePayload(row?: HeartbeatRow | null) {
   return {
     state: "offline",
     online: false,
-    playersOnline: 0,
-    maxPlayers: row?.max_players ?? 0,
+    playersOnline: null,
+    maxPlayers: null,
     description: row?.description ?? null,
     lastSeenAt: row?.updated_at ?? null,
+    version: null, latencyMs: null,
   };
 }
 
@@ -44,13 +59,16 @@ export async function handleServerStatus(request: Request, env: Env): Promise<Re
     return jsonResponse(env, request, offlinePayload(row));
   }
 
+  const telemetry = await env.DB.prepare("SELECT * FROM service_health WHERE component = 'bot'").first<ServiceHealthRow>();
+  const extra = telemetry && Date.now() - telemetry.checked_at <= ttlMs(env) ? JSON.parse(telemetry.details) : {};
   return jsonResponse(env, request, {
     state: "online",
     online: true,
-    playersOnline: row.players_online ?? 0,
-    maxPlayers: row.max_players ?? 0,
+    playersOnline: row.players_online,
+    maxPlayers: row.max_players,
     description: row.description,
     lastSeenAt: row.updated_at,
+    version: extra.version ?? null, latencyMs: extra.latencyMs ?? null,
   });
 }
 
@@ -66,6 +84,7 @@ export async function handleServerStatusHeartbeat(request: Request, env: Env): P
   }
 
   const now = Date.now();
+  if (env.ENVIRONMENT === "production" && body.diagnostics?.profile === "DEV") return errorResponse(env, request, 400, "Perfil de estado incorrecto.");
   await env.DB.prepare(
     `INSERT INTO server_status_heartbeat (id, state, players_online, max_players, description, updated_at)
      VALUES (1, ?, ?, ?, ?, ?)
@@ -78,6 +97,8 @@ export async function handleServerStatusHeartbeat(request: Request, env: Env): P
   )
     .bind(body.state, body.playersOnline ?? null, body.maxPlayers ?? null, body.description ?? null, now)
     .run();
+
+  await recordServiceHealth(env, "bot", null, { version: body.version ?? null, latencyMs: body.latencyMs ?? null, diagnostics: body.diagnostics ?? null });
 
   return jsonResponse(env, request, {
     ok: true,

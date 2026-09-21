@@ -118,14 +118,14 @@ export class TebexPaymentProvider implements PaymentProvider {
         const subject = PaidSubject.parse(payload.subject);
         const product = subject.products[0]!;
         return {
-          eventId: payload.id, providerPaymentId: subject.transaction_id, orderPublicId: subject.custom.orderPublicId, status: "paid",
+          eventId: payload.id, eventType: payload.type, providerPaymentId: subject.transaction_id, orderPublicId: subject.custom.orderPublicId, status: "paid",
           purchase: { packageId: product.id, playerName: product.username.username, playerUuid: subject.custom.playerUuid,
             recipientId: String(product.username.id ?? ""), basePriceCents: Math.round(product.base_price.amount * 100), currency: product.base_price.currency },
         };
       }
       if (["payment.refunded", "payment.dispute.opened", "payment.dispute.lost"].includes(payload.type)) {
         const subject = z.object({ transaction_id: z.string().min(1) }).parse(payload.subject);
-        return { eventId: payload.id, providerPaymentId: subject.transaction_id, status: "failed", reversal: true };
+        return { eventId: payload.id, eventType: payload.type, providerPaymentId: subject.transaction_id, status: "failed", reversal: true };
       }
       // A decline is not final for a basket. Only payment.completed can queue delivery.
       return { eventId: payload.id, providerPaymentId: payload.id, status: "ignored" };

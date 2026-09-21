@@ -1,0 +1,8 @@
+export function orderPresentation(status: string, review: boolean, cancelled = false) {
+  if (review) return { heading: "Compra en revisión", label: "Requiere revisión", detail: "El equipo debe revisar el pago o la entrega. Conserva la referencia y contacta con soporte.", tone: "warning", terminal: true };
+  if (status === "DELIVERED") return { heading: "Compra recibida", label: "Entregado", detail: "El servidor ha confirmado la entrega. Gracias por apoyar CobbleCraft.", tone: "ok", terminal: true };
+  if (["PAID", "CLAIMED"].includes(status)) return { heading: "Compra recibida", label: "Pendiente de entrega", detail: "El pago está confirmado. La compra queda guardada aunque el jugador o el servidor estén desconectados.", tone: "warning", terminal: false };
+  if (status === "REFUNDED") return { heading: "Pedido reembolsado o retenido", label: "Entrega detenida", detail: "El proveedor ha notificado un reembolso o una disputa. Contacta con soporte si necesitas ayuda.", tone: "warning", terminal: true };
+  if (status === "FAILED") return { heading: "Pago no completado", label: "No confirmado", detail: "No se pudo completar el checkout. Si ves un cargo en Tebex, contacta con soporte con esta referencia.", tone: "error", terminal: true };
+  return { heading: cancelled ? "Pago cancelado" : "Estado del pedido", label: "Pago no confirmado", detail: cancelled ? "No hay ningún pago confirmado para este pedido. Puedes volver a la tienda o reanudar el checkout." : "Esperando la confirmación de Tebex. Esta página nunca confirma un pago por sí sola.", tone: "warning", terminal: false };
+}

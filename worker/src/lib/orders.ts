@@ -20,6 +20,9 @@ export interface OrderRow {
   delivered_at: number | null;
   failed_at: number | null;
   claim_token: string | null;
+  delivery_attempts: number;
+  review_required: number;
+  review_reason: string | null;
 }
 
 async function logEvent(db: D1Database, orderId: number, eventType: string, metadata: Record<string, unknown> = {}): Promise<void> {
@@ -118,7 +121,7 @@ function claimTimeoutMs(env: Env): number {
 export async function listDeliverable(env: Env, limit = 20): Promise<OrderRow[]> {
   const cutoff = Date.now() - claimTimeoutMs(env);
   const res = await env.DB.prepare(
-    `SELECT * FROM orders WHERE status = 'PAID' OR (status = 'CLAIMED' AND claimed_at < ?) ORDER BY created_at ASC LIMIT ?`,
+    `SELECT * FROM orders WHERE review_required = 0 AND (status = 'PAID' OR (status = 'CLAIMED' AND claimed_at < ?)) ORDER BY created_at ASC LIMIT ?`,
   )
     .bind(cutoff, limit)
     .all<OrderRow>();
@@ -145,13 +148,15 @@ export async function claimOrder(env: Env, publicId: string): Promise<ClaimOutco
   if (!order) return { status: "NOT_FOUND" };
   const cutoff = Date.now() - claimTimeoutMs(env);
   const claimToken = crypto.randomUUID();
-  const res = await env.DB.prepare(
-    `UPDATE orders SET status = 'CLAIMED', claimed_at = ?, claim_token = ? WHERE public_id = ? AND (status = 'PAID' OR (status = 'CLAIMED' AND claimed_at < ?))`,
-  )
-    .bind(Date.now(), claimToken, publicId, cutoff)
-    .run();
-  if ((res.meta.changes ?? 0) === 0) return { status: "ALREADY_CLAIMED" };
-  await logEvent(env.DB, order.id, "CLAIMED", {});
+  const res = await env.DB.batch([
+    env.DB.prepare(`UPDATE orders SET status = 'CLAIMED', claimed_at = ?, claim_token = ?, delivery_attempts = delivery_attempts + 1
+      WHERE public_id = ? AND review_required = 0 AND (status = 'PAID' OR (status = 'CLAIMED' AND claimed_at < ?))`)
+      .bind(Date.now(), claimToken, publicId, cutoff),
+    env.DB.prepare(`INSERT INTO order_events (order_id, event_type, created_at, metadata)
+      SELECT id, 'CLAIMED', ?, json_object('attempt', delivery_attempts) FROM orders WHERE public_id = ? AND changes() > 0`)
+      .bind(Date.now(), publicId),
+  ]);
+  if ((res[0].meta.changes ?? 0) === 0) return { status: "ALREADY_CLAIMED" };
   return { status: "CLAIMED", claimToken };
 }
 
@@ -170,13 +175,37 @@ export type AckResult = "DELIVERED" | "ALREADY_DELIVERED" | "NOT_FOUND" | "STALE
 export async function ackDelivered(env: Env, publicId: string, claimToken: string): Promise<AckResult> {
   const order = await getOrderByPublicId(env, publicId);
   if (!order) return "NOT_FOUND";
-  if (order.status === "DELIVERED") return "ALREADY_DELIVERED";
-  if (order.status !== "CLAIMED") return "ALREADY_DELIVERED";
   if (order.claim_token !== claimToken) return "STALE_CLAIM";
-  const res = await env.DB.prepare("UPDATE orders SET status = 'DELIVERED', delivered_at = ? WHERE public_id = ? AND status = 'CLAIMED' AND claim_token = ?")
-    .bind(Date.now(), publicId, claimToken)
-    .run();
-  if ((res.meta.changes ?? 0) === 0) return "ALREADY_DELIVERED";
-  await logEvent(env.DB, order.id, "DELIVERED", {});
+  if (order.status === "DELIVERED" && !order.review_required) return "ALREADY_DELIVERED";
+  if (order.status !== "CLAIMED" || order.review_required) return "STALE_CLAIM";
+  const res = await env.DB.batch([
+    env.DB.prepare("UPDATE orders SET status = 'DELIVERED', delivered_at = ? WHERE public_id = ? AND status = 'CLAIMED' AND claim_token = ? AND review_required = 0")
+      .bind(Date.now(), publicId, claimToken),
+    env.DB.prepare(`INSERT INTO order_events (order_id, event_type, created_at, metadata)
+      SELECT id, 'DELIVERED', ?, json_object('attempt', delivery_attempts) FROM orders WHERE public_id = ? AND changes() > 0`)
+      .bind(Date.now(), publicId),
+  ]);
+  if ((res[0].meta.changes ?? 0) === 0) {
+    const current = await getOrderByPublicId(env, publicId);
+    return current?.status === "DELIVERED" && current.claim_token === claimToken && !current.review_required ? "ALREADY_DELIVERED" : "STALE_CLAIM";
+  }
   return "DELIVERED";
+}
+
+export async function ackFailed(env: Env, publicId: string, token: string): Promise<"RETRY" | "NOT_FOUND" | "STALE_CLAIM"> {
+  const order = await getOrderByPublicId(env, publicId);
+  if (!order) return "NOT_FOUND";
+  if (order.status !== "CLAIMED" || order.claim_token !== token || order.review_required) return "STALE_CLAIM";
+  // Keep the lease until expiry. A repeated failure ACK cannot accelerate retries or spam audit.
+  const result = await env.DB.prepare(`INSERT INTO order_events (order_id, event_type, created_at, metadata)
+    SELECT id, 'DELIVERY_FAILED_RETRY', ?, json_object('attempt', delivery_attempts, 'reason', 'server_reported_failure') FROM orders o
+    WHERE public_id = ? AND status = 'CLAIMED' AND claim_token = ? AND review_required = 0
+    AND NOT EXISTS (SELECT 1 FROM order_events e WHERE e.order_id = o.id AND e.event_type = 'DELIVERY_FAILED_RETRY'
+      AND json_extract(e.metadata, '$.attempt') = o.delivery_attempts)`)
+    .bind(Date.now(), publicId, token).run();
+  if (!result.meta.changes) {
+    const current = await getOrderByPublicId(env, publicId);
+    if (current?.status !== "CLAIMED" || current.claim_token !== token || current.review_required) return "STALE_CLAIM";
+  }
+  return "RETRY";
 }

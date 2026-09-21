@@ -10,6 +10,9 @@ main = "src/index.ts"
 compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
 
+[version_metadata]
+binding = "WORKER_VERSION"
+
 # Variables NO sensibles (seguras para versionar) - fijan el entorno real en tiempo de ejecucion.
 [vars]
 ENVIRONMENT = "production"

@@ -269,7 +269,7 @@ describe("server status heartbeat", () => {
 
   it("is offline until an authenticated heartbeat marks the server online", async () => {
     const initial = await handleServerStatus(new Request("http://worker.local/api/server/status"), env);
-    expect(await initial.json()).toMatchObject({ state: "offline", playersOnline: 0 });
+    expect(await initial.json()).toMatchObject({ state: "offline", playersOnline: null });
 
     const unauth = await handleServerStatusHeartbeat(
       new Request("http://worker.local/api/server/status/heartbeat", {
@@ -306,7 +306,7 @@ describe("server status heartbeat", () => {
 
     vi.setSystemTime(new Date("2026-09-09T10:01:01.000Z"));
     const res = await handleServerStatus(new Request("http://worker.local/api/server/status"), env);
-    expect(await res.json()).toMatchObject({ state: "offline", online: false, playersOnline: 0, maxPlayers: 20 });
+    expect(await res.json()).toMatchObject({ state: "offline", online: false, playersOnline: null, maxPlayers: null });
   });
 });
 

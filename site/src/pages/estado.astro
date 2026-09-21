@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import OperationsStatus from "../components/OperationsStatus.astro";
+---
+<BaseLayout title="Estado de los servicios" description="Estado actual del servidor y de la tienda de CobbleCraft.">
+  <section class="section section--tight"><div class="container">
+    <p class="eyebrow">CobbleCraft</p><h1 class="status-title">Estado de los servicios</h1><p>Disponibilidad del servidor y de los pagos.</p>
+  </div></section>
+  <OperationsStatus />
+  <section class="section section--tight section--alt"><div class="container">
+    <a class="btn btn-primary" href="/tienda/">Tienda</a><a class="btn btn-ghost" href="/ayuda/">Soporte</a>
+  </div></section>
+</BaseLayout>
+<style>.status-title { font-size:1.8rem; overflow-wrap:anywhere; }</style>

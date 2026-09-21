@@ -1,7 +1,8 @@
 import { z } from "zod";
 import type { Env } from "../types";
 import { jsonResponse, errorResponse, timingSafeEqual, ErrorCode } from "../lib/security";
-import { listDeliverable, claimOrder, ackDelivered } from "../lib/orders";
+import { listDeliverable, claimOrder, ackDelivered, ackFailed } from "../lib/orders";
+import { recordServiceHealth } from "../lib/operations";
 
 /**
  * Parte F - autenticación Worker <-> Minecraft. NUNCA se acepta ninguna petición de este
@@ -31,6 +32,7 @@ export async function handleListPending(request: Request, env: Env): Promise<Res
   if (authError) return authError;
 
   const orders = await listDeliverable(env);
+  await recordServiceHealth(env, "delivery", null);
   return jsonResponse(
     env,
     request,
@@ -96,8 +98,9 @@ export async function handleAck(request: Request, env: Env): Promise<Response> {
   }
 
   if (body.result === "failed") {
-    // Se deja CLAIMED - el auto-heal por timeout (ver listDeliverable/claimOrder) lo hará
-    // disponible de nuevo sin necesitar un tercer endpoint dedicado a "liberar".
+    const outcome = await ackFailed(env, body.orderId, body.claimToken);
+    if (outcome === "NOT_FOUND") return errorResponse(env, request, 404, "Pedido no encontrado.", ErrorCode.ORDER_NOT_FOUND);
+    if (outcome === "STALE_CLAIM") return errorResponse(env, request, 409, "Claim no vigente; fallo no registrado.", ErrorCode.STALE_CLAIM);
     return jsonResponse(env, request, { acked: true, willRetry: true });
   }
 

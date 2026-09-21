@@ -68,8 +68,8 @@ class FakeD1PreparedStatement {
 export class FakeD1Database {
   readonly raw: DatabaseSync;
 
-  constructor() {
-    this.raw = new DatabaseSyncCtor(":memory:");
+  constructor(filename = ":memory:") {
+    this.raw = new DatabaseSyncCtor(filename);
     this.raw.exec("PRAGMA foreign_keys = ON");
   }
 

@@ -30,6 +30,7 @@ export function jsonResponse(env: Env, request: Request, body: unknown, status =
     status,
     headers: {
       "Content-Type": "application/json",
+      "Cache-Control": "no-store",
       ...corsHeaders(env, request),
       ...securityHeaders(),
     },

@@ -6,6 +6,7 @@ import { resolveMojangProfile } from "../lib/mojang";
 import { createOrder, markPendingPayment, markFailed, getOrderByPublicId } from "../lib/orders";
 import { createPaymentProvider } from "../lib/payment/factory";
 import { checkoutAvailable } from "../lib/store-readiness";
+import { recordServiceHealth } from "../lib/operations";
 
 const CreateOrderBody = z.object({
   productId: z.string().min(1).max(64),
@@ -78,16 +79,18 @@ export async function handleCreateOrder(request: Request, env: Env, siteBaseUrl:
       priceCents: product.priceCents,
       currency: product.currency,
       successUrl: `${siteBaseUrl}/tienda/gracias?order=${order.public_id}`,
-      cancelUrl: `${siteBaseUrl}/tienda/${product.slug}?resumeOrder=${order.public_id}`,
+      cancelUrl: `${siteBaseUrl}/tienda/cancelado?order=${order.public_id}`,
       playerName: profile.name,
       playerUuid: profile.uuid,
       customerIp: request.headers.get("CF-Connecting-IP") ?? undefined,
       providerPackageId: getProviderPackageId(product.productId),
     });
     await markPendingPayment(env, order.public_id, session.providerPaymentId);
+    await recordServiceHealth(env, "tebex", null, { checkoutCreatedAt: Date.now() });
     return jsonResponse(env, request, { orderId: order.public_id, checkoutUrl: session.checkoutUrl });
   } catch (err) {
     console.error(`No se pudo iniciar el checkout para el pedido ${order.public_id}:`, err);
+    await recordServiceHealth(env, "tebex", "CHECKOUT_CREATION_FAILED");
     await markFailed(env, order.public_id, "checkout_creation_failed");
     return errorResponse(env, request, 502, "No se pudo iniciar el pago ahora mismo. Inténtalo de nuevo en unos segundos.", ErrorCode.UPSTREAM_UNAVAILABLE);
   }
@@ -119,7 +122,7 @@ export async function handleResumeOrderCheckout(request: Request, env: Env, site
       priceCents: product.priceCents,
       currency: product.currency,
       successUrl: `${siteBaseUrl}/tienda/gracias?order=${order.public_id}`,
-      cancelUrl: `${siteBaseUrl}/tienda/${product.slug}?resumeOrder=${order.public_id}`,
+      cancelUrl: `${siteBaseUrl}/tienda/cancelado?order=${order.public_id}`,
       playerName: order.player_name,
       playerUuid: order.player_uuid,
       customerIp: request.headers.get("CF-Connecting-IP") ?? undefined,
@@ -134,12 +137,18 @@ export async function handleResumeOrderCheckout(request: Request, env: Env, site
 
 /** GET /api/orders/:publicId - lectura pública de solo estado (nunca dispara ninguna entrega). */
 export async function handleGetOrder(request: Request, env: Env, publicId: string): Promise<Response> {
+  if (!/^ord_[A-Z2-9]{20}$/.test(publicId)) return errorResponse(env, request, 404, "Pedido no encontrado.", ErrorCode.ORDER_NOT_FOUND);
+  if (!rateLimit(`order-status:${clientKey(request)}`, 60, 60_000)) return errorResponse(env, request, 429, "Demasiadas consultas.");
   const order = await getOrderByPublicId(env, publicId);
   if (!order) return errorResponse(env, request, 404, "Pedido no encontrado.", ErrorCode.ORDER_NOT_FOUND);
   return jsonResponse(env, request, {
     orderId: order.public_id,
     status: order.status,
     productId: order.product_id,
+    productName: getAuthoritativeProduct(env, order.product_id)?.name ?? "Producto de CobbleCraft",
+    productSlug: getAuthoritativeProduct(env, order.product_id)?.slug ?? null,
+    playerName: order.player_name,
+    reviewRequired: order.review_required === 1,
     createdAt: order.created_at,
     paidAt: order.paid_at,
     deliveredAt: order.delivered_at,

@@ -1,0 +1,56 @@
+---
+import { publicApiBaseUrl } from "../lib/api-base";
+const { cancelled = false } = Astro.props;
+---
+<section class="section section--tight">
+  <div class="container order" data-order-api={publicApiBaseUrl} data-cancelled={String(cancelled)}>
+    <p class="eyebrow">Tienda CobbleCraft</p><h1 id="order-heading">{cancelled ? "Vuelta del checkout" : "Estado del pedido"}</h1>
+    <p id="order-status-text" role="status" aria-live="polite">Consultando el pedido...</p><p id="order-status-detail"></p>
+    <dl id="order-summary" hidden>
+      <div><dt>Jugador</dt><dd id="order-player"></dd></div><div><dt>Producto</dt><dd id="order-product"></dd></div>
+      <div><dt>Fecha</dt><dd id="order-date"></dd></div><div><dt>Referencia</dt><dd id="order-reference"></dd></div>
+      <div><dt>Entrega</dt><dd id="order-delivery"></dd></div>
+    </dl>
+    <div class="order-actions"><a id="order-resume" class="btn btn-primary" hidden>Reanudar checkout</a>
+      <a class="btn btn-ghost" href="/tienda/">Volver a la tienda</a><a href="/estado/">Estado de los servicios</a>
+    </div>
+  </div>
+</section>
+<style>
+  .order { max-width:760px; min-height:460px; }.order h1 { font-size:1.8rem; overflow-wrap:anywhere; }
+  [data-tone="ok"] { color:#16743b; }[data-tone="warning"] { color:#85610b; }[data-tone="error"] { color:#b42318; }
+  .order dl { margin:24px 0; border-top:1px solid var(--border); }
+  .order dl div { display:grid; grid-template-columns:100px minmax(0,1fr); gap:14px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .order dt { font-weight:600; }.order dd { margin:0; overflow-wrap:anywhere; }
+  .order-actions { display:flex; flex-wrap:wrap; align-items:center; gap:14px; margin-top:24px; }.order-actions [hidden] { display:none; }
+</style>
+<script>
+  import { orderPresentation } from "../lib/order-status";
+  const root = document.querySelector<HTMLElement>("[data-order-api]");
+  const status = document.getElementById("order-status-text"), detail = document.getElementById("order-status-detail"), heading = document.getElementById("order-heading");
+  const summary = document.getElementById("order-summary"), resume = document.getElementById("order-resume") as HTMLAnchorElement | null;
+  const id = new URLSearchParams(location.search).get("order"); let attempts = 0; let timer: number | undefined;
+  async function poll() {
+    if (!root || !status || !detail || !heading || !summary || !resume) return;
+    if (!id || !/^ord_[A-Z2-9]{20}$/.test(id)) { status.textContent = "No se pudo identificar el pedido."; return; }
+    attempts++;
+    try {
+      const response = await fetch(`${root.dataset.orderApi}/api/orders/${encodeURIComponent(id)}`, { signal: AbortSignal.timeout(5000), cache: "no-store", referrerPolicy: "no-referrer" });
+      if (response.status === 404) { status.textContent = "Pedido no encontrado."; return; }
+      if (!response.ok) throw new Error("unavailable"); const data = await response.json();
+      const view = orderPresentation(data.status, data.reviewRequired === true, root.dataset.cancelled === "true");
+      heading.textContent = view.heading; status.textContent = view.label; detail.textContent = view.detail; status.dataset.tone = view.tone; summary.hidden = false;
+      const values: Record<string, string> = { "order-player": data.playerName, "order-product": data.productName,
+        "order-date": new Date(data.createdAt).toLocaleString("es-ES"), "order-reference": id,
+        "order-delivery": data.deliveredAt ? new Date(data.deliveredAt).toLocaleString("es-ES") : "Todavía no confirmada" };
+      for (const [name, value] of Object.entries(values)) { const el = document.getElementById(name); if (el) el.textContent = value; }
+      if (data.status === "PENDING_PAYMENT" && !data.reviewRequired && /^rango-(explorador|maestro|leyenda)$/.test(data.productSlug ?? "")) {
+        resume.href = `/tienda/${data.productSlug}/?resumeOrder=${encodeURIComponent(id)}`; resume.hidden = false;
+      } else resume.hidden = true;
+      if (view.terminal) return;
+    } catch { status.textContent = "No se pudo consultar el pedido. Su estado no se ha modificado."; status.dataset.tone = "warning"; }
+    if (attempts < 40) timer = window.setTimeout(poll, 5000);
+    else detail.textContent = "La confirmación sigue pendiente. Conserva esta referencia y vuelve a consultar más tarde o contacta con soporte.";
+  }
+  void poll(); window.addEventListener("pagehide", () => clearTimeout(timer), { once: true });
+</script>

@@ -1,0 +1,46 @@
+---
+import { publicApiBaseUrl } from "../lib/api-base";
+---
+<section class="section section--tight" aria-label="Estado de los servicios">
+  <div class="container services" data-operations-api={publicApiBaseUrl}>
+    <div><span class="service-label">Servidor</span><strong id="public-minecraft" role="status">Consultando...</strong><small id="public-players"></small></div>
+    <div><span class="service-label">Tienda</span><strong id="public-store" role="status">Consultando...</strong><small>Checkout hospedado por Tebex</small></div>
+    <a href="/estado/">Estado de los servicios →</a><p id="public-status-detail"></p>
+  </div>
+</section>
+<style>
+  .services { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; align-items:start; }
+  .services strong,.services small,.service-label { display:block; overflow-wrap:anywhere; }
+  .service-label { font-size:0.8rem; margin-bottom:6px; }.services strong { font-size:1rem; }
+  .services small { margin-top:6px; }.services p { margin:0; font-size:0.8rem; }
+  [data-tone="online"] { color:#16743b; }[data-tone="offline"] { color:#b42318; }[data-tone="unknown"] { color:#85610b; }
+  @media(max-width:540px) { .services { grid-template-columns:minmax(0,1fr); } }
+</style>
+<script>
+  const container = document.querySelector<HTMLElement>("[data-operations-api]");
+  const minecraft = document.getElementById("public-minecraft"), store = document.getElementById("public-store");
+  const players = document.getElementById("public-players"), detail = document.getElementById("public-status-detail");
+  let busy = false;
+  async function refresh() {
+    if (busy || !container || !minecraft || !store || !players || !detail) return;
+    busy = true;
+    const read = async (path: string) => {
+      const response = await fetch(`${container.dataset.operationsApi}${path}`, { signal: AbortSignal.timeout(5000), cache: "no-store" });
+      if (!response.ok) throw new Error("unavailable"); return response.json();
+    };
+    const [mc, shop] = await Promise.allSettled([read("/api/server/status"), read("/api/store/status")]);
+    if (mc.status === "fulfilled") {
+      const s = mc.value;
+      minecraft.textContent = s.online ? "Online" : "Offline / sin respuesta"; minecraft.dataset.tone = s.online ? "online" : "offline";
+      players.textContent = s.online && Number.isInteger(s.playersOnline) && Number.isInteger(s.maxPlayers) ? `${s.playersOnline} / ${s.maxPlayers} jugadores` : "Sin recuento actual";
+      detail.textContent = [s.version ? `Minecraft ${s.version}` : "", s.online && Number.isFinite(s.latencyMs) ? `${s.latencyMs} ms` : "",
+        s.lastSeenAt ? `Última consulta: ${new Date(s.lastSeenAt).toLocaleTimeString("es-ES")}` : "Sin señal reciente"].filter(Boolean).join(" · ");
+    } else { minecraft.textContent = "Estado no disponible"; minecraft.dataset.tone = "unknown"; players.textContent = ""; detail.textContent = "No se ha podido obtener una consulta actual."; }
+    store.textContent = shop.status === "fulfilled" ? shop.value.checkoutAvailable ? "Operativa" : "Pagos temporalmente no disponibles" : "Estado no disponible";
+    store.dataset.tone = shop.status === "fulfilled" && shop.value.checkoutAvailable ? "online" : "unknown";
+    busy = false;
+  }
+  void refresh();
+  const timer = window.setInterval(() => { if (!document.hidden) void refresh(); }, 30000);
+  window.addEventListener("pagehide", () => clearInterval(timer), { once: true });
+</script>

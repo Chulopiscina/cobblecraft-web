@@ -9,6 +9,7 @@ import { handleStartLink, handleLinkStatus, handleConfirmLink } from "./routes/l
 import { handleLauncherLatest } from "./routes/launcher";
 import { handleServerStatus, handleServerStatusHeartbeat } from "./routes/server-status";
 import { handleHealth } from "./routes/health";
+import { handleOperations } from "./routes/operations";
 import { handleVoteStatus, handleVoteSubmit, handleVoteRewardPending, handleVoteRewardClaim, handleVoteRewardAck } from "./routes/vote";
 
 /**
@@ -27,6 +28,7 @@ export default {
     }
 
     try {
+      if (path === "/api/admin/diagnostics" && request.method === "GET") return await handleOperations(request, env);
       if (path === "/api/store/status" && request.method === "GET") return jsonResponse(env, request, { checkoutAvailable: checkoutAvailable(env) });
       if (path === "/api/orders" && request.method === "POST") return await handleCreateOrder(request, env, siteBaseUrl);
 

@@ -35,6 +35,7 @@ export interface WebhookEvent {
   orderPublicId?: string;
   purchase?: { packageId: string; playerName: string; playerUuid: string; recipientId: string; basePriceCents: number; currency: string };
   reversal?: boolean;
+  eventType?: string;
 }
 
 export interface PaymentProvider {

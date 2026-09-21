@@ -75,7 +75,7 @@ if (process.argv.includes('--prepare')) {
   // Build committed store sources, never the unrelated dirty worktree or public/ artifacts.
   const tracked = git(['ls-tree', '-r', '--name-only', commit, '--', 'site/src', 'shared', 'store', 'site/astro.config.mjs', 'site/tsconfig.json', 'site/package.json']).split('\n');
   for (const name of tracked) {
-    if (name.startsWith('site/src/pages/') && !name.startsWith('site/src/pages/tienda/')) continue;
+    if (name.startsWith('site/src/pages/') && !name.startsWith('site/src/pages/tienda/') && name !== 'site/src/pages/estado.astro') continue;
     const target = join(source, name);
     await mkdir(dirname(target), { recursive: true });
     const bytes = execFileSync('git', ['show', `${commit}:${name}`], { cwd: web, maxBuffer: 16 * 1024 * 1024 });
@@ -87,7 +87,7 @@ if (process.argv.includes('--prepare')) {
       PUBLIC_API_BASE_URL: 'https://cobblemon-server-store.cobblemon-server.workers.dev' },
   });
   const built = join(source, 'site/dist');
-  const pages = ['tienda/index.html', 'tienda/rango-explorador/index.html', 'tienda/rango-maestro/index.html', 'tienda/rango-leyenda/index.html', 'tienda/gracias/index.html'];
+  const pages = ['tienda/index.html', 'tienda/rango-explorador/index.html', 'tienda/rango-maestro/index.html', 'tienda/rango-leyenda/index.html', 'tienda/gracias/index.html', 'tienda/cancelado/index.html', 'estado/index.html'];
   const managed = [...pages, ...(await files(join(built, '_astro'))).map(p => `_astro/${p}`)];
   for (const name of managed) {
     const bytes = await readFile(join(built, name));

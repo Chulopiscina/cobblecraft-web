@@ -28,6 +28,24 @@ export async function processProviderWebhook(env: Env, provider: PaymentProvider
     await recordWebhookProcessed(env, provider.id, event.eventId);
     return { ok: true, result: event.status === "ignored" ? "ignored" : "failed" };
   }
+  if (event.reversal) {
+    const now = Date.now();
+    // Persist reversals even if they arrive before payment.completed (out-of-order webhooks).
+    await env.DB.batch([
+      env.DB.prepare("INSERT OR IGNORE INTO payment_reversals (provider, transaction_id, event_id, event_type, received_at) VALUES (?, ?, ?, ?, ?)")
+        .bind(provider.id, event.providerPaymentId, event.eventId, event.eventType ?? "payment.reversed", now),
+      env.DB.prepare(`UPDATE orders SET status = 'REFUNDED',
+        review_required = CASE WHEN status IN ('CLAIMED','DELIVERED') OR review_required = 1 THEN 1 ELSE 0 END,
+        review_reason = ? WHERE payment_provider = ? AND provider_payment_id = ?
+        AND NOT EXISTS (SELECT 1 FROM processed_webhooks WHERE provider = ? AND event_id = ?)`)
+        .bind(event.eventType ?? "payment.reversed", provider.id, event.providerPaymentId, provider.id, event.eventId),
+      env.DB.prepare(`INSERT INTO order_events (order_id, event_type, created_at, metadata)
+        SELECT id, 'PAYMENT_REVERSED', ?, ? FROM orders WHERE payment_provider = ? AND provider_payment_id = ? AND changes() > 0`)
+        .bind(now, JSON.stringify({ eventId: event.eventId, transactionId: event.providerPaymentId, eventType: event.eventType ?? "payment.reversed" }), provider.id, event.providerPaymentId),
+      env.DB.prepare("INSERT OR IGNORE INTO processed_webhooks (provider, event_id, received_at) VALUES (?, ?, ?)").bind(provider.id, event.eventId, now),
+    ]);
+    return { ok: true, result: "failed" };
+  }
   const order = event.orderPublicId ? await getOrderByPublicId(env, event.orderPublicId)
     : await env.DB.prepare("SELECT * FROM orders WHERE provider_payment_id = ?").bind(event.providerPaymentId).first<OrderRow>();
   // Unknown orders must be retried, not permanently acknowledged as processed.
@@ -42,27 +60,18 @@ export async function processProviderWebhook(env: Env, provider: PaymentProvider
       throw new Error("Webhook: producto, importe o destinatario no coincide con el pedido.");
     }
   }
-  if (event.reversal) {
-    await env.DB.batch([
-      env.DB.prepare("UPDATE orders SET status = 'REFUNDED' WHERE public_id = ? AND provider_payment_id = ?")
-        .bind(order.public_id, event.providerPaymentId),
-      env.DB.prepare("INSERT OR IGNORE INTO processed_webhooks (provider, event_id, received_at) VALUES (?, ?, ?)")
-        .bind(provider.id, event.eventId, Date.now()),
-      env.DB.prepare("INSERT INTO order_events (order_id, event_type, created_at, metadata) VALUES (?, 'PAYMENT_REVERSED_REVIEW_REQUIRED', ?, '{}')")
-        .bind(order.id, Date.now()),
-    ]);
-    return { ok: true, result: "failed" };
-  }
   // D1 batch is transactional: a crash/error cannot consume the event without recording PAID.
   // The provider-payment UNIQUE index prevents one transaction from paying multiple orders.
   const result = await env.DB.batch([
-    env.DB.prepare(`UPDATE orders SET status = 'PAID', paid_at = ?, provider_payment_id = ?
-      WHERE public_id = ? AND status IN ('CREATED','PENDING_PAYMENT')
+    env.DB.prepare(`UPDATE orders SET status = CASE WHEN EXISTS (SELECT 1 FROM payment_reversals WHERE provider = ? AND transaction_id = ?) THEN 'REFUNDED' ELSE 'PAID' END,
+      paid_at = ?, provider_payment_id = ?
+      WHERE public_id = ? AND review_required = 0 AND status IN ('CREATED','PENDING_PAYMENT','FAILED')
       AND NOT EXISTS (SELECT 1 FROM processed_webhooks WHERE provider = ? AND event_id = ?)`)
-      .bind(Date.now(), event.providerPaymentId, order.public_id, provider.id, event.eventId),
+      .bind(provider.id, event.providerPaymentId, Date.now(), event.providerPaymentId, order.public_id, provider.id, event.eventId),
     env.DB.prepare(`INSERT INTO order_events (order_id, event_type, created_at, metadata)
-      SELECT ?, 'PAID', ?, ? WHERE changes() > 0`)
-      .bind(order.id, Date.now(), JSON.stringify({ providerPaymentId: event.providerPaymentId })),
+      SELECT id, CASE WHEN status = 'REFUNDED' THEN 'PAYMENT_BLOCKED_REVERSAL' ELSE 'PAID' END, ?, ? FROM orders WHERE public_id = ? AND changes() > 0`)
+      .bind(Date.now(), JSON.stringify({ providerPaymentId: event.providerPaymentId, eventId: event.eventId,
+        packageId: event.purchase?.packageId ?? null, eventType: event.eventType ?? "payment.completed" }), order.public_id),
     env.DB.prepare("INSERT OR IGNORE INTO processed_webhooks (provider, event_id, received_at) VALUES (?, ?, ?)")
       .bind(provider.id, event.eventId, Date.now()),
   ]);
