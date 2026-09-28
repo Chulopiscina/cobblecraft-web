@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.23-beta.1-rp1.4.14",
+  "packVersion": "1.8.24-beta.1-rp1.4.14",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -380,6 +380,15 @@
       "url": "https://cobblemon-server-site.pages.dev/launcher/files/liga_pokemon.png",
       "sha256": "84b29577b455fd5ba96242a834423dc3ca41ac7541438f3e4b581fa10c536c6e",
       "size": 2246375,
+      "category": "MANAGED"
+    },
+    {
+      "id": "monitor-pokemon",
+      "displayName": "Monitor del Centro Pokemon",
+      "relativePath": "config/monitor_pokemon.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/monitor_pokemon.png",
+      "sha256": "62a516268c48d8a4526ac70a0042dddc3c113a808eb3d834fa8e3c693b0f3700",
+      "size": 1700498,
       "category": "MANAGED"
     }
   ],
