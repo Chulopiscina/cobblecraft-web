@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.32-beta.1-rp1.4.14",
+  "packVersion": "1.8.33-beta.1-rp1.4.14",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -160,10 +160,10 @@
     {
       "id": "cobblecraft-client",
       "displayName": "Cliente oficial CobbleCraft",
-      "relativePath": "mods/cobblecraft-client-0.1.40.jar",
-      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.40.jar",
-      "sha256": "115fcfc0325965b9e299347c6056b2d1fa427ee7d05d8c1e7f3c413bdf595e49",
-      "size": 7933262,
+      "relativePath": "mods/cobblecraft-client-0.1.41.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.41.jar",
+      "sha256": "35b0c93e9ca612947f3d57ad17ac0c9176123145fbaf464159052dbe5f9af9fd",
+      "size": 7934359,
       "category": "MANAGED"
     },
     {
@@ -389,6 +389,69 @@
       "url": "https://cobblemon-server-site.pages.dev/launcher/files/monitor_pokemon.png",
       "sha256": "62a516268c48d8a4526ac70a0042dddc3c113a808eb3d834fa8e3c693b0f3700",
       "size": 1700498,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cartel-laboratorio",
+      "displayName": "Cartel Laboratorio",
+      "relativePath": "config/cartel_laboratorio.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cartel_laboratorio.png",
+      "sha256": "fcec6ab2931e124cd3bc185500deb6733df3a7873d0d1c31ebd54b702f5176ab",
+      "size": 798508,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cartel-portales",
+      "displayName": "Cartel Portales",
+      "relativePath": "config/cartel_portales.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cartel_portales.png",
+      "sha256": "42ca237b276d2de727bf93d45100335816dc059d5c6ed7da72cc8a1ea5249a4f",
+      "size": 839317,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cartel-tienda",
+      "displayName": "Cartel Tienda",
+      "relativePath": "config/cartel_tienda.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cartel_tienda.png",
+      "sha256": "84f7cc3de2991880215294c910c5af8126ba9b5bd9b7d26f3481038e2851f675",
+      "size": 761553,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cartel-centro-pokemon",
+      "displayName": "Cartel Centro Pokemon",
+      "relativePath": "config/cartel_centro_pokemon.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cartel_centro_pokemon.png",
+      "sha256": "8e5f9406557a3412925babd9e8a74b8b0d3a651420b49121b2dfb3dff20e00f0",
+      "size": 753848,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cartel-encantamientos",
+      "displayName": "Cartel Encantamientos",
+      "relativePath": "config/cartel_encantamientos.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cartel_encantamientos.png",
+      "sha256": "a79a31b7c141b0894d758bf9a4e6f6be765cbed607c2383240ec9dd85d97df41",
+      "size": 876782,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cartel-slayer",
+      "displayName": "Cartel Slayer",
+      "relativePath": "config/cartel_slayer.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cartel_slayer.png",
+      "sha256": "36e22fd4d52f41140357f432c12c50618fdb0c892873c789e52d732a58c602dc",
+      "size": 848924,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cartel-pesca",
+      "displayName": "Cartel Pesca",
+      "relativePath": "config/cartel_pesca.png",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cartel_pesca.png",
+      "sha256": "6ea8a427a96cb4b9283d4d94c432df7f902d872cb09e5493d85916feab6bd040",
+      "size": 825651,
       "category": "MANAGED"
     }
   ],
