@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.31-beta.1-rp1.4.14",
+  "packVersion": "1.8.32-beta.1-rp1.4.14",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -160,10 +160,10 @@
     {
       "id": "cobblecraft-client",
       "displayName": "Cliente oficial CobbleCraft",
-      "relativePath": "mods/cobblecraft-client-0.1.39.jar",
-      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.39.jar",
-      "sha256": "71e89d79849ce4ed6c55d86bac4dfd13d5e40678404ddc63adb2693fc58ab576",
-      "size": 7885296,
+      "relativePath": "mods/cobblecraft-client-0.1.40.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.40.jar",
+      "sha256": "115fcfc0325965b9e299347c6056b2d1fa427ee7d05d8c1e7f3c413bdf595e49",
+      "size": 7933262,
       "category": "MANAGED"
     },
     {
@@ -378,8 +378,8 @@
       "displayName": "Cartel de la Liga Pokemon",
       "relativePath": "config/liga_pokemon.png",
       "url": "https://cobblemon-server-site.pages.dev/launcher/files/liga_pokemon.png",
-      "sha256": "84b29577b455fd5ba96242a834423dc3ca41ac7541438f3e4b581fa10c536c6e",
-      "size": 2246375,
+      "sha256": "ce2f14a6e5ad7734c6627014e19671c0bf4f8e1f7b715f248631b34b22a6d25b",
+      "size": 2234164,
       "category": "MANAGED"
     },
     {
