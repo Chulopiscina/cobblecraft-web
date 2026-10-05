@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.49-beta.1-rp1.4.19",
+  "packVersion": "1.8.50-beta.1-rp1.4.19",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -160,10 +160,10 @@
     {
       "id": "cobblecraft-client",
       "displayName": "Cliente oficial CobbleCraft",
-      "relativePath": "mods/cobblecraft-client-0.1.59.jar",
-      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.59.jar",
-      "sha256": "4a366799f383501b03e3b7e89faf1230c1044b35de1dd0941bfcb537bdb91e8d",
-      "size": 9684272,
+      "relativePath": "mods/cobblecraft-client-0.1.60.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.60.jar",
+      "sha256": "46f14fb86621811b1d42080df1310c1b02efdce3007726f133a72cfc6630413f",
+      "size": 9689055,
       "category": "MANAGED"
     },
     {
