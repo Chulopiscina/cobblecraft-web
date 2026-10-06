@@ -287,6 +287,7 @@ export async function main(argv) {
   const { values } = parseArgs({ args: argv, options: {
     release: { type: 'string' }, baseline: { type: 'string' },
     'check-only': { type: 'boolean', default: false }, 'verify-only': { type: 'boolean', default: false },
+    'no-push': { type: 'boolean', default: false },
   } });
   assert(values.release, 'Uso: node web/scripts/deploy-client-prod.mjs --release dist/client-update/0.11.6 [--check-only|--verify-only]');
   assert(!(values['check-only'] && values['verify-only']), 'Elegir un solo modo.');
@@ -355,8 +356,10 @@ export async function main(argv) {
     await writeFile(join(web, 'site/public', name), bytes);
   }
   const commit = commitFiles(web, managed, release.manifest.packVersion);
-  git(web, ['push', 'origin', `HEAD:refs/heads/${config.branch}`]);
-  assert(git(web, ['ls-remote', 'origin', `refs/heads/${config.branch}`]).split(/\s/)[0] === commit, 'GitHub no confirma el commit.');
+  if (!values['no-push']) {
+    git(web, ['push', 'origin', `HEAD:refs/heads/${config.branch}`]);
+    assert(git(web, ['ls-remote', 'origin', `refs/heads/${config.branch}`]).split(/\s/)[0] === commit, 'GitHub no confirma el commit.');
+  }
   assert(assertProject(await api()).id === deployment.id, 'Produccion cambio durante la preparacion. No se desplegara sobre ella.');
   const audit = { packVersion: release.manifest.packVersion, commit, previousDeployment: deployment.url,
     previousDeploymentId: deployment.id, stage, changed: release.names, previousFiles: before };
