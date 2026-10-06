@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.51-beta.1-rp1.4.19",
+  "packVersion": "1.8.52-beta.1-rp1.4.19",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -455,39 +455,57 @@
       "category": "MANAGED"
     },
     {
-      "id": "cloth-config",
-      "displayName": "Cloth Config API",
-      "relativePath": "mods/cloth-config-15.0.140-fabric.jar",
-      "url": "https://cdn.modrinth.com/data/9s6osm5g/versions/HpMb5wGb/cloth-config-15.0.140-fabric.jar",
-      "sha256": "33894e95da3af59014b39d126586d5241e07ea39f8618763e30dab637405f95f",
-      "size": 1157166,
+      "id": "sophisticatedbackpacks",
+      "displayName": "Sophisticated Backpacks (Unofficial Fabric port)",
+      "relativePath": "mods/sophisticatedbackpacks-1.21.1-3.23.4.3.106.jar",
+      "url": "https://cdn.modrinth.com/data/ouNrBQtq/versions/nHhuPdda/sophisticatedbackpacks-1.21.1-3.23.4.3.106.jar",
+      "sha256": "2c099bfd5dc02ace6e73ffd9259940b0597cd4da7216a53a2c60c6732900d6aa",
+      "size": 988478,
       "category": "MANAGED"
     },
     {
-      "id": "inmis",
-      "displayName": "Inmis (mochilas)",
-      "relativePath": "mods/inmis-2.8.2-1.21.1.jar",
-      "url": "https://cdn.modrinth.com/data/I0UYcPa0/versions/iE11BIfP/inmis-2.8.2-1.21.1.jar",
-      "sha256": "fc0fec298164994ed5f7f54a87aada3d2f1f21b135c2edb30e94ba3d095ef03c",
-      "size": 133522,
+      "id": "sophisticatedstorage",
+      "displayName": "Sophisticated Storage (Unofficial Fabric port)",
+      "relativePath": "mods/sophisticatedstorage-1.21.1-1.3.7.9.139.jar",
+      "url": "https://cdn.modrinth.com/data/iHtpVwJL/versions/kjNlOByJ/sophisticatedstorage-1.21.1-1.3.7.9.139.jar",
+      "sha256": "0dbaf1ff069c33a8c4738518d983d1cab0cdca6871a6c7b7dc5727c531eca215",
+      "size": 1670672,
       "category": "MANAGED"
     },
     {
-      "id": "libipn",
-      "displayName": "libIPN",
-      "relativePath": "mods/libIPN-fabric-1.21-6.6.0.jar",
-      "url": "https://cdn.modrinth.com/data/onSQdWhM/versions/Dy64jVRA/libIPN-fabric-1.21-6.6.0.jar",
-      "sha256": "892136fd54802899ae4bf604c6c062451cd4dca11f0cde31e2539e406764c769",
-      "size": 631843,
+      "id": "sophisticatedcore",
+      "displayName": "Sophisticated Core (Unofficial Fabric port)",
+      "relativePath": "mods/sophisticatedcore-1.21.1-1.2.9.21.168.jar",
+      "url": "https://cdn.modrinth.com/data/9jxwkYQL/versions/ZLVrtF0Q/sophisticatedcore-1.21.1-1.2.9.21.168.jar",
+      "sha256": "3c71a04d5b03cdf9d9fe50e71849fdf11291dd1fab149621e35688ef6e516054",
+      "size": 2996065,
       "category": "MANAGED"
     },
     {
-      "id": "inventory-profiles-next",
-      "displayName": "Inventory Profiles Next",
-      "relativePath": "mods/InventoryProfilesNext-fabric-1.21-2.2.0.jar",
-      "url": "https://cdn.modrinth.com/data/O7RBXm3n/versions/bukarIYm/InventoryProfilesNext-fabric-1.21-2.2.0.jar",
-      "sha256": "ff64f030f9319908bdae1d9a88145202fe70a6796623ce868cdc21f1956f81cd",
-      "size": 1320289,
+      "id": "daycareplus",
+      "displayName": "Daycare+",
+      "relativePath": "mods/daycareplus-1.4.2+1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/sw1l2uBq/versions/sw6t9KGX/daycareplus-1.4.2%2B1.21.1.jar",
+      "sha256": "984393324b6f1f81f5d536f9fa1588b2d7ee6de705f3ad34051f737f5165b281",
+      "size": 668326,
+      "category": "MANAGED"
+    },
+    {
+      "id": "polymer-bundled",
+      "displayName": "Polymer",
+      "relativePath": "mods/polymer-bundled-0.9.19+1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/xGdtZczs/versions/xqZ9fctS/polymer-bundled-0.9.19%2B1.21.1.jar",
+      "sha256": "8c6bb7897bf53e3207a2ca4fc26db55471990b605855f494c2d80bfcabd1ed3b",
+      "size": 1705944,
+      "category": "MANAGED"
+    },
+    {
+      "id": "forge-config-api-port",
+      "displayName": "Forge Config API Port",
+      "relativePath": "mods/ForgeConfigAPIPort-v21.1.6-1.21.1-Fabric.jar",
+      "url": "https://cdn.modrinth.com/data/ohNO6lps/versions/N5qzq0XV/ForgeConfigAPIPort-v21.1.6-1.21.1-Fabric.jar",
+      "sha256": "2e3a8f0e3bda85a7d722720e7ce879cbd9d028d9395c6fc224d329b3c982d9b1",
+      "size": 633065,
       "category": "MANAGED"
     }
   ],
