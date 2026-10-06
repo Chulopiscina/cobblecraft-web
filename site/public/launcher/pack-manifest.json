@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.50-beta.1-rp1.4.19",
+  "packVersion": "1.8.51-beta.1-rp1.4.19",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -160,10 +160,10 @@
     {
       "id": "cobblecraft-client",
       "displayName": "Cliente oficial CobbleCraft",
-      "relativePath": "mods/cobblecraft-client-0.1.60.jar",
-      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.60.jar",
-      "sha256": "46f14fb86621811b1d42080df1310c1b02efdce3007726f133a72cfc6630413f",
-      "size": 9689055,
+      "relativePath": "mods/cobblecraft-client-0.1.61.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.61.jar",
+      "sha256": "290858abb27f306cd43008c892e435d1e19477f10a052dc01f007378c36ba351",
+      "size": 9826488,
       "category": "MANAGED"
     },
     {
@@ -452,6 +452,42 @@
       "url": "https://cobblemon-server-site.pages.dev/launcher/files/cartel_pesca.png",
       "sha256": "6ea8a427a96cb4b9283d4d94c432df7f902d872cb09e5493d85916feab6bd040",
       "size": 825651,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cloth-config",
+      "displayName": "Cloth Config API",
+      "relativePath": "mods/cloth-config-15.0.140-fabric.jar",
+      "url": "https://cdn.modrinth.com/data/9s6osm5g/versions/HpMb5wGb/cloth-config-15.0.140-fabric.jar",
+      "sha256": "33894e95da3af59014b39d126586d5241e07ea39f8618763e30dab637405f95f",
+      "size": 1157166,
+      "category": "MANAGED"
+    },
+    {
+      "id": "inmis",
+      "displayName": "Inmis (mochilas)",
+      "relativePath": "mods/inmis-2.8.2-1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/I0UYcPa0/versions/iE11BIfP/inmis-2.8.2-1.21.1.jar",
+      "sha256": "fc0fec298164994ed5f7f54a87aada3d2f1f21b135c2edb30e94ba3d095ef03c",
+      "size": 133522,
+      "category": "MANAGED"
+    },
+    {
+      "id": "libipn",
+      "displayName": "libIPN",
+      "relativePath": "mods/libIPN-fabric-1.21-6.6.0.jar",
+      "url": "https://cdn.modrinth.com/data/onSQdWhM/versions/Dy64jVRA/libIPN-fabric-1.21-6.6.0.jar",
+      "sha256": "892136fd54802899ae4bf604c6c062451cd4dca11f0cde31e2539e406764c769",
+      "size": 631843,
+      "category": "MANAGED"
+    },
+    {
+      "id": "inventory-profiles-next",
+      "displayName": "Inventory Profiles Next",
+      "relativePath": "mods/InventoryProfilesNext-fabric-1.21-2.2.0.jar",
+      "url": "https://cdn.modrinth.com/data/O7RBXm3n/versions/bukarIYm/InventoryProfilesNext-fabric-1.21-2.2.0.jar",
+      "sha256": "ff64f030f9319908bdae1d9a88145202fe70a6796623ce868cdc21f1956f81cd",
+      "size": 1320289,
       "category": "MANAGED"
     }
   ],
