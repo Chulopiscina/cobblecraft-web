@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.55-beta.1-rp1.4.21",
+  "packVersion": "1.8.56-beta.1-rp1.4.21",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -524,6 +524,15 @@
       "url": "https://cdn.modrinth.com/data/ohNO6lps/versions/N5qzq0XV/ForgeConfigAPIPort-v21.1.6-1.21.1-Fabric.jar",
       "sha256": "2e3a8f0e3bda85a7d722720e7ce879cbd9d028d9395c6fc224d329b3c982d9b1",
       "size": 633065,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cobblemon-battle-extras",
+      "displayName": "Cobblemon Battle Extras",
+      "relativePath": "mods/cobblemon-battle-extras-fabric-1.7.27.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblemon-battle-extras-fabric-1.7.27.jar",
+      "sha256": "76d84b377ba3010621d5e027b1086bb7f72d7bb65f265cdf680158eec0b9bfee",
+      "size": 1015903,
       "category": "MANAGED"
     }
   ],
