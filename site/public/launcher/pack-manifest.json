@@ -1,9 +1,27 @@
 {
-  "packVersion": "1.8.53-beta.1-rp1.4.20",
+  "packVersion": "1.8.54-beta.1-rp1.4.20",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
   "requiredFiles": [
+    {
+      "id": "cloth-config",
+      "displayName": "Cloth Config API",
+      "relativePath": "mods/cloth-config-15.0.130-fabric.jar",
+      "url": "https://cdn.modrinth.com/data/9s6osm5g/versions/7jtvrmVP/cloth-config-15.0.130-fabric.jar",
+      "sha256": "79d5a72d6fba3b3799ab69b87b4652d1a59eaffe555522cc2922552a965cb540",
+      "size": 1144380,
+      "category": "MANAGED"
+    },
+    {
+      "id": "lootr",
+      "displayName": "Lootr",
+      "relativePath": "mods/lootr-fabric-1.21.1-1.11.38.127.jar",
+      "url": "https://cdn.modrinth.com/data/EltpO5cN/versions/nar56EsW/lootr-fabric-1.21.1-1.11.38.127.jar",
+      "sha256": "2b33fa73a28c14f0983459c165e8c7b491cd1d798c947b967207f66194fb531d",
+      "size": 1111591,
+      "category": "MANAGED"
+    },
     {
       "id": "fabric-api",
       "displayName": "Fabric API",
