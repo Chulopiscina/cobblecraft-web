@@ -1,5 +1,5 @@
 {
-  "packVersion": "1.8.59-beta.1-rp1.4.21",
+  "packVersion": "1.8.60-beta.1-rp1.4.21",
   "minecraftVersion": "1.21.1",
   "fabricLoaderVersion": "0.19.3",
   "fabricInstallerVersion": "1.1.2",
@@ -7,10 +7,10 @@
     {
       "id": "cloth-config",
       "displayName": "Cloth Config API",
-      "relativePath": "mods/cloth-config-15.0.130-fabric.jar",
-      "url": "https://cdn.modrinth.com/data/9s6osm5g/versions/7jtvrmVP/cloth-config-15.0.130-fabric.jar",
-      "sha256": "79d5a72d6fba3b3799ab69b87b4652d1a59eaffe555522cc2922552a965cb540",
-      "size": 1144380,
+      "relativePath": "mods/cloth-config-15.0.140-fabric.jar",
+      "url": "https://cdn.modrinth.com/data/9s6osm5g/versions/HpMb5wGb/cloth-config-15.0.140-fabric.jar",
+      "sha256": "33894e95da3af59014b39d126586d5241e07ea39f8618763e30dab637405f95f",
+      "size": 1157166,
       "category": "MANAGED"
     },
     {
@@ -178,10 +178,10 @@
     {
       "id": "cobblecraft-client",
       "displayName": "Cliente oficial CobbleCraft",
-      "relativePath": "mods/cobblecraft-client-0.1.66.jar",
-      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.66.jar",
-      "sha256": "84ab651b8461762fc495a101a3e5d25e7cdd196c6176a09e812f7af926a6e26e",
-      "size": 9862636,
+      "relativePath": "mods/cobblecraft-client-0.1.67.jar",
+      "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblecraft-client-0.1.67.jar",
+      "sha256": "7f50078025ba68deee66a78690e613af3731bbbd8ecd6331b645248c47fbe8d0",
+      "size": 9862906,
       "category": "MANAGED"
     },
     {
@@ -533,6 +533,24 @@
       "url": "https://cobblemon-server-site.pages.dev/launcher/files/cobblemon-battle-extras-fabric-1.7.27.jar",
       "sha256": "76d84b377ba3010621d5e027b1086bb7f72d7bb65f265cdf680158eec0b9bfee",
       "size": 1015903,
+      "category": "MANAGED"
+    },
+    {
+      "id": "player-animation-library",
+      "displayName": "Player Animation Library",
+      "relativePath": "mods/PlayerAnimationLibFabric-1.1.6+mc.1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/ha1mEyJS/versions/tDcfU8FO/PlayerAnimationLibFabric-1.1.6%2Bmc.1.21.1.jar",
+      "sha256": "876cd48293b580727ea35a708aa10c6a6f7f3e454a0ab68e7db30888a7ee9d79",
+      "size": 1154772,
+      "category": "MANAGED"
+    },
+    {
+      "id": "cpa",
+      "displayName": "Custom Player Animations",
+      "relativePath": "mods/cpa-5.9.4-fabric+1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/EhthJpjM/versions/ahZbWfc5/cpa-5.9.4-fabric%2B1.21.1.jar",
+      "sha256": "d8bc99004699161a4d143f1e531a1283f8fdeddf32a96365323898cc70556766",
+      "size": 354323,
       "category": "MANAGED"
     }
   ],
