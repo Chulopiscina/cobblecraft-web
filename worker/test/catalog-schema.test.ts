@@ -46,24 +46,24 @@ describe("web/store/catalog.json (real file)", () => {
     }
   });
 
-  it("publishes the three permanent ranks with the real LuckPerms groups", () => {
+  it("publishes three monthly ranks with the real rank identities", () => {
     const catalog = CatalogSchema.parse(catalogRaw);
     const products = visibleProducts(catalog, "prod");
     expect(products.find((p) => p.productId === "rank_explorer")).toMatchObject({
       name: "Explorador",
-      priceCents: 1499,
+      priceCents: 399,
       delivery: { type: "RANK", rankId: "explorer" },
       devOnly: false,
     });
     expect(products.find((p) => p.productId === "rank_master")).toMatchObject({
       name: "Maestro",
-      priceCents: 2999,
+      priceCents: 699,
       delivery: { type: "RANK", rankId: "master" },
       devOnly: false,
     });
     expect(products.find((p) => p.productId === "rank_legend")).toMatchObject({
       name: "Leyenda",
-      priceCents: 4999,
+      priceCents: 999,
       delivery: { type: "RANK", rankId: "legend" },
       devOnly: false,
     });
@@ -91,7 +91,9 @@ describe("web/store/catalog.json (real file)", () => {
       "rank_legend",
       "rank_master",
     ]) {
-      expect(effectiveCatalog.products.find((product) => product.productId === productId)?.checkoutEnabled).toBe(true);
+      expect(effectiveCatalog.products.find((product) => product.productId === productId)?.checkoutEnabled).toBe(false);
+      const verified=withEffectiveTebexCheckout(catalog,{...tebexPackageConfig,packages:tebexPackageConfig.packages.map(p=>({...p,subscriptionVerified:true}))});
+      expect(verified.products.find(p=>p.productId===productId)?.checkoutEnabled).toBe(true);
     }
   });
 

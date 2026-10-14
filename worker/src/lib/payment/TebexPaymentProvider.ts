@@ -8,7 +8,7 @@ const Basket = z.object({
   username: z.string().nullable().optional(),
   base_price: z.number().nonnegative().optional(), currency: z.string().optional(),
   custom: z.object({ orderPublicId: z.string(), playerUuid: z.string() }).passthrough().nullable().optional(),
-  packages: z.array(z.object({ id: z.coerce.string(), in_basket: z.object({ quantity: z.number() }) })).optional(),
+  packages: z.array(z.object({ id: z.coerce.string(), type: z.string().optional(), is_recurring: z.boolean().optional(), in_basket: z.object({ quantity: z.number() }) })).optional(),
   links: z.object({ checkout: z.string().optional() }).optional(),
 });
 type BasketData = z.infer<typeof Basket>;
@@ -20,6 +20,12 @@ const PaidSubject = z.object({
     id: z.coerce.string(), quantity: z.literal(1), username: Username,
     base_price: z.object({ amount: z.number().nonnegative(), currency: z.string() }),
   })).length(1),
+});
+const RecurringSubject = z.object({
+  reference: z.string().regex(/^[A-Za-z0-9_-]{1,200}$/),
+  next_payment_at: z.string().nullable(),
+  initial_payment: PaidSubject,
+  last_payment: PaidSubject.omit({custom:true}).extend({ created_at: z.string(), status: z.object({ id: z.number() }) }),
 });
 
 export function safeTebexCheckoutUrl(raw: string): string {
@@ -81,6 +87,8 @@ export class TebexPaymentProvider implements PaymentProvider {
       throw new Error("El basket debe contener exactamente el paquete solicitado, cantidad 1.");
     }
     if (!basket.links?.checkout) throw new Error("Tebex no devolvio links.checkout.");
+    if (req.subscription && basket.packages[0]?.type !== "subscription" && basket.packages[0]?.is_recurring !== true)
+      throw new Error("El paquete Tebex no es una suscripcion mensual verificada.");
     if (basket.currency !== req.currency || Math.round((basket.base_price ?? -1) * 100) !== req.priceCents) {
       throw new Error("El precio base o moneda de Tebex no coincide con el catalogo.");
     }
@@ -96,7 +104,7 @@ export class TebexPaymentProvider implements PaymentProvider {
     }, "POST", true));
     this.verifyIdentity(basket, req);
     const updated = this.unwrap(await this.request(`/baskets/${encodeURIComponent(basket.ident)}/packages`, "anadir paquete", {
-      package_id: req.providerPackageId, quantity: 1,
+      package_id: req.providerPackageId, quantity: 1, ...(req.subscription ? { type: "subscription" } : {}),
     }));
     if (updated.ident !== basket.ident) throw new Error("Basket inesperado al anadir paquete.");
     return this.session(updated, req);
@@ -112,8 +120,19 @@ export class TebexPaymentProvider implements PaymentProvider {
     const signature = headers.get("X-Signature");
     if (!signature || !/^[a-f0-9]{64}$/i.test(signature) || !timingSafeEqual(signature.toLowerCase(), await signatureFor(this.webhookSecret, rawBody))) return null;
     try {
-      const payload = z.object({ id: z.string().min(1).max(200), type: z.string(), subject: z.unknown().optional() }).parse(JSON.parse(rawBody));
+      const payload = z.object({ id: z.string().min(1).max(200), type: z.string(), date: z.string().optional(), subject: z.unknown().optional() }).parse(JSON.parse(rawBody));
       if (payload.type === "validation.webhook") return { eventId: payload.id, providerPaymentId: payload.id, status: "validation" };
+      if (["recurring-payment.started","recurring-payment.renewed","recurring-payment.ended","recurring-payment.cancellation.requested","recurring-payment.cancellation.aborted"].includes(payload.type)) {
+        const s=RecurringSubject.parse(payload.subject), p=s.last_payment, product=p.products[0]!;
+        const at=Date.parse(payload.date ?? ""), startsAt=Date.parse(p.created_at), expiresAt=Date.parse(s.next_payment_at ?? "");
+        const kind=payload.type.endsWith(".ended") ? "ended" : payload.type.endsWith(".requested") ? "cancel" : payload.type.endsWith(".aborted") ? "resume" : "paid";
+        if (!Number.isFinite(at) || !Number.isFinite(startsAt) || (kind!=="ended" && (!Number.isFinite(expiresAt)||expiresAt<=startsAt)) || (kind==="paid" && p.status.id!==1)) return null;
+        return {eventId:payload.id,providerPaymentId:p.transaction_id,status:"paid",eventType:payload.type,
+          subscription:{reference:s.reference,kind,at,startsAt,expiresAt:kind==="ended"?at:expiresAt,
+            transactionId:p.transaction_id,orderPublicId:s.initial_payment.custom.orderPublicId,
+            packageId:product.id,playerUuid:s.initial_payment.custom.playerUuid,playerName:product.username.username,
+            priceCents:Math.round(product.base_price.amount*100),currency:product.base_price.currency,recipientId:String(product.username.id??"")}};
+      }
       if (payload.type === "payment.completed") {
         const subject = PaidSubject.parse(payload.subject);
         const product = subject.products[0]!;

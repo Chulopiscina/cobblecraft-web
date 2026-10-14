@@ -14,6 +14,7 @@ export interface CheckoutRequest {
   playerUuid: string;
   customerIp?: string;
   providerPackageId?: string;
+  subscription?: boolean;
 }
 
 export interface CheckoutSession {
@@ -36,6 +37,14 @@ export interface WebhookEvent {
   purchase?: { packageId: string; playerName: string; playerUuid: string; recipientId: string; basePriceCents: number; currency: string };
   reversal?: boolean;
   eventType?: string;
+  subscription?: SubscriptionEvent;
+}
+
+export interface SubscriptionEvent {
+  reference: string; kind: "paid" | "ended" | "cancel" | "resume" | "refund";
+  at: number; startsAt: number; expiresAt: number; transactionId: string;
+  orderPublicId: string; packageId: string; playerUuid: string; playerName: string;
+  priceCents: number; currency: string; recipientId?: string;
 }
 
 export interface PaymentProvider {

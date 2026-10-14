@@ -83,6 +83,18 @@ describe("Tebex Minecraft Headless", () => {
     const s = signed({ id: "validation", type: "validation.webhook" });
     expect(await new TebexPaymentProvider(undefined, "test-secret").verifyWebhook(s.raw, s.headers)).toEqual({ eventId: "validation", providerPaymentId: "validation", status: "validation" });
   });
+  it("verifies signed recurring renewal without custom on last payment and rejects unpaid/invalid periods",async()=>{
+    const initial=paidPayload().subject;
+    const last={...initial,custom:undefined,created_at:"2026-10-14T00:00:00Z",status:{id:1}};
+    const subject={reference:"tbx-r-real-shape",initial_payment:initial,last_payment:last,next_payment_at:"2026-11-14T00:00:00Z"};
+    const payload={id:"evt-renewal",type:"recurring-payment.renewed",date:"2026-10-14T00:00:01Z",subject};
+    let s=signed(payload);
+    expect(await provider().verifyWebhook(s.raw,s.headers)).toMatchObject({subscription:{kind:"paid",reference:subject.reference,expiresAt:Date.parse(subject.next_payment_at)}});
+    s=signed({...payload,subject:{...subject,last_payment:{...last,status:{id:18}}}});
+    expect(await provider().verifyWebhook(s.raw,s.headers)).toBeNull();
+    s=signed({...payload,subject:{...subject,next_payment_at:"invalid"}});
+    expect(await provider().verifyWebhook(s.raw,s.headers)).toBeNull();
+  });
   it("a refund containing completed status is NEVER classified as paid", async () => {
     const payload = paidPayload(); payload.type = "payment.refunded";
     const s = signed({ ...payload, subject: { ...payload.subject, status: { description: "Complete" } } });

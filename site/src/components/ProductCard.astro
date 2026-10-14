@@ -5,7 +5,7 @@ interface Props {
   product: Product;
 }
 const { product } = Astro.props;
-const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + " €";
+const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + (product.metadata.billing === "monthly" ? " €/mes" : " €");
 const durationLabel = product.metadata.durationLabel;
 ---
 

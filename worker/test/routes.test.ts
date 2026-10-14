@@ -7,6 +7,7 @@ import { handleListPending, handleClaim, handleAck } from "../src/routes/deliver
 import { handleStartLink, handleConfirmLink, handleLinkStatus } from "../src/routes/link";
 import { handleServerStatus, handleServerStatusHeartbeat } from "../src/routes/server-status";
 import { markPaid, markPendingPayment, createOrder } from "../src/lib/orders";
+import * as catalog from "../src/lib/catalog";
 
 function makeEnv(db: FakeD1Database, overrides: Partial<Env> = {}): Env {
   return {
@@ -53,6 +54,7 @@ describe("POST /api/orders (handleCreateOrder)", () => {
   afterEach(() => {
     db.close();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it("rejects an unknown productId - never creates an order", async () => {
@@ -73,7 +75,9 @@ describe("POST /api/orders (handleCreateOrder)", () => {
     expect(res.status).toBe(404);
   });
 
-  it("creates checkout for a published rank once its Tebex package id exists", async () => {
+  it("creates monthly checkout only when package verification is explicitly confirmed", async () => {
+    const actual=catalog.getAuthoritativeProduct;
+    vi.spyOn(catalog,"getAuthoritativeProduct").mockImplementation((e,id)=> {const p=actual(e,id);return p?{...p,checkoutEnabled:true}:null;});
     const req = new Request("http://worker.local/api/orders", {
       method: "POST",
       body: JSON.stringify({ productId: "rank_explorer", playerName: "Notch" }),
@@ -136,11 +140,13 @@ describe("POST /api/orders (handleCreateOrder)", () => {
   });
 
   it("resumes a pending checkout without creating a second order", async () => {
+    const actual=catalog.getAuthoritativeProduct;
+    vi.spyOn(catalog,"getAuthoritativeProduct").mockImplementation((e,id)=> {const p=actual(e,id);return p?{...p,checkoutEnabled:true}:null;});
     const order = await createOrder(env, {
       playerUuid: "069a79f4-44e9-4726-a5be-fca90e38aaf5",
       playerName: "Notch",
       productId: "rank_explorer",
-      priceCents: 1499,
+      priceCents: 399,
       currency: "EUR",
       paymentProvider: env.PAYMENT_PROVIDER,
     });

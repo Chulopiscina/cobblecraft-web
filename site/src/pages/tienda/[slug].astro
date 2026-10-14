@@ -11,7 +11,7 @@ export function getStaticPaths() {
 }
 
 const { product } = Astro.props;
-const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + " €";
+const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + (product.metadata.billing === "monthly" ? " €/mes" : " €");
 const durationLabel = product.metadata.durationLabel;
 const benefits = product.metadata.benefits?.split("|").filter(Boolean) ?? [];
 const isUpgrade = product.metadata.kind === "upgrade";
@@ -23,7 +23,7 @@ const apiBaseUrl = publicApiBaseUrl;
  */
 function deliverySummary(action: DeliveryAction): string[] {
   const lines: string[] = [];
-  if (action.type === "RANK") lines.push(`Rango del servidor${action.durationDays ? ` (${action.durationDays} días)` : " (permanente)"}.`);
+  if (action.type === "RANK") lines.push("Rango durante el periodo pagado de la suscripción.");
   if (action.type === "CUSTOM_ITEM" || action.type === "COSMETIC") lines.push(`${action.amount ?? 1}x objeto exclusivo, entregado directamente en tu inventario o buzón.`);
   if (action.type === "CURRENCY") lines.push("Moneda del servidor.");
   if (action.type === "BUNDLE" && action.bundle) {
@@ -79,12 +79,15 @@ const includes = deliverySummary(product.delivery);
         <ul class="plain-list">
           <li>La entrega queda pendiente hasta que el servidor confirme el pago y procese el pedido. Puedes consultar su estado tras la compra.</li>
           <li>Necesitas una cuenta de Minecraft Java válida y el nombre EXACTO de tu personaje.</li>
+          <li>Puedes regalarlo: escribe el nombre del jugador que recibirá el rango. El comprador gestiona el pago en Tebex.</li>
+          <li>Renovación mensual. Cancelar no elimina el periodo ya pagado. Impagos al vencimiento y reembolsos retiran el acceso, nunca tus datos.</li>
+          <li><a href="https://checkout.tebex.io/payment-history" target="_blank" rel="noopener noreferrer">Gestionar suscripción y consultar pagos en Tebex</a>. No creamos cuentas web.</li>
           {product.limits.maxPerPlayer && <li>Límite de {product.limits.maxPerPlayer} por jugador.</li>}
-          <li>No se garantiza reembolso una vez entregado el producto - ver <a href="/legal/reembolsos">Política de reembolsos</a>.</li>
+          <li>Reembolsos y cancelaciones: <a href="/legal/reembolsos">condiciones y derechos aplicables</a>.</li>
         </ul>
 
         <form id="purchase-form" data-api-base={apiBaseUrl} data-product-id={product.productId} data-checkout-enabled={String(product.checkoutEnabled)} style="margin-top:26px; border-top:1px solid var(--border); padding-top:22px;">
-          <label for="player-name" class="field-label">Tu nombre de usuario de Minecraft</label>
+          <label for="player-name" class="field-label">Nombre Minecraft del destinatario (tú u otro jugador)</label>
           <input
             id="player-name"
             name="playerName"

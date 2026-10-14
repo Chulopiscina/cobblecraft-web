@@ -1,6 +1,7 @@
 import type { Env } from "./types";
 import { corsHeaders, securityHeaders, errorResponse, jsonResponse } from "./lib/security";
 import { checkoutAvailable } from "./lib/store-readiness";
+import { handleSubscriptions, handleSubscriptionAck } from "./routes/subscriptions";
 import { handleCreateOrder, handleGetOrder, handleResumeOrderCheckout } from "./routes/orders";
 import { handleWebhook } from "./routes/webhook";
 import { handleSimulateMockPayment } from "./routes/payments-mock";
@@ -47,6 +48,8 @@ export default {
       if (path === "/api/payments/mock/simulate" && request.method === "POST") return await handleSimulateMockPayment(request, env, siteBaseUrl);
 
       if (path === "/api/delivery/pending" && request.method === "GET") return await handleListPending(request, env);
+      if (path === "/api/delivery/subscriptions" && request.method === "GET") return await handleSubscriptions(request, env);
+      if (path === "/api/delivery/subscriptions/ack" && request.method === "POST") return await handleSubscriptionAck(request, env);
       if (path === "/api/delivery/claim" && request.method === "POST") return await handleClaim(request, env);
       if (path === "/api/delivery/ack" && request.method === "POST") return await handleAck(request, env);
 

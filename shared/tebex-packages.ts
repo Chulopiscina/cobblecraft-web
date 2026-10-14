@@ -10,6 +10,7 @@ export const TebexPackageEntrySchema = z.object({
   packageId: TebexPackageId,
   action: z.literal("rank"),
   rankId: RankId,
+  subscriptionVerified: z.boolean().default(false),
 });
 
 export const TebexPackageConfigSchema = z.object({
@@ -32,8 +33,9 @@ export function withEffectiveTebexCheckout(catalog: Catalog, config: TebexPackag
   const byProduct = tebexPackageByProduct(config);
   const products: Product[] = catalog.products.map((product) => {
     if (product.devOnly) return product;
-    const packageId = byProduct.get(product.productId)?.packageId;
-    if (!packageId) return { ...product, checkoutEnabled: false };
+    const mapping = byProduct.get(product.productId);
+    const packageId = mapping?.packageId;
+    if (!packageId || (product.metadata.billing === "monthly" && !mapping?.subscriptionVerified)) return { ...product, checkoutEnabled: false };
     return { ...product, checkoutEnabled: true };
   });
   return { ...catalog, products };

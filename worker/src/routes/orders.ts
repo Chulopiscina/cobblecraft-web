@@ -7,6 +7,7 @@ import { createOrder, markPendingPayment, markFailed, getOrderByPublicId } from 
 import { createPaymentProvider } from "../lib/payment/factory";
 import { checkoutAvailable } from "../lib/store-readiness";
 import { recordServiceHealth } from "../lib/operations";
+import { reduceSubscription } from "../lib/subscriptions";
 
 const CreateOrderBody = z.object({
   productId: z.string().min(1).max(64),
@@ -54,6 +55,16 @@ export async function handleCreateOrder(request: Request, env: Env, siteBaseUrl:
     return errorResponse(env, request, 404, "No existe ninguna cuenta Minecraft Java con ese nombre.", ErrorCode.PLAYER_NOT_FOUND);
   }
 
+  if(product.metadata.billing==="monthly") {
+    const id=profile.uuid.replace(/-/g,"").replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/,"$1-$2-$3-$4-$5");
+    const refs=await env.DB.prepare("SELECT DISTINCT reference FROM subscription_events WHERE player_uuid=?").bind(id).all<{reference:string}>();
+    for(const ref of refs.results) {
+      const events=await env.DB.prepare("SELECT seq,payload FROM subscription_events WHERE reference=?").bind(ref.reference).all<{seq:number;payload:string}>();
+      const state=reduceSubscription(events.results);
+      if(state.expiresAt>Date.now())return errorResponse(env,request,409,"Este jugador ya tiene un periodo pagado. Gestiona su suscripcion en Tebex; no se cobra otro rango en paralelo.",ErrorCode.CHECKOUT_DISABLED);
+    }
+  }
+
   const order = await createOrder(env, {
     playerUuid: profile.uuid,
     playerName: profile.name,
@@ -62,6 +73,16 @@ export async function handleCreateOrder(request: Request, env: Env, siteBaseUrl:
     currency: product.currency,
     paymentProvider: env.PAYMENT_PROVIDER,
   });
+  if(product.metadata.billing==="monthly") {
+    const lock=await env.DB.prepare(`INSERT INTO subscription_checkouts(player_uuid,order_id) VALUES(?,?)
+      ON CONFLICT(player_uuid) DO UPDATE SET order_id=excluded.order_id
+      WHERE EXISTS(SELECT 1 FROM orders WHERE public_id=subscription_checkouts.order_id AND status IN ('DELIVERED','REFUNDED'))`)
+      .bind(profile.uuid,order.public_id).run();
+    if(!lock.meta.changes) {
+      await markFailed(env,order.public_id,"subscription_checkout_already_pending");
+      return errorResponse(env,request,409,"Ya hay un checkout pendiente para este destinatario. Reanuda ese pedido o contacta con soporte; no se crea un segundo cobro.",ErrorCode.CHECKOUT_DISABLED);
+    }
+  }
 
   // El pedido ya existe en CREATED en este punto - si algo falla a partir de aquí (proveedor de
   // pago caído, escritura de D1 fallida) nunca debe quedar huérfano en CREATED para siempre
@@ -84,6 +105,7 @@ export async function handleCreateOrder(request: Request, env: Env, siteBaseUrl:
       playerUuid: profile.uuid,
       customerIp: request.headers.get("CF-Connecting-IP") ?? undefined,
       providerPackageId: getProviderPackageId(product.productId),
+      subscription: product.metadata.billing === "monthly",
     });
     await markPendingPayment(env, order.public_id, session.providerPaymentId);
     await recordServiceHealth(env, "tebex", null, { checkoutCreatedAt: Date.now() });
@@ -127,6 +149,7 @@ export async function handleResumeOrderCheckout(request: Request, env: Env, site
       playerUuid: order.player_uuid,
       customerIp: request.headers.get("CF-Connecting-IP") ?? undefined,
       providerPackageId: getProviderPackageId(product.productId),
+      subscription: product.metadata.billing === "monthly",
     });
     return jsonResponse(env, request, { orderId: order.public_id, checkoutUrl: session.checkoutUrl });
   } catch (err) {

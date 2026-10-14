@@ -2,6 +2,7 @@ import type { Env } from "../types";
 import type { PaymentProvider } from "./payment/PaymentProvider";
 import { isWebhookAlreadyProcessed, recordWebhookProcessed, getOrderByPublicId, type OrderRow } from "./orders";
 import { getProviderPackageId } from "./catalog";
+import { recordSubscription } from "./subscriptions";
 
 export type ProcessWebhookResult =
   | { ok: true; result: "paid" | "already_processed" | "ignored" | "failed" }
@@ -24,14 +25,21 @@ export async function processProviderWebhook(env: Env, provider: PaymentProvider
 
   const alreadyProcessed = await isWebhookAlreadyProcessed(env, provider.id, event.eventId);
   if (alreadyProcessed) return { ok: true, result: "already_processed" };
+  if (event.subscription) {
+    await recordSubscription(env,event);
+    return {ok:true,result:"paid"};
+  }
   if (event.status === "ignored" || (event.status === "failed" && !event.reversal)) {
     await recordWebhookProcessed(env, provider.id, event.eventId);
     return { ok: true, result: event.status === "ignored" ? "ignored" : "failed" };
   }
   if (event.reversal) {
     const now = Date.now();
+    const affected=await env.DB.prepare("SELECT reference,player_uuid,payload FROM subscription_events WHERE json_extract(payload,'$.transactionId')=? GROUP BY reference").bind(event.providerPaymentId).all<{reference:string;player_uuid:string;payload:string}>();
     // Persist reversals even if they arrive before payment.completed (out-of-order webhooks).
     await env.DB.batch([
+      ...affected.results.map(s=>env.DB.prepare("INSERT OR IGNORE INTO subscription_events(event_id,reference,player_uuid,payload) VALUES(?,?,?,?)")
+        .bind(`${event.eventId}:${s.reference}`,s.reference,s.player_uuid,JSON.stringify({...JSON.parse(s.payload),kind:"refund",at:now}))),
       env.DB.prepare("INSERT OR IGNORE INTO payment_reversals (provider, transaction_id, event_id, event_type, received_at) VALUES (?, ?, ?, ?, ?)")
         .bind(provider.id, event.providerPaymentId, event.eventId, event.eventType ?? "payment.reversed", now),
       env.DB.prepare(`UPDATE orders SET status = 'REFUNDED',

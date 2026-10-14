@@ -30,16 +30,18 @@ const plannedCategories = [
 const rankProducts = products.filter((p) => p.category === "rangos" && !p.devOnly);
 const rankComparisonRows = [
   ["Homes", "2", "4", "6"],
-  ["/healing", "60 min", "30 min", "15 min"],
-  ["/pcremoto", "-", "60 min", "30 min"],
+  ["/healing", "5 min", "2 min", "1 min"],
+  ["/pcremoto", "Sin cooldown", "Sin cooldown", "Sin cooldown"],
   ["Teleports Hub", "Básicos", "Relevantes", "Premium"],
-  ["Kit semanal", "Básico", "Mejorado", "Premium equilibrado"],
+  ["Entrenamiento / hora", "1.500 € ingame", "1.000 € ingame", "500 € ingame"],
+  ["Mesa de crafteo", "Sí", "Sí", "Sí"],
+  ["Mercado / Ender Chest / back", "-", "Sí", "Sí"],
   ["Prioridad de entrada", "Sobre normal", "Sobre Explorador", "Máxima"],
 ];
 ---
 
-<BaseLayout title="Tienda" description="Tienda oficial de CobbleCraft con rangos permanentes y checkout Tebex hospedado.">
-  <PageHero eyebrow="Tienda oficial" title="TIENDA" subtitle="Rangos permanentes con checkout hospedado por Tebex y entrega validada por webhook firmado." />
+<BaseLayout title="Tienda" description="Suscripciones mensuales oficiales de CobbleCraft, gestionadas por Tebex.">
+  <PageHero eyebrow="Tienda oficial" title="TIENDA" subtitle="Explorador 3,99 €/mes · Maestro 6,99 €/mes · Leyenda 9,99 €/mes" />
   <OperationsStatus />
 
   {products.length === 0 && (
@@ -67,10 +69,10 @@ const rankComparisonRows = [
     <div class="container">
       <div class="section-head" style="max-width:760px;">
         <span class="eyebrow">Rangos</span>
-        <h2>Permanentes y acumulativos</h2>
+        <h2>Un rango, una suscripción mensual</h2>
         <p>
-          Maestro incluye Explorador. Leyenda incluye Maestro y Explorador. Los upgrades no están
-          disponibles todavía; ahora solo están activos los tres rangos completos.
+          Maestro incluye Explorador; Leyenda incluye Maestro. La cancelación conserva el rango
+          hasta finalizar el periodo pagado. No se borran homes, Pokémon ni progreso al caducar.
         </p>
       </div>
       <div class="grid grid--3">
@@ -121,7 +123,8 @@ const rankComparisonRows = [
         </table>
       </div>
       <p class="notice" style="margin-top:18px;">
-        Los upgrades se activarán más adelante. Por ahora la tienda solo permite comprar los rangos completos.
+        Gestiona o cancela tu suscripción desde <a href="https://checkout.tebex.io/payment-history" target="_blank" rel="noopener noreferrer">Tebex</a>.
+        No compres otro rango mientras tengas un periodo activo. Los cambios de ciclo requieren disponibilidad confirmada en Tebex.
       </p>
     </div>
   </section>
@@ -157,10 +160,10 @@ const rankComparisonRows = [
       <div class="icon-tile icon-tile--cyan" style="margin-left:auto; margin-right:auto;">
         <Icon name="escudo" />
       </div>
-      <h2>Nuestra postura: nunca pay-to-win</h2>
+      <h2>Compra clara y responsable</h2>
       <p>
         No vendemos llaves de crates ni loot aleatorio por dinero real. Los rangos publicados son
-        permanentes, claros y acumulativos; cualquier entrega se valida servidor-side y queda
+        mensuales; cualquier entrega se valida servidor-side y queda
         vinculada al usuario de Minecraft Java indicado al comprar.
       </p>
     </div>

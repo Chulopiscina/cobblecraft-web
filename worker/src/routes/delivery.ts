@@ -3,6 +3,7 @@ import type { Env } from "../types";
 import { jsonResponse, errorResponse, timingSafeEqual, ErrorCode } from "../lib/security";
 import { listDeliverable, claimOrder, ackDelivered, ackFailed } from "../lib/orders";
 import { recordServiceHealth } from "../lib/operations";
+import { getAuthoritativeProduct } from "../lib/catalog";
 
 /**
  * Parte F - autenticación Worker <-> Minecraft. NUNCA se acepta ninguna petición de este
@@ -36,7 +37,7 @@ export async function handleListPending(request: Request, env: Env): Promise<Res
   return jsonResponse(
     env,
     request,
-    orders.map((o) => ({
+    orders.filter(o=>{ const p=getAuthoritativeProduct(env,o.product_id);return p?.metadata.billing!=="monthly"||o.price_cents!==p.priceCents; }).map((o) => ({
       orderId: o.public_id,
       productId: o.product_id,
       playerUuid: o.player_uuid,

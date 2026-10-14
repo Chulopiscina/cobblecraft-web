@@ -1,75 +1,93 @@
 {
-  "version": 2,
+  "version": 3,
   "products": [
     {
       "productId": "rank_explorer",
       "slug": "rango-explorador",
       "name": "Explorador",
-      "description": "Rango permanente de entrada premium con utilidades de comodidad, kit semanal basico e identidad visual.",
+      "description": "Suscripción mensual Explorador con utilidades remotas y 2 homes.",
       "category": "rangos",
       "icon": "/images/store/rank_crown.svg",
-      "priceCents": 1499,
+      "priceCents": 399,
       "currency": "EUR",
       "active": true,
       "checkoutEnabled": false,
       "devOnly": false,
-      "delivery": { "type": "RANK", "rankId": "explorer" },
-      "limits": { "maxPerPlayer": 1 },
+      "delivery": {
+        "type": "RANK",
+        "rankId": "explorer"
+      },
+      "limits": {
+        "maxPerPlayer": null
+      },
       "metadata": {
-        "durationLabel": "Permanente",
+        "durationLabel": "Mensual",
         "tier": "1",
         "kind": "rank",
         "luckPermsGroup": "explorer",
         "permissionNode": "progression.rank.explorer",
-        "benefits": "2 homes|/healing cada 60 min|Teleports basicos del Hub|Kit semanal basico|Identidad visual premium|Prioridad de entrada sobre jugadores normales"
+        "benefits": "2 homes|PC Pokémon remoto sin cooldown|Tienda remota sin cooldown|Curación cada 5 min|Mesa de crafteo remota|Warps permitidos del Hub|Entrenamiento: 1.500 € ingame/h|Prioridad básica sin expulsiones",
+        "billing": "monthly"
       }
     },
     {
       "productId": "rank_master",
       "slug": "rango-maestro",
       "name": "Maestro",
-      "description": "Rango permanente intermedio. Incluye Explorador y mejora homes, cooldowns, teleports y prioridad.",
+      "description": "Suscripción mensual Maestro: utilidades Explorador, 4 homes y servicios avanzados.",
       "category": "rangos",
       "icon": "/images/store/rank_crown.svg",
-      "priceCents": 2999,
+      "priceCents": 699,
       "currency": "EUR",
       "active": true,
       "checkoutEnabled": false,
       "devOnly": false,
-      "delivery": { "type": "RANK", "rankId": "master" },
-      "limits": { "maxPerPlayer": 1 },
+      "delivery": {
+        "type": "RANK",
+        "rankId": "master"
+      },
+      "limits": {
+        "maxPerPlayer": null
+      },
       "metadata": {
-        "durationLabel": "Permanente",
+        "durationLabel": "Mensual",
         "tier": "2",
         "kind": "rank",
         "inherits": "explorer",
         "luckPermsGroup": "master",
         "permissionNode": "progression.rank.master",
-        "benefits": "Todo Explorador|4 homes|/healing cada 30 min|/pcremoto cada 60 min|Todos los teleports relevantes del Hub|Kit semanal mejorado|Prioridad superior a Explorador"
+        "benefits": "Todo Explorador|4 homes|Curación cada 2 min|Mercado remoto sin cooldown|Ender Chest remoto|/back a posiciones permitidas|Entrenamiento: 1.000 € ingame/h|Prioridad media sin expulsiones",
+        "billing": "monthly"
       }
     },
     {
       "productId": "rank_legend",
       "slug": "rango-leyenda",
       "name": "Leyenda",
-      "description": "Rango permanente superior. Incluye Maestro y Explorador, con la mayor comodidad y prioridad.",
+      "description": "Suscripción mensual Leyenda: 6 homes y los cooldowns más cortos.",
       "category": "rangos",
       "icon": "/images/store/rank_crown.svg",
-      "priceCents": 4999,
+      "priceCents": 999,
       "currency": "EUR",
       "active": true,
       "checkoutEnabled": false,
       "devOnly": false,
-      "delivery": { "type": "RANK", "rankId": "legend" },
-      "limits": { "maxPerPlayer": 1 },
+      "delivery": {
+        "type": "RANK",
+        "rankId": "legend"
+      },
+      "limits": {
+        "maxPerPlayer": null
+      },
       "metadata": {
-        "durationLabel": "Permanente",
+        "durationLabel": "Mensual",
         "tier": "3",
         "kind": "rank",
         "inherits": "master",
         "luckPermsGroup": "legend",
         "permissionNode": "progression.rank.legend",
-        "benefits": "Todo Maestro|6 homes|/healing cada 15 min|/pcremoto cada 30 min|Todos los teleports premium|Kit semanal premium equilibrado|Prioridad maxima de entrada"
+        "benefits": "Todo Maestro|6 homes|Curación cada 1 min|Entrenamiento: 500 € ingame/h|Prioridad máxima sin expulsiones",
+        "billing": "monthly"
       }
     },
     {
@@ -84,9 +102,16 @@
       "active": true,
       "checkoutEnabled": true,
       "devOnly": true,
-      "delivery": { "type": "RANK", "rankId": "supporter_dev" },
-      "limits": { "maxPerPlayer": 1 },
-      "metadata": { "nota": "rankId placeholder de desarrollo" }
+      "delivery": {
+        "type": "RANK",
+        "rankId": "supporter_dev"
+      },
+      "limits": {
+        "maxPerPlayer": 1
+      },
+      "metadata": {
+        "nota": "rankId placeholder de desarrollo"
+      }
     },
     {
       "productId": "cosmetic_particle_trail_dev",
@@ -100,9 +125,16 @@
       "active": true,
       "checkoutEnabled": true,
       "devOnly": true,
-      "delivery": { "type": "COSMETIC", "customItemId": "progression:enchant/mining_fortune_1" },
-      "limits": { "maxPerPlayer": null },
-      "metadata": { "nota": "customItemId real reutilizado solo para probar entrega DEV" }
+      "delivery": {
+        "type": "COSMETIC",
+        "customItemId": "progression:enchant/mining_fortune_1"
+      },
+      "limits": {
+        "maxPerPlayer": null
+      },
+      "metadata": {
+        "nota": "customItemId real reutilizado solo para probar entrega DEV"
+      }
     },
     {
       "productId": "item_test_book_dev",
@@ -116,8 +148,14 @@
       "active": true,
       "checkoutEnabled": true,
       "devOnly": true,
-      "delivery": { "type": "CUSTOM_ITEM", "customItemId": "progression:enchant/mining_fortune_1", "amount": 1 },
-      "limits": { "maxPerPlayer": 5 },
+      "delivery": {
+        "type": "CUSTOM_ITEM",
+        "customItemId": "progression:enchant/mining_fortune_1",
+        "amount": 1
+      },
+      "limits": {
+        "maxPerPlayer": 5
+      },
       "metadata": {}
     },
     {
@@ -132,8 +170,14 @@
       "active": false,
       "checkoutEnabled": false,
       "devOnly": true,
-      "delivery": { "type": "CUSTOM_ITEM", "customItemId": "progression:enchant/capture_luck_1", "amount": 1 },
-      "limits": { "maxPerPlayer": null },
+      "delivery": {
+        "type": "CUSTOM_ITEM",
+        "customItemId": "progression:enchant/capture_luck_1",
+        "amount": 1
+      },
+      "limits": {
+        "maxPerPlayer": null
+      },
       "metadata": {}
     }
   ]

@@ -1,26 +1,29 @@
 {
-  "version": 1,
+  "version": 2,
   "packages": [
     {
       "productId": "rank_explorer",
       "product": "Explorador",
       "packageId": "7664019",
       "action": "rank",
-      "rankId": "explorer"
+      "rankId": "explorer",
+      "subscriptionVerified": false
     },
     {
       "productId": "rank_master",
       "product": "Maestro",
       "packageId": "7664024",
       "action": "rank",
-      "rankId": "master"
+      "rankId": "master",
+      "subscriptionVerified": false
     },
     {
       "productId": "rank_legend",
       "product": "Leyenda",
       "packageId": "7664026",
       "action": "rank",
-      "rankId": "legend"
+      "rankId": "legend",
+      "subscriptionVerified": false
     }
   ]
 }
