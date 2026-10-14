@@ -45,6 +45,17 @@ describe("Tebex Minecraft Headless", () => {
     const resume = { ...req, providerPaymentId: basket.ident };
     expect(await provider().resumeCheckout(resume)).toEqual(await provider().resumeCheckout(resume));
   });
+  it("monthly gift binds resolved recipient UUID and requires a recurring package",async()=>{
+    const recurring={...req,priceCents:399,subscription:true};
+    const gift={...basket,base_price:3.99,packages:[{...basket.packages[0]!,type:"subscription"}]};
+    vi.stubGlobal("fetch",async(url:string,init?:RequestInit)=>{
+      if(url.endsWith('/packages'))expect(JSON.parse(String(init?.body))).toMatchObject({type:"subscription",target_username_id:req.playerUuid.replace(/-/g,"")});
+      return Response.json({data:gift});
+    });
+    expect((await provider().createCheckout(recurring)).checkoutUrl).toBe(basket.links.checkout);
+    vi.stubGlobal("fetch",async()=>Response.json({data:{...gift,packages:basket.packages}}));
+    await expect(provider().createCheckout(recurring)).rejects.toThrow(/suscripcion/);
+  });
   it.each([
     { ...basket, username: "Otro" }, { ...basket, complete: true }, { ...basket, custom: { ...basket.custom, orderPublicId: "other" } },
     { ...basket, packages: [{ id: 7664019, in_basket: { quantity: 2 } }] }, { ...basket, links: {} },

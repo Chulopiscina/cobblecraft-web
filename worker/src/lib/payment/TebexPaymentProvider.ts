@@ -104,7 +104,7 @@ export class TebexPaymentProvider implements PaymentProvider {
     }, "POST", true));
     this.verifyIdentity(basket, req);
     const updated = this.unwrap(await this.request(`/baskets/${encodeURIComponent(basket.ident)}/packages`, "anadir paquete", {
-      package_id: req.providerPackageId, quantity: 1, ...(req.subscription ? { type: "subscription" } : {}),
+      package_id: req.providerPackageId, quantity: 1, ...(req.subscription ? { type: "subscription", target_username_id: req.playerUuid.replace(/-/g,"") } : {}),
     }));
     if (updated.ident !== basket.ident) throw new Error("Basket inesperado al anadir paquete.");
     return this.session(updated, req);
