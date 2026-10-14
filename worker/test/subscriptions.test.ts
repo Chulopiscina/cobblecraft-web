@@ -23,6 +23,23 @@ it("refund of old cycle does not cancel a later correctly paid cycle",()=>{
   expect(reduceSubscription([row(1),row(2,{startsAt:200,expiresAt:300,transactionId:"p2"}),row(3,{kind:"refund",at:250})]).expiresAt).toBe(300);
   expect(reduceSubscription([row(1),row(2,{kind:"refund",at:150})]).expiresAt).toBe(150);
 });
+it("concurrent events cannot advance the cursor past an unselected recipient",async()=>{
+  const insert=(event:string,reference:string,change:Partial<typeof base>={})=>db.raw.prepare("INSERT INTO subscription_events(event_id,reference,player_uuid,payload) VALUES(?,?,?,?)")
+    .run(event,reference,uuid,JSON.stringify({...base,reference,...change}));
+  insert("a","a");insert("b","b");
+  const prepare=db.prepare.bind(db);let added=false;
+  db.prepare=(sql:string)=>{
+    const p=prepare(sql);
+    if(sql.includes("GROUP BY reference HAVING")) {
+      const original=p.all.bind(p);
+      p.all=async<T>()=>{const result=await original<T>();if(!added){added=true;insert("c","c");insert("a2","a",{startsAt:200,expiresAt:300})}return result;};
+    }
+    return p;
+  };
+  const first=await subscriptionsSince(env,0),cursor=Math.max(...first.map(s=>s.revision));
+  expect(cursor).toBe(2);
+  expect((await subscriptionsSince(env,cursor)).map(s=>s.reference).sort()).toEqual(["a","c"]);
+});
 it("atomic journal retries after failure, survives restart and yields one effective snapshot",async()=>{
   const o=await createOrder(env,{playerUuid:uuid,playerName:"Jugador",productId:"rank_explorer",priceCents:399,currency:"EUR",paymentProvider:"tebex"});
   const event={eventId:"s1",providerPaymentId:"p1",status:"paid" as const,subscription:{...base,orderPublicId:o.public_id}};

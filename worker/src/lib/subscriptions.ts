@@ -34,10 +34,14 @@ export async function recordSubscription(env: Env, event: WebhookEvent): Promise
   ]);
 }
 export async function subscriptionsSince(env: Env, since: number): Promise<SubscriptionRow[]> {
-  const refs=await env.DB.prepare("SELECT reference,MAX(seq) AS revision FROM subscription_events GROUP BY reference HAVING MAX(seq)>? ORDER BY MAX(seq) LIMIT 500").bind(since).all<{reference:string;revision:number}>();
+  // Bound every read to one watermark. A concurrent renewal must not advance the
+  // cursor past another reference that was not in the original selection.
+  const watermark=await env.DB.prepare("SELECT COALESCE(MAX(seq),0) AS revision FROM subscription_events").first<{revision:number}>();
+  const ceiling=watermark?.revision??0;
+  const refs=await env.DB.prepare("SELECT reference,MAX(seq) AS revision FROM subscription_events WHERE seq<=? GROUP BY reference HAVING MAX(seq)>? ORDER BY MAX(seq) LIMIT 500").bind(ceiling,since).all<{reference:string;revision:number}>();
   const out:SubscriptionRow[]=[];
   for(const ref of refs.results) {
-    const events=await env.DB.prepare("SELECT seq,payload FROM subscription_events WHERE reference=? ORDER BY seq").bind(ref.reference).all<{seq:number;payload:string}>();
+    const events=await env.DB.prepare("SELECT seq,payload FROM subscription_events WHERE reference=? AND seq<=? ORDER BY seq").bind(ref.reference,ceiling).all<{seq:number;payload:string}>();
     out.push(reduceSubscription(events.results));
   }
   return out;
