@@ -213,7 +213,7 @@ async function verifyRequired(manifest, releaseSource, releaseNames = []) {
   return verified;
 }
 
-async function cfClient() {
+export async function cfClient() {
   const wrangler = join(web, 'node_modules/wrangler/bin/wrangler.js');
   try {
     execFileSync(process.execPath, [wrangler, 'whoami'], {
@@ -244,7 +244,7 @@ async function cfClient() {
   };
 }
 
-function assertProject(project) {
+export function assertProject(project) {
   assert(project.name === config.project && project.production_branch === config.branch && !project.source,
     'Se esperaba el proyecto Direct Upload PROD/main; no se cambiara su configuracion.');
   const deployment = project.canonical_deployment;

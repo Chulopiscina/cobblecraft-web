@@ -53,13 +53,13 @@ export const items: GuideItem[] = [
   {
     slug: "llave-de-armaduras",
     realId: "progression:crate_key/armor",
-    name: "Llave de Armaduras",
+    name: "Llave Shiny",
     category: "cofres-llaves",
     rarity: "Poco Común",
     image: null,
-    description: "Llave exclusiva del Cofre de Armaduras.",
+    description: "Llave exclusiva del Cofre Shiny: entrega un Pokémon siempre shiny entre 50 especies.",
     obtainedFrom: "Método de obtención directo: próximamente / aún no definido. Puede aparecer como premio poco frecuente del Cofre de Suministros o el Cofre Épico.",
-    usedFor: "Abrir el Cofre de Armaduras.",
+    usedFor: "Abrir el Cofre Shiny.",
     tradable: true,
     craftable: false,
     relatedGuideSection: "/guia/cofres",
@@ -86,7 +86,7 @@ export const items: GuideItem[] = [
     rarity: "Épica",
     image: null,
     description: "Llave exclusiva del Cofre Épico, el más difícil de conseguir.",
-    obtainedFrom: "Método de obtención directo: próximamente / aún no definido. Puede aparecer como premio poco frecuente del Cofre de Armaduras.",
+    obtainedFrom: "Método de obtención directo: próximamente / aún no definido.",
     usedFor: "Abrir el Cofre Épico.",
     tradable: true,
     craftable: false,
@@ -1251,4 +1251,3 @@ export function getItem(slug: string): GuideItem | undefined {
 export function itemsByCategory(category: string): GuideItem[] {
   return items.filter((i) => i.category === category);
 }
-
