@@ -25,7 +25,7 @@ describe("Tebex Minecraft Headless", () => {
   afterEach(() => vi.unstubAllGlobals());
   it("creates attributed basket and one official package, never client-side card handling", async () => {
     const fetcher = vi.fn(async (url: string, init?: RequestInit) => {
-      expect(init?.signal).toBeInstanceOf(AbortSignal); expect(init?.redirect).toBe("error");
+      expect(init?.signal).toBeInstanceOf(AbortSignal); expect(init?.redirect).toBe("manual");
       if (url.endsWith("/accounts/public-token/baskets")) {
         expect(new Headers(init?.headers).get("Authorization")).toBe(`Basic ${btoa("public-token:private-key")}`);
         expect(JSON.parse(String(init?.body))).toMatchObject({ username: "Notch", ip_address: req.customerIp, complete_url: req.successUrl, cancel_url: req.cancelUrl, custom: basket.custom });

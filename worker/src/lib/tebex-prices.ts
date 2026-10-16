@@ -34,7 +34,7 @@ export async function getTebexPrice(env: Env, product: Product, fresh = false): 
     let upstreamStatus: number | undefined;
     try {
       const response = await fetch(`https://headless.tebex.io/api/accounts/${encodeURIComponent(token)}/packages/${packageId}`,{
-        headers:{Accept:"application/json","Cache-Control":"no-cache"},redirect:"error",signal:AbortSignal.timeout(7000),
+        headers:{Accept:"application/json","Cache-Control":"no-cache"},redirect:"manual",signal:AbortSignal.timeout(7000),
       });
       if (!response.ok) { upstreamStatus=response.status; await response.body?.cancel(); throw new Error("upstream"); }
       const body = await response.json() as {data?:unknown};

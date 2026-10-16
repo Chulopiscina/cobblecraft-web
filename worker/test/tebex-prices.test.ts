@@ -15,7 +15,7 @@ beforeEach(()=>{
 afterEach(()=>{vi.unstubAllGlobals();vi.useRealTimers();});
 
 it("reads the official price without credentials in responses and never changes disabled flags",async()=>{
-  const fetcher=vi.fn(async()=>response());vi.stubGlobal("fetch",fetcher);
+  const fetcher=vi.fn(async(_url:string,init?:RequestInit)=>{expect(init?.redirect).toBe("manual");return response();});vi.stubGlobal("fetch",fetcher);
   const quote=await getTebexPrice(env,product);
   expect(quote).toMatchObject({available:true,priceCents:1299,currency:"EUR",billing:"one_time",disabled:true});
   expect(JSON.stringify(quote)).not.toContain(env.TEBEX_PUBLIC_TOKEN);

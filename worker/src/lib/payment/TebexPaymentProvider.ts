@@ -50,7 +50,7 @@ export class TebexPaymentProvider implements PaymentProvider {
   private async request(path: string, operation: string, body?: unknown, method = "POST", authenticated = false): Promise<unknown> {
     try {
       const res = await fetch(`${API}${path}`, {
-        method, redirect: "error", signal: AbortSignal.timeout(8000),
+        method, redirect: "manual", signal: AbortSignal.timeout(8000),
         headers: { Accept: "application/json", "Content-Type": "application/json",
           ...(authenticated ? { Authorization: `Basic ${btoa(`${this.publicToken}:${this.privateKey}`)}` } : {}),
         },
