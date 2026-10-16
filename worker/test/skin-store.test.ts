@@ -30,6 +30,15 @@ describe("direct skin sales", () => {
       expect(effective.products.filter(p=>ids.includes(p.productId)).every(p=>p.checkoutEnabled===(!!packageId&&serverDeliveryVerified))).toBe(true);
     }
   });
+  it("maps the three disabled Tebex packages and requires commercial approval separately", () => {
+    const skins = mapping.packages.filter(p => p.action === "skin");
+    expect(skins.map(p => [p.productId, p.packageId])).toEqual([
+      [ids[0], "7742868"], [ids[1], "7742880"], [ids[2], "7742881"],
+    ]);
+    expect(skins.every(p => !p.serverDeliveryVerified && !p.saleLicenseVerified)).toBe(true);
+    const installed = {...mapping, packages:mapping.packages.map(p => ({...p,serverDeliveryVerified:true}))};
+    expect(withEffectiveTebexCheckout(catalog,installed).products.filter(p => ids.includes(p.productId)).every(p => !p.checkoutEnabled)).toBe(true);
+  });
   it("does not activate Charizard without commercial authorization even after technical setup", () => {
     const next = {...mapping, packages:mapping.packages.map(p=>p.action==="skin"?{...p,packageId:"123456",serverDeliveryVerified:true}:p)};
     expect(withEffectiveTebexCheckout(catalog,next).products.find(p=>p.productId===ids[2])?.checkoutEnabled).toBe(false);
