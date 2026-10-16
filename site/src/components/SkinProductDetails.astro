@@ -30,6 +30,7 @@ const ld = JSON.stringify({"@context":"https://schema.org","@type":"Product",nam
           <p id="purchase-error" class="notice notice--error" role="alert" aria-live="assertive" style="display:none;"></p>
         </form>
         <p class="skin-detail__fine">Solo apariencia: sin ventajas jugables, sin llaves ni premios al azar. La entrega se valida mediante pago firmado y el servidor procesa el pedido al conectarte. <a href="/legal/reembolsos/">Condiciones y reembolsos</a>.</p>
+        {product.productId === "skin_pokemon_charizard_draconico" && <p class="skin-detail__fine">Modelo derivado de <a href="https://cobblemon.com" target="_blank" rel="noopener noreferrer">Cobblemon</a>, con textura y detalles de CobbleCraft. <a href="https://creativecommons.org/licenses/by-nc/3.0/" target="_blank" rel="noopener noreferrer">CC BY-NC 3.0</a>. Venta bloqueada hasta verificar autorización comercial.</p>}
       </div>
     </div>
   </div>

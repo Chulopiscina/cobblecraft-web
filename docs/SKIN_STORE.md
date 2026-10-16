@@ -27,6 +27,8 @@ El checkout publico estaba desactivado antes de esta tarea. No se han inventado 
 4. Verificar entrega real en el servidor y solo entonces marcar `serverDeliveryVerified: true` para cada paquete. Mantener el cierre global `TEBEX_CHECKOUT_ENABLED` hasta completar todos los requisitos. `subscriptionVerified` y los rangos NO se cambian para habilitar skins.
 5. Volver a probar checkout, compra/entrega, retry del webhook/ACK y precio/base currency exactos. Publicar el catalogo actualizado en Worker y Pages con el pipeline.
 
+Charizard tiene un bloqueo ADICIONAL e independiente: el archivo de licencia del modelo derivado indica CC BY-NC 3.0 (uso no comercial). `saleLicenseVerified: false` impide activar su venta aun rellenando el paquete y verificando el servidor. Hace falta autorizacion comercial adecuada antes de cambiar esa marca; no se ha supuesto ni concedido permiso. La ficha conserva la atribucion y enlaza la licencia. Las armaduras usan la geometria propia de sus generadores, no este modelo derivado.
+
 El precio nunca viene del navegador. Sin paquete real o sin verificacion de la entrega, la API devuelve 409 antes de crear un pedido/cobro. El cierre global tambien se mantiene. Las pruebas solo usan proveedores/datos locales; no simulan pagos en produccion.
 
 ## Publicacion aislada

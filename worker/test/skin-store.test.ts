@@ -25,10 +25,14 @@ describe("direct skin sales", () => {
   });
   it("requires real package AND explicit verification of the installed server delivery", () => {
     for(const packageId of [null,"123456"]) for(const serverDeliveryVerified of [false,true]) {
-      const next = {...mapping,packages:mapping.packages.map(p=>p.action==="skin"?{...p,packageId,serverDeliveryVerified}:p)};
+      const next = {...mapping,packages:mapping.packages.map(p=>p.action==="skin"?{...p,packageId,serverDeliveryVerified,saleLicenseVerified:true}:p)};
       const effective = withEffectiveTebexCheckout(catalog,next);
       expect(effective.products.filter(p=>ids.includes(p.productId)).every(p=>p.checkoutEnabled===(!!packageId&&serverDeliveryVerified))).toBe(true);
     }
+  });
+  it("does not activate Charizard without commercial authorization even after technical setup", () => {
+    const next = {...mapping, packages:mapping.packages.map(p=>p.action==="skin"?{...p,packageId:"123456",serverDeliveryVerified:true}:p)};
+    expect(withEffectiveTebexCheckout(catalog,next).products.find(p=>p.productId===ids[2])?.checkoutEnabled).toBe(false);
   });
   it.each(ids)("HTTP rejects %s before identity, orders, payment or delivery", async id => {
     const fetchSpy = vi.fn(); vi.stubGlobal("fetch",fetchSpy);
