@@ -12,6 +12,12 @@ describe("real skin previews",()=>{
       const mesh=JSON.parse(readFileSync(resolve(web,"site/public/models/skins",name+".json"),"utf8"));
       expect(mesh.pose.animation).toMatch(new RegExp(`^animation\\..+\\.${animation}$`));
       expect(mesh.pose.source).toContain("/animations/");
+      const source=Object.keys(mesh.sources).find(file=>file.endsWith(".geo.json"));
+      expect(source).toBeTruthy();
+      const geometry=JSON.parse(readFileSync(resolve(web,"..",source!),"utf8"))["minecraft:geometry"][0];
+      expect(mesh.uvSize).toEqual([geometry.description.texture_width,geometry.description.texture_height]);
+      // These four textures are 2x upscaled; using their pixel size hides the wing/ornament UVs.
+      expect(mesh.uv.some((n:number,i:number)=>i%2===0&&n>.75)).toBe(true);
     }
   });
   for(const skin of skins.skins) it(`${skin.title} has complete source-matching geometry, textures and a visible fallback`,()=>{

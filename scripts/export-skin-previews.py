@@ -211,7 +211,10 @@ def export_pokemon(folder, slug, model, animation, time=0):
                 vertices = (vertices - pivot) @ rotation.T + translation
                 polygons.append((vertices * [-1, 1, -1], uv))
     name = slug.replace("_", "-")
-    mesh = triangles(polygons, Image.open(texture).size)
+    # Bedrock UV units come from the model, not the upscaled PNG dimensions.
+    uv_size = [geometry["description"]["texture_width"], geometry["description"]["texture_height"]]
+    mesh = triangles(polygons, uv_size)
+    mesh["uvSize"] = uv_size
     mesh["pose"] = {"animation": animation_id, "time": time, "source": animation_path}
     save(name, mesh, [geo, texture, glow, jar])
     shutil.copyfile(texture, OUT / f"{name}.png")
