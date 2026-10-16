@@ -21,7 +21,7 @@ export type ProductCategory = z.infer<typeof ProductCategory>;
  * - COSMETIC: mismo mecanismo que CUSTOM_ITEM pero categoría cosmética (Skin System V1).
  * - BUNDLE: lista de sub-entregas (cada una de los 4 tipos de arriba), aplicadas todas o ninguna.
  */
-export const DeliveryType = z.enum(["RANK", "CUSTOM_ITEM", "CURRENCY", "COSMETIC", "BUNDLE"]);
+export const DeliveryType = z.enum(["RANK", "CUSTOM_ITEM", "CURRENCY", "COSMETIC", "ACCOUNT_COSMETIC", "BUNDLE"]);
 export type DeliveryType = z.infer<typeof DeliveryType>;
 
 export interface DeliveryAction {
@@ -29,6 +29,7 @@ export interface DeliveryAction {
   rankId?: string;
   durationDays?: number; // undefined = permanente
   customItemId?: string;
+  cosmeticId?: string;
   amount?: number;
   currencyAmount?: number;
   bundle?: DeliveryAction[];
@@ -42,6 +43,7 @@ export const DeliveryActionSchema: z.ZodType<DeliveryAction> = z.lazy(() =>
     rankId: z.string().min(1).optional(),
     durationDays: z.number().int().positive().optional(),
     customItemId: z.string().min(1).optional(),
+    cosmeticId: z.string().min(1).optional(),
     amount: z.number().int().positive().optional(),
     currencyAmount: z.number().int().positive().optional(),
     bundle: z.array(DeliveryActionSchema).optional(),
@@ -103,6 +105,9 @@ export function validateCatalog(catalog: Catalog): string[] {
     }
     if ((p.delivery.type === "CUSTOM_ITEM" || p.delivery.type === "COSMETIC") && !p.delivery.customItemId) {
       issues.push(`${p.productId}: delivery ${p.delivery.type} requiere customItemId`);
+    }
+    if (p.delivery.type === "ACCOUNT_COSMETIC" && !p.delivery.cosmeticId) {
+      issues.push(`${p.productId}: delivery ACCOUNT_COSMETIC requiere cosmeticId`);
     }
     if (p.delivery.type === "BUNDLE" && (!p.delivery.bundle || p.delivery.bundle.length === 0)) {
       issues.push(`${p.productId}: delivery BUNDLE requiere al menos 1 sub-entrega`);

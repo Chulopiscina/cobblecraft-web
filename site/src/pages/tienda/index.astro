@@ -4,6 +4,7 @@ import ProductCard from "../../components/ProductCard.astro";
 import Icon from "../../components/Icon.astro";
 import PageHero from "../../components/PageHero.astro";
 import OperationsStatus from "../../components/OperationsStatus.astro";
+import SkinsCollection from "../../components/SkinsCollection.astro";
 import { getVisibleProducts, getVisibleCategories, categoryLabels } from "../../lib/catalog";
 import type { IconName } from "../../lib/icons";
 import type { ProductCategory } from "@shared/catalog-schema";
@@ -23,10 +24,6 @@ const categoryIcons: Record<ProductCategory, IconName> = {
   otros: "coleccion",
 };
 
-const plannedCategories = [
-  { icon: "cristal", title: "Skins", description: "Próximamente: skins directas con imagen, preview, precio conocido y compra sin azar." },
-] as const;
-
 const rankProducts = products.filter((p) => p.category === "rangos" && !p.devOnly);
 const rankComparisonRows = [
   ["Homes", "2", "4", "6"],
@@ -40,9 +37,11 @@ const rankComparisonRows = [
 ];
 ---
 
-<BaseLayout title="Tienda" description="Suscripciones mensuales oficiales de CobbleCraft, gestionadas por Tebex.">
+<BaseLayout title="Tienda" description="Skins cosméticas de compra directa y suscripciones oficiales de CobbleCraft. Pagos gestionados por Tebex.">
   <PageHero eyebrow="Tienda oficial" title="TIENDA" subtitle="Explorador 3,99 €/mes · Maestro 6,99 €/mes · Leyenda 9,99 €/mes" />
   <OperationsStatus />
+  <nav class="container store-categories" aria-label="Categorías de tienda"><a href="#rangos">Rangos</a><a href="#skins">Skins</a></nav>
+  <SkinsCollection />
 
   {products.length === 0 && (
     <div class="container section">
@@ -65,7 +64,7 @@ const rankComparisonRows = [
     </div>
   )}
 
-  <section class="section section--tight section--alt">
+  <section class="section section--tight section--alt" id="rangos">
     <div class="container">
       <div class="section-head" style="max-width:760px;">
         <span class="eyebrow">Rangos</span>
@@ -81,7 +80,7 @@ const rankComparisonRows = [
     </div>
   </section>
 
-  {categories.filter((cat) => cat !== "rangos").map((cat, i) => (
+  {categories.filter((cat) => cat !== "rangos" && cat !== "skins").map((cat, i) => (
     <>
       <section class={`section section--tight ${i % 2 === 1 ? "section--alt" : ""}`}>
         <div class="container">
@@ -129,30 +128,6 @@ const rankComparisonRows = [
     </div>
   </section>
 
-  <section class="section section--tight section--alt">
-    <div class="container">
-      <div class="section-head">
-        <span class="eyebrow">Próximamente</span>
-        <h2>Skins</h2>
-        <p>
-          Esta categoría queda preparada para skins directas: imagen, Pokémon o armadura, nombre,
-          precio, preview y compra conocida. No habrá recompensa aleatoria ni llaves de crates por
-          dinero real.
-        </p>
-      </div>
-      <div class="grid grid--3">
-        {plannedCategories.map((category) => (
-          <div class="card">
-            <div class="icon-tile"><Icon name={category.icon} /></div>
-            <h3>{category.title}</h3>
-            <p>{category.description}</p>
-            <span class="badge badge--muted">Próximamente</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
   <div class="divider"><span class="divider__glyph"></span></div>
 
   <section class="section" style="text-align:center;">
@@ -171,6 +146,7 @@ const rankComparisonRows = [
 </BaseLayout>
 
 <style>
+  .store-categories { display:flex;gap:28px;padding-top:20px;padding-bottom:16px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px; }
   .store-coming-soon {
     max-width: 760px;
     margin: 0 auto;

@@ -8,9 +8,12 @@ export const TebexPackageEntrySchema = z.object({
   productId: z.string().regex(/^[a-z0-9_]+$/),
   product: z.string().min(1),
   packageId: TebexPackageId,
-  action: z.literal("rank"),
-  rankId: RankId,
+  action: z.enum(["rank", "skin"]),
+  rankId: RankId.optional(),
+  cosmeticId: z.string().min(1).optional(),
+  customItemId: z.string().min(1).optional(),
   subscriptionVerified: z.boolean().default(false),
+  serverDeliveryVerified: z.boolean().default(false),
 });
 
 export const TebexPackageConfigSchema = z.object({
@@ -36,6 +39,7 @@ export function withEffectiveTebexCheckout(catalog: Catalog, config: TebexPackag
     const mapping = byProduct.get(product.productId);
     const packageId = mapping?.packageId;
     if (!packageId || (product.metadata.billing === "monthly" && !mapping?.subscriptionVerified)) return { ...product, checkoutEnabled: false };
+    if (product.category === "skins" && (!mapping?.serverDeliveryVerified || product.priceCents <= 0)) return { ...product, checkoutEnabled: false };
     return { ...product, checkoutEnabled: true };
   });
   return { ...catalog, products };
@@ -53,15 +57,22 @@ export function validateTebexPackageConfig(config: TebexPackageConfig, catalog: 
       issues.push(`${entry.productId}: no existe en catalog.json`);
       continue;
     }
-    if (product.delivery.type !== "RANK") {
-      issues.push(`${entry.productId}: solo se admiten productos RANK en el mapping Tebex actual`);
-    }
-    if (product.delivery.rankId !== entry.rankId) {
+    if (entry.action === "rank" && (product.delivery.type !== "RANK" || !entry.rankId)) {
+      issues.push(`${entry.productId}: action rank requiere entrega RANK y rankId`);
+    } else if (entry.action === "rank" && product.delivery.rankId !== entry.rankId) {
       issues.push(`${entry.productId}: rankId Tebex (${entry.rankId}) no coincide con delivery.rankId (${product.delivery.rankId ?? "sin rankId"})`);
+    }
+    if (entry.action === "skin") {
+      const delivery = product.delivery;
+      const account = delivery.type === "ACCOUNT_COSMETIC" && !!entry.cosmeticId && delivery.cosmeticId === entry.cosmeticId && !entry.customItemId;
+      const item = delivery.type === "COSMETIC" && !!entry.customItemId && delivery.customItemId === entry.customItemId && !entry.cosmeticId && (delivery.amount ?? 1) === 1;
+      if (product.category !== "skins" || (!account && !item) || entry.rankId || product.metadata.billing === "monthly") {
+        issues.push(`${entry.productId}: la skin Tebex debe coincidir exactamente con su desbloqueo u objeto, sin suscripcion`);
+      }
     }
   }
 
-  const required = catalog.products.filter((product) => !product.devOnly && product.category === "rangos");
+  const required = catalog.products.filter((product) => !product.devOnly && ["rangos", "skins"].includes(product.category));
   for (const product of required) {
     if (!seen.has(product.productId)) issues.push(`${product.productId}: falta en tebex-packages.json`);
   }

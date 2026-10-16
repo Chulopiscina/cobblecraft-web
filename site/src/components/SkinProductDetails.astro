@@ -1,0 +1,54 @@
+---
+import type { Product } from "@shared/catalog-schema";
+import type { SkinPreview } from "../lib/skins";
+import SkinPreviewView from "./SkinPreview.astro";
+interface Props { product: Product; skin: SkinPreview; apiBaseUrl: string; }
+const { product, skin, apiBaseUrl } = Astro.props;
+const price = new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}).format(product.priceCents/100);
+const benefits = product.metadata.benefits.split("|");
+const ld = JSON.stringify({"@context":"https://schema.org","@type":"Product",name:product.name,description:product.description,image:`https://cobblemon-server-site.pages.dev${product.icon}`,brand:{"@type":"Brand",name:"CobbleCraft"},...(product.checkoutEnabled?{offers:{"@type":"Offer",price:(product.priceCents/100).toFixed(2),priceCurrency:"EUR",availability:"https://schema.org/InStock"}}:{})}).replace(/</g,"\\u003c");
+---
+<script is:inline type="application/ld+json" set:html={ld} />
+<section class="section">
+  <div class="container">
+    <a class="back-link" href="/tienda/skins/">← Colección de skins</a>
+    <div class="skin-detail">
+      <SkinPreviewView skin={skin} />
+      <div class="skin-detail__content">
+        <span class="eyebrow">{skin.kind} · Compra directa</span>
+        <h1>{skin.title}<span>{skin.edition}</span></h1>
+        <p class="skin-detail__intro">{product.description}</p>
+        <p class="skin-detail__price"><strong>{price}</strong><span>Pago único · Sin suscripción</span></p>
+        <h2>Qué recibes</h2><p>{skin.receipt}</p>
+        <ul>{benefits.map(benefit=><li>{benefit}</li>)}</ul>
+        <form id="purchase-form" data-api-base={apiBaseUrl} data-product-id={product.productId} data-checkout-enabled={String(product.checkoutEnabled)} data-pending-label="Compra pendiente de activación">
+          <label for="player-name">Nombre de Minecraft del destinatario</label>
+          <input id="player-name" name="playerName" class="input" type="text" required minlength="3" maxlength="16" pattern="[A-Za-z0-9_]{3,16}" autocomplete="off" placeholder="Tu nombre exacto en el servidor" />
+          <label class="name-confirm"><input type="checkbox" required name="confirmedName" /><span>He comprobado que el nombre es correcto.</span></label>
+          <button type="submit" id="purchase-submit" class="btn btn-primary btn-block" data-label={`Comprar por ${price}`} disabled>{product.checkoutEnabled?"Comprobando disponibilidad…":"Compra pendiente de activación"}</button>
+          {!product.checkoutEnabled && <p class="purchase-pending" role="note">Este producto todavía no admite pagos. No se realizará ningún cobro hasta completar su activación en Tebex y verificar la entrega.</p>}
+          <p id="purchase-error" class="notice notice--error" role="alert" aria-live="assertive" style="display:none;"></p>
+        </form>
+        <p class="skin-detail__fine">Solo apariencia: sin ventajas jugables, sin llaves ni premios al azar. La entrega se valida mediante pago firmado y el servidor procesa el pedido al conectarte. <a href="/legal/reembolsos/">Condiciones y reembolsos</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .back-link{display:inline-block;font-size:13px;margin-bottom:26px;}
+  .skin-detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start;}
+  .skin-detail :global(skin-preview){position:sticky;top:92px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .skin-detail__content{min-width:0;}
+  h1{font:700 40px/1.1 var(--font-body);margin:13px 0 20px;}h1 span{display:block;font-size:24px;font-weight:400;color:var(--text-muted);margin-top:9px;}
+  h2{font:700 16px var(--font-body);margin:24px 0 10px;}
+  p,li{font-size:14px;line-height:1.75;}ul{padding-left:18px;}li{margin-bottom:6px;}
+  .skin-detail__intro{font-size:16px;}
+  .skin-detail__price{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;padding-bottom:22px;border-bottom:1px solid var(--border);margin:22px 0;}
+  .skin-detail__price strong{font:700 30px var(--font-body);}.skin-detail__price span{font-size:12px;color:var(--text-muted);}
+  form{padding-top:20px;margin-top:22px;border-top:1px solid var(--border);}
+  form>label:first-child{display:block;font-size:13px;font-weight:600;margin-bottom:8px;}
+  .name-confirm{display:flex;align-items:flex-start;gap:9px;margin:14px 0;font-size:12px;}.name-confirm input{margin-top:4px;}
+  .purchase-pending{font-size:12px;padding:12px;background:#f1f5f7;color:#51616a;border-radius:4px;}
+  .skin-detail__fine{font-size:12px;color:var(--text-muted);margin-top:20px;}
+  @media(max-width:800px){.skin-detail{grid-template-columns:1fr;gap:28px;}.skin-detail :global(skin-preview){position:relative;top:auto;max-width:520px;width:100%;margin:auto;}h1{font-size:32px;}}
+</style>

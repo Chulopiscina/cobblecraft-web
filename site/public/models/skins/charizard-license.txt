@@ -1,0 +1,10 @@
+Charizard Draconico - modelo derivado
+=====================================
+Este modelo (charizard_draconico.geo.json) es una ADAPTACION del modelo Bedrock de Charizard que distribuye el mod
+Cobblemon (assets/cobblemon/bedrock/pokemon/models/0006_charizard/charizard.geo.json), al que se le han anadido cuernos,
+placas y espinas propios (bones dragon_*). Los cubos anadidos y la textura son obra original de COBBLECRAFT.
+
+El modelo original de Cobblemon se distribuye bajo Creative Commons Attribution-NonCommercial 3.0 (texto completo en el
+fichero `license` de la carpeta de modelos del propio jar de Cobblemon: https://creativecommons.org/licenses/by-nc/3.0/).
+Condiciones que se mantienen: atribucion a los autores del modelo original (equipo/colaboradores de Cobblemon,
+https://cobblemon.com) y USO NO COMERCIAL de la parte derivada del modelo. No se copia ningun otro asset externo.

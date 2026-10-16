@@ -16,6 +16,7 @@ const assert = (ok, message) => { if (!ok) throw new Error(message); };
 const json = async file => JSON.parse(await readFile(file, 'utf8'));
 const git = args => execFileSync('git', args, { cwd: web, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const runtimeEnv = { ...process.env, CI: 'true', WRANGLER_SEND_METRICS: 'false' };
+const skinsOnly = process.argv.includes('--only-skins');
 async function api() {
   try { execFileSync(process.execPath, [wrangler, 'whoami'], { cwd: web, stdio: 'pipe', env: runtimeEnv }); }
   catch { throw new Error('Autenticacion Cloudflare necesaria.'); }
@@ -87,13 +88,27 @@ if (process.argv.includes('--prepare')) {
       PUBLIC_API_BASE_URL: 'https://cobblemon-server-store.cobblemon-server.workers.dev' },
   });
   const built = join(source, 'site/dist');
-  const pages = ['tienda/index.html', 'tienda/rango-explorador/index.html', 'tienda/rango-maestro/index.html', 'tienda/rango-leyenda/index.html', 'tienda/gracias/index.html', 'tienda/cancelado/index.html', 'estado/index.html','legal/terminos/index.html','legal/reembolsos/index.html'];
+  const skinProducts = JSON.parse(git(['show', `${commit}:store/catalog.json`])).products.filter(p => p.category === 'skins' && p.active && !p.devOnly);
+  const pages = skinsOnly ? ['tienda/index.html', 'tienda/skins/index.html', ...skinProducts.map(p => `tienda/${p.slug}/index.html`)]
+    : ['tienda/index.html', 'tienda/rango-explorador/index.html', 'tienda/rango-maestro/index.html', 'tienda/rango-leyenda/index.html', 'tienda/gracias/index.html', 'tienda/cancelado/index.html', 'estado/index.html','legal/terminos/index.html','legal/reembolsos/index.html'];
   const managed = [...pages, ...(await files(join(built, '_astro'))).map(p => `_astro/${p}`)];
   for (const name of managed) {
     const bytes = await readFile(join(built, name));
     const prior = before.find(f => f.path === name);
     if (name.startsWith('_astro/') && prior) assert(prior.sha256 === sha(bytes), `Colision de asset existente: ${name}`);
     await copy(join(built, name), join(stage, name));
+  }
+  if (skinsOnly) {
+    const assets = git(['ls-tree', '-r', '--name-only', commit, '--', 'site/public/models/skins']).split('\n').filter(Boolean);
+    assert(assets.length >= 12, 'Faltan recursos 3D de las skins.');
+    for (const path of assets) {
+      const name = path.slice('site/public/'.length);
+      assert(/^models\/skins\/[a-z0-9.-]+$/.test(name), 'Asset de skin fuera del directorio permitido.');
+      const bytes = execFileSync('git', ['show', `${commit}:${path}`], { cwd: web, maxBuffer: 16*1024*1024 });
+      await mkdir(dirname(join(stage, name)), { recursive: true });
+      await writeFile(join(stage, name), bytes);
+      managed.push(name);
+    }
   }
   const manifest = [];
   for (const name of await files(stage)) {
@@ -125,9 +140,13 @@ if (process.argv.includes('--prepare')) {
   await verifySnapshot(state.stage, published.url);
   for (const name of state.managed.filter(p => p.endsWith('.html'))) {
     const url = `${config.origin}/${name.replace(/index\.html$/, '')}`;
-    const response = await fetch(url, { signal: AbortSignal.timeout(15000), cache: 'no-store' });
+    const response = await fetch(url, { signal: AbortSignal.timeout(30000), cache: 'no-store' });
     assert(response.ok && sha(Buffer.from(await response.arrayBuffer())) === state.manifest.find(f => f.path === name).sha256, `URL publica diferente: ${url}`);
     console.log(`VERIFICADO ${url}`);
+  }
+  for (const name of state.managed.filter(p => p.startsWith('models/skins/'))) {
+    const response = await fetch(`${config.origin}/${name}`, { signal: AbortSignal.timeout(30000), cache: 'no-store' });
+    assert(response.status === 200 && sha(Buffer.from(await response.arrayBuffer())) === state.manifest.find(f => f.path === name).sha256, `Modelo/textura publica diferente: ${name}`);
   }
   // Keep the verified baseline pointer usable for subsequent official Direct Uploads.
   await writeFile(join(web, '.wrangler/client-prod/last-success.json'), JSON.stringify({ ...state.previous, stage: state.stage,

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "skins": [
+    { "productId": "skin_armor_mewtwo", "kind": "Armadura", "title": "Mewtwo", "edition": "Psíquica", "accent": "#9870d1", "model": "/models/skins/mewtwo.json", "texture": "/models/skins/mewtwo.png", "glow": "/models/skins/mewtwo-glow.png", "fallback": "/models/skins/mewtwo-icon.png", "detail": "Casco esculpido, placas y cola en tres dimensiones.", "receipt": "Un desbloqueo permanente de cuenta. Equípalo desde Cosméticos, sin alterar tu armadura real." },
+    { "productId": "skin_armor_gyarados", "kind": "Armadura", "title": "Gyarados", "edition": "Marina", "accent": "#2887bc", "model": "/models/skins/gyarados.json", "texture": "/models/skins/gyarados.png", "glow": "/models/skins/gyarados-glow.png", "fallback": "/models/skins/gyarados-icon.png", "detail": "Cresta, escamas marinas, aletas y cola articulada.", "receipt": "Un desbloqueo permanente de cuenta. Es un traje para tu jugador, no un Pokémon ni una skin para Gyarados." },
+    { "productId": "skin_pokemon_charizard_draconico", "kind": "Pokémon", "title": "Charizard", "edition": "Dracónico", "accent": "#c36231", "model": "/models/skins/charizard.json", "texture": "/models/skins/charizard.png", "glow": "/models/skins/charizard-glow.png", "fallback": "/models/skins/charizard-icon.png", "detail": "Modelo dracónico con cuernos, escamas y alas propias.", "receipt": "Un objeto para aplicar la skin a un Charizard tuyo. Se consume al confirmar y el aspecto es permanente. El Pokémon no está incluido." }
+  ]
+}

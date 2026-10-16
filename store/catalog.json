@@ -1,6 +1,30 @@
 {
-  "version": 3,
+  "version": 4,
   "products": [
+    {
+      "productId": "skin_armor_mewtwo", "slug": "skin-armadura-mewtwo", "name": "Armadura Mewtwo",
+      "description": "Silueta psíquica, placas claras y acentos violetas. Un aspecto completo para tu jugador, con cualquier armadura equipada.",
+      "category": "skins", "icon": "/models/skins/mewtwo-icon.png", "priceCents": 499, "currency": "EUR",
+      "active": true, "checkoutEnabled": false, "devOnly": false,
+      "delivery": { "type": "ACCOUNT_COSMETIC", "cosmeticId": "armor_overlay_mewtwo" }, "limits": { "maxPerPlayer": 1 },
+      "metadata": { "kind": "armor-skin", "billing": "one_time", "durationLabel": "Permanente", "benefits": "Desbloqueo de Armadura Psíquica de Mewtwo en tu cuenta|Activa o desactiva desde Menú del Servidor > Cosméticos > Skins de armadura|No consume ni modifica tu equipamiento|Sin ventajas jugables" }
+    },
+    {
+      "productId": "skin_armor_gyarados", "slug": "skin-armadura-gyarados", "name": "Armadura Gyarados",
+      "description": "Armadura marina azul con cresta, aletas y cola articulada. Un aspecto de jugador inspirado en Gyarados, no una skin de Pokémon.",
+      "category": "skins", "icon": "/models/skins/gyarados-icon.png", "priceCents": 499, "currency": "EUR",
+      "active": true, "checkoutEnabled": false, "devOnly": false,
+      "delivery": { "type": "ACCOUNT_COSMETIC", "cosmeticId": "armor_overlay_gyarados" }, "limits": { "maxPerPlayer": 1 },
+      "metadata": { "kind": "armor-skin", "billing": "one_time", "durationLabel": "Permanente", "benefits": "Desbloqueo de Armadura Marina de Gyarados en tu cuenta|Activa o desactiva desde Menú del Servidor > Cosméticos > Skins de armadura|Visible con o sin armadura equipada|Sin ventajas jugables" }
+    },
+    {
+      "productId": "skin_pokemon_charizard_draconico", "slug": "skin-pokemon-charizard", "name": "Charizard Dracónico",
+      "description": "Cuernos, escamas y alas de dragón. Un aspecto permanente para un Charizard de tu equipo, conservando sus estadísticas.",
+      "category": "skins", "icon": "/models/skins/charizard-icon.png", "priceCents": 399, "currency": "EUR",
+      "active": true, "checkoutEnabled": false, "devOnly": false,
+      "delivery": { "type": "COSMETIC", "customItemId": "progression:cosmetics/skin_charizard_draconico", "amount": 1 }, "limits": { "maxPerPlayer": null },
+      "metadata": { "kind": "pokemon-skin", "billing": "one_time", "durationLabel": "1 aplicación", "benefits": "1 objeto Skin Charizard Dracónico en inventario o buzón|Necesitas tu propio Charizard sin otra skin en el equipo|Clic derecho > selecciona Charizard > previsualiza > confirma|Se consume al confirmar y queda ligada permanentemente a ese Pokémon|No cambia IVs, EVs, movimientos, naturaleza ni estadísticas" }
+    },
     {
       "productId": "rank_explorer",
       "slug": "rango-explorador",

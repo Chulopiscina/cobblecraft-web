@@ -21,7 +21,7 @@ if(!process.argv.includes('--deploy')) {
   run(['deploy','--dry-run','--outdir',join(stage,'built')]);
   console.log(`CHECK OK ${commit} ${stage}`);
 } else {
-  run(['d1','execute','cobblemon_store','--remote','--file','migrations/0008_subscriptions.sql']);
+  if (!process.argv.includes('--catalog-only')) run(['d1','execute','cobblemon_store','--remote','--file','migrations/0008_subscriptions.sql']);
   run(['deploy','--keep-vars']);
   const origin='https://cobblemon-server-store.cobblemon-server.workers.dev';
   for(const [path,expected] of [['/api/health',200],['/api/store/status',200],['/api/delivery/subscriptions',401]]) {

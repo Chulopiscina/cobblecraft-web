@@ -1,0 +1,30 @@
+---
+import { getSkins } from "../lib/skins";
+import SkinCard from "./SkinCard.astro";
+interface Props { standalone?: boolean; }
+const { standalone = false } = Astro.props;
+---
+<section class="section skins-collection" id="skins" aria-labelledby="skins-title">
+  <div class="container">
+    <div class="skins-heading">
+      <div><span class="eyebrow">Colección de aspectos</span><h2 id="skins-title">Tu estilo. Tu aventura.</h2></div>
+      <p>Tres skins, tres identidades. Elige exactamente la que quieres: compra directa, sin azar y sin ventajas jugables.</p>
+    </div>
+    <div class="skins-grid">{getSkins().map(s => <SkinCard {...s} />)}</div>
+    <div class="skins-notes">
+      <p><strong>Armaduras:</strong> aspectos completos de jugador. Se activan desde Cosméticos y conservan tu equipamiento y sus estadísticas.</p>
+      <p><strong>Pokémon:</strong> un objeto para personalizar tu propio Charizard. Aplicación permanente tras previsualizar y confirmar.</p>
+    </div>
+    {!standalone && <p class="skins-link"><a href="/tienda/skins/">Ver la colección de skins →</a></p>}
+  </div>
+</section>
+<style>
+  .skins-heading{display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:32px;margin-bottom:30px;}
+  .skins-heading h2{font:700 32px/1.15 var(--font-body);margin:10px 0 0;}
+  .skins-heading p{font-size:15px;line-height:1.7;margin:0;max-width:510px;}
+  .skins-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;}
+  .skins-notes{display:grid;grid-template-columns:1fr 1fr;gap:32px;padding-top:26px;margin-top:30px;border-top:1px solid var(--border);}
+  .skins-notes p{font-size:13px;margin:0;line-height:1.8;}
+  .skins-link{margin-top:24px;font-weight:600;font-size:14px;}
+  @media(max-width:800px){.skins-grid{grid-template-columns:1fr;max-width:480px;margin:auto;}.skins-heading,.skins-notes{grid-template-columns:1fr;gap:15px;}.skins-heading h2{font-size:28px;}}
+</style>

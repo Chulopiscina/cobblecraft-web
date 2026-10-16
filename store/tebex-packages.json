@@ -1,6 +1,9 @@
 {
-  "version": 2,
+  "version": 3,
   "packages": [
+    { "productId": "skin_armor_mewtwo", "product": "Armadura Mewtwo", "packageId": null, "action": "skin", "cosmeticId": "armor_overlay_mewtwo", "serverDeliveryVerified": false },
+    { "productId": "skin_armor_gyarados", "product": "Armadura Gyarados", "packageId": null, "action": "skin", "cosmeticId": "armor_overlay_gyarados", "serverDeliveryVerified": false },
+    { "productId": "skin_pokemon_charizard_draconico", "product": "Charizard Dracónico", "packageId": null, "action": "skin", "customItemId": "progression:cosmetics/skin_charizard_draconico", "serverDeliveryVerified": false },
     {
       "productId": "rank_explorer",
       "product": "Explorador",

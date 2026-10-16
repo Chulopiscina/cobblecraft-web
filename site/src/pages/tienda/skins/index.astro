@@ -1,0 +1,9 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import SkinsCollection from "../../../components/SkinsCollection.astro";
+---
+<BaseLayout title="Skins de Mewtwo, Gyarados y Charizard" description="Colección oficial de skins CobbleCraft: armaduras Mewtwo y Gyarados y Charizard Dracónico. Vistas 3D y compra directa, sin azar.">
+  <div class="container skins-page-heading"><a href="/tienda/">← Tienda</a><h1>Skins CobbleCraft</h1><p>Cosméticos de compra individual. Un aspecto nuevo, la misma forma de jugar.</p></div>
+  <SkinsCollection standalone />
+</BaseLayout>
+<style>.skins-page-heading{padding-top:36px;}.skins-page-heading a{font-size:13px;}.skins-page-heading h1{font:700 36px/1.2 var(--font-body);margin:18px 0 12px;}.skins-page-heading p{font-size:15px;margin:0;}</style>

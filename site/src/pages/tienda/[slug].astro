@@ -5,12 +5,15 @@ import PageHero from "../../components/PageHero.astro";
 import { publicApiBaseUrl } from "../../lib/api-base";
 import { getVisibleProducts, categoryLabels } from "../../lib/catalog";
 import type { DeliveryAction } from "@shared/catalog-schema";
+import { getSkinPreview } from "../../lib/skins";
+import SkinProductDetails from "../../components/SkinProductDetails.astro";
 
 export function getStaticPaths() {
   return getVisibleProducts().map((product) => ({ params: { slug: product.slug }, props: { product } }));
 }
 
 const { product } = Astro.props;
+const skin = getSkinPreview(product.productId);
 let priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + " €";
 if (product.metadata.billing === "monthly") priceLabel += "/mes";
 const durationLabel = product.metadata.durationLabel;
@@ -36,6 +39,7 @@ const includes = deliverySummary(product.delivery);
 ---
 
 <BaseLayout title={product.name} description={product.description}>
+  {skin ? <SkinProductDetails product={product} skin={skin} apiBaseUrl={apiBaseUrl} /> : <>
   <PageHero eyebrow={categoryLabels[product.category]} title={product.name} subtitle={product.description}>
     <Fragment slot="before">
       <p style="margin-bottom:8px;"><a href="/tienda" style="font-size:0.85rem; font-weight:600;">← Volver a la Tienda</a></p>
@@ -122,6 +126,7 @@ const includes = deliverySummary(product.delivery);
       </div>
     </div>
   </section>
+  </>}
 </BaseLayout>
 
 <style>
@@ -171,12 +176,17 @@ const includes = deliverySummary(product.delivery);
 
   async function checkAvailability() {
     if (!form || !submitBtn || !errorBox) return;
+    if (form.dataset.checkoutEnabled !== "true") {
+      submitBtn.disabled = true;
+      submitBtn.textContent = form.dataset.pendingLabel ?? "Pagos temporalmente no disponibles";
+      return;
+    }
     try {
       const response = await fetch(`${form.dataset.apiBase}/api/store/status`, { signal: AbortSignal.timeout(5000) });
       const status = await response.json();
       available = response.ok && status.checkoutAvailable === true && form.dataset.checkoutEnabled === "true";
       submitBtn.disabled = !available;
-      submitBtn.textContent = available ? validResume ? "Reanudar pedido en Tebex" : submitBtn.dataset.label ?? "Comprar" : "Pagos temporalmente no disponibles";
+      submitBtn.textContent = available ? validResume ? "Reanudar pedido en Tebex" : submitBtn.dataset.label ?? "Comprar" : form.dataset.pendingLabel ?? "Pagos temporalmente no disponibles";
       if (validResume) {
         for (const input of form.querySelectorAll("input")) { input.required = false; input.disabled = true; }
       }

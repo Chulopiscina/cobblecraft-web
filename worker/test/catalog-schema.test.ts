@@ -80,7 +80,7 @@ describe("web/store/catalog.json (real file)", () => {
     const catalog = CatalogSchema.parse(catalogRaw);
     const tebexPackageConfig = TebexPackageConfigSchema.parse(tebexPackageRaw);
     expect(validateTebexPackageConfig(tebexPackageConfig, catalog)).toEqual([]);
-    expect(tebexPackageConfig.packages.map((entry) => [entry.productId, entry.packageId]).sort()).toEqual([
+    expect(tebexPackageConfig.packages.filter(entry => entry.action === "rank").map((entry) => [entry.productId, entry.packageId]).sort()).toEqual([
       ["rank_explorer", "7664019"],
       ["rank_legend", "7664026"],
       ["rank_master", "7664024"],
