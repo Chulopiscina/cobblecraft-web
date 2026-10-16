@@ -7,6 +7,7 @@ import { getVisibleProducts, categoryLabels } from "../../lib/catalog";
 import type { DeliveryAction } from "@shared/catalog-schema";
 import { getSkinPreview } from "../../lib/skins";
 import SkinProductDetails from "../../components/SkinProductDetails.astro";
+import LivePrice from "../../components/LivePrice.astro";
 
 export function getStaticPaths() {
   return getVisibleProducts().map((product) => ({ params: { slug: product.slug }, props: { product } }));
@@ -14,8 +15,6 @@ export function getStaticPaths() {
 
 const { product } = Astro.props;
 const skin = getSkinPreview(product.productId);
-let priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + " €";
-if (product.metadata.billing === "monthly") priceLabel += "/mes";
 const durationLabel = product.metadata.durationLabel;
 const benefits = product.metadata.benefits?.split("|").filter(Boolean) ?? [];
 const isUpgrade = product.metadata.kind === "upgrade";
@@ -54,7 +53,7 @@ const includes = deliverySummary(product.delivery);
       </Fragment>
     )}
     <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:20px;">
-      <div class="badge badge--gold" style="font-size:1.15rem; padding:8px 18px;">{priceLabel}</div>
+      <div class="badge badge--gold" style="font-size:1.15rem; padding:8px 18px;"><LivePrice productId={product.productId} /></div>
       {durationLabel && <div class="badge badge--grass" style="font-size:1.15rem; padding:8px 18px;">{durationLabel}</div>}
     </div>
   </PageHero>
@@ -108,7 +107,7 @@ const includes = deliverySummary(product.delivery);
             <input type="checkbox" required name="confirmedName" />
             <span>He comprobado que el nombre de Minecraft es correcto.</span>
           </label>
-          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:16px;" id="purchase-submit" data-label={`Comprar por ${priceLabel}`} disabled>
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:16px;" id="purchase-submit" data-label="Comprar" disabled>
             Comprobando disponibilidad...
           </button>
           <p style="margin:12px 0 0; font-size:0.78rem; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px;">
@@ -176,7 +175,8 @@ const includes = deliverySummary(product.delivery);
 
   async function checkAvailability() {
     if (!form || !submitBtn || !errorBox) return;
-    if (form.dataset.checkoutEnabled !== "true") {
+    if (form.dataset.checkoutEnabled !== "true" || (!validResume && form.dataset.priceVerified !== "true")) {
+      available = false;
       submitBtn.disabled = true;
       submitBtn.textContent = form.dataset.pendingLabel ?? "Pagos temporalmente no disponibles";
       return;
@@ -197,6 +197,7 @@ const includes = deliverySummary(product.delivery);
     }
   }
   void checkAvailability();
+  document.addEventListener("store-prices-updated",()=>void checkAvailability());
 
   async function redirectToCheckout(path: string, body?: Record<string, unknown>) {
     if (!submitBtn || !errorBox || !form) return;
@@ -246,7 +247,7 @@ const includes = deliverySummary(product.delivery);
 
     try {
       if (validResume) await redirectToCheckout(`/api/orders/${encodeURIComponent(validResume)}/checkout`);
-      else await redirectToCheckout("/api/orders", { productId, playerName });
+      else await redirectToCheckout("/api/orders", { productId, playerName, displayedPriceCents:Number(form.dataset.displayedPriceCents),displayedCurrency:form.dataset.displayedCurrency });
     } catch {
       errorBox.textContent = "No se pudo contactar con el servidor de pagos. Inténtalo de nuevo.";
       errorBox.style.display = "block";

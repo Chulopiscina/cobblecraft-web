@@ -2,17 +2,19 @@
 import type { Product } from "@shared/catalog-schema";
 import type { SkinPreview } from "../lib/skins";
 import SkinPreviewView from "./SkinPreview.astro";
+import LivePrice from "./LivePrice.astro";
 interface Props { product: Product; preview: SkinPreview; }
 const { product, preview } = Astro.props;
-const price = new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}).format(product.priceCents/100);
 ---
-<article class="skin-product" style={`--skin-accent:${preview.accent}`}>
+<article class="skin-product" data-price-product={product.productId} style={`--skin-accent:${preview.accent}`}>
   <SkinPreviewView skin={preview} />
   <div class="skin-product__body">
     <div class="skin-product__category"><span>{preview.kind}</span><span>Compra directa</span></div>
     <h3>{preview.title} <span>{preview.edition}</span></h3>
     <p>{preview.detail}</p>
-    <div class="skin-product__price"><strong>{price}</strong><span>Pago único</span></div>
+    {preview.kind === "Pokémon" && <p class="skin-warning">Solo la skin, NO el Pokémon. Necesitas tu propio {preview.title}.</p>}
+    {preview.gameplayAvailability === "pending" && <p class="skin-warning">También prevista gratis jugando. Obtención en juego pendiente de activar.</p>}
+    <div class="skin-product__price"><strong><LivePrice productId={product.productId} /></strong><span data-live-billing>Pago único</span></div>
     <a class="btn btn-primary btn-block" href={`/tienda/${product.slug}/`}>Ver skin y comprar</a>
     {!product.checkoutEnabled && <small>Compra pendiente de activación</small>}
   </div>
@@ -29,4 +31,5 @@ const price = new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}).f
   .skin-product__price strong{font:700 24px var(--font-body);color:var(--text);}
   .skin-product__price span,small{font-size:12px;color:var(--text-muted);}
   small{display:block;text-align:center;margin-top:10px;}
+  .skin-warning{flex:0;font-size:12px;line-height:1.6;margin-bottom:12px;}
 </style>

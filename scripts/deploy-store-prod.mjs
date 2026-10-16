@@ -17,6 +17,7 @@ const json = async file => JSON.parse(await readFile(file, 'utf8'));
 const git = args => execFileSync('git', args, { cwd: web, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const runtimeEnv = { ...process.env, CI: 'true', WRANGLER_SEND_METRICS: 'false' };
 const skinsOnly = process.argv.includes('--only-skins');
+const wholeStore = process.argv.includes('--whole-store');
 async function api() {
   try { execFileSync(process.execPath, [wrangler, 'whoami'], { cwd: web, stdio: 'pipe', env: runtimeEnv }); }
   catch { throw new Error('Autenticacion Cloudflare necesaria.'); }
@@ -89,7 +90,8 @@ if (process.argv.includes('--prepare')) {
   });
   const built = join(source, 'site/dist');
   const skinProducts = JSON.parse(git(['show', `${commit}:store/catalog.json`])).products.filter(p => p.category === 'skins' && p.active && !p.devOnly);
-  const pages = skinsOnly ? ['tienda/index.html', 'tienda/skins/index.html', ...skinProducts.map(p => `tienda/${p.slug}/index.html`)]
+  const pages = wholeStore ? ['tienda/index.html', 'tienda/skins/index.html', ...JSON.parse(git(['show', `${commit}:store/catalog.json`])).products.filter(p=>['rangos','skins'].includes(p.category)&&p.active&&!p.devOnly).map(p=>`tienda/${p.slug}/index.html`)]
+    : skinsOnly ? ['tienda/index.html', 'tienda/skins/index.html', ...skinProducts.map(p => `tienda/${p.slug}/index.html`)]
     : ['tienda/index.html', 'tienda/rango-explorador/index.html', 'tienda/rango-maestro/index.html', 'tienda/rango-leyenda/index.html', 'tienda/gracias/index.html', 'tienda/cancelado/index.html', 'estado/index.html','legal/terminos/index.html','legal/reembolsos/index.html'];
   const managed = [...pages, ...(await files(join(built, '_astro'))).map(p => `_astro/${p}`)];
   for (const name of managed) {
@@ -98,7 +100,7 @@ if (process.argv.includes('--prepare')) {
     if (name.startsWith('_astro/') && prior) assert(prior.sha256 === sha(bytes), `Colision de asset existente: ${name}`);
     await copy(join(built, name), join(stage, name));
   }
-  if (skinsOnly) {
+  if (skinsOnly || wholeStore) {
     const assets = git(['ls-tree', '-r', '--name-only', commit, '--', 'site/public/models/skins']).split('\n').filter(Boolean);
     assert(assets.length >= 12, 'Faltan recursos 3D de las skins.');
     for (const path of assets) {

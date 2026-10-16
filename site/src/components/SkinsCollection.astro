@@ -7,13 +7,15 @@ const { standalone = false } = Astro.props;
 <section class="section skins-collection" id="skins" aria-labelledby="skins-title">
   <div class="container">
     <div class="skins-heading">
-      <div><span class="eyebrow">Colección de aspectos</span><h2 id="skins-title">Tu estilo. Tu aventura.</h2></div>
-      <p>Tres skins, tres identidades. Elige exactamente la que quieres: compra directa, sin azar y sin ventajas jugables.</p>
+      <div><span class="eyebrow">Skins</span><h2 id="skins-title">Tu estilo. Tu aventura.</h2></div>
+      <p>Elige exactamente la apariencia que quieres. Compra directa, sin azar y sin ventajas jugables.</p>
     </div>
-    <div class="skins-grid">{getSkins().map(s => <SkinCard {...s} />)}</div>
+    <nav class="skin-sections" aria-label="Tipos de skins"><a href="#skins-armadura">Skins de armadura</a><a href="#skins-pokemon">Skins de Pokémon</a></nav>
+    <section class="skin-group" id="skins-armadura" aria-labelledby="armor-title"><h3 id="armor-title">SKINS DE ARMADURA</h3><p>Cosméticos completos para tu jugador, sin ventajas jugables.</p><div class="skins-grid">{getSkins().filter(s=>s.preview.kind==="Armadura").map(s=><SkinCard {...s}/>)}</div></section>
+    <section class="skin-group" id="skins-pokemon" aria-labelledby="pokemon-title"><h3 id="pokemon-title">SKINS DE POKÉMON</h3><p>Compras solo la apariencia, NO el Pokémon. Necesitas un ejemplar propio compatible.</p><div class="skins-grid">{getSkins().filter(s=>s.preview.kind==="Pokémon").map(s=><SkinCard {...s}/>)}</div></section>
     <div class="skins-notes">
       <p><strong>Armaduras:</strong> aspectos completos de jugador. Se activan desde Cosméticos y conservan tu equipamiento y sus estadísticas.</p>
-      <p><strong>Pokémon:</strong> un objeto para personalizar tu propio Charizard. Aplicación permanente tras previsualizar y confirmar.</p>
+      <p><strong>Pokémon:</strong> un objeto para personalizar tu ejemplar. La skin es permanente y no extraíble; se conserva al vender o intercambiar ese Pokémon.</p>
     </div>
     {!standalone && <p class="skins-link"><a href="/tienda/skins/">Ver la colección de skins →</a></p>}
   </div>
@@ -26,5 +28,7 @@ const { standalone = false } = Astro.props;
   .skins-notes{display:grid;grid-template-columns:1fr 1fr;gap:32px;padding-top:26px;margin-top:30px;border-top:1px solid var(--border);}
   .skins-notes p{font-size:13px;margin:0;line-height:1.8;}
   .skins-link{margin-top:24px;font-weight:600;font-size:14px;}
+  .skin-sections{display:flex;flex-wrap:wrap;gap:22px;border-bottom:1px solid var(--border);padding-bottom:16px;font-size:14px;font-weight:600;}
+  .skin-group{padding-top:32px;scroll-margin-top:90px;}.skin-group>h3{font:700 18px var(--font-body);margin:0 0 8px;}.skin-group>p{font-size:14px;margin-bottom:24px;}
   @media(max-width:800px){.skins-grid{grid-template-columns:1fr;max-width:480px;margin:auto;}.skins-heading,.skins-notes{grid-template-columns:1fr;gap:15px;}.skins-heading h2{font-size:28px;}}
 </style>

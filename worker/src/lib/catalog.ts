@@ -17,10 +17,9 @@ if (issues.length > 0) {
 }
 
 /**
- * AUTORIDAD REAL de producto/precio - el Worker NUNCA confía en lo que envía el navegador.
- * "PRODUCT ID WHITELIST" + "PRICE AUTHORITY SERVER-SIDE" (Parte J del encargo) se resuelven
- * exactamente aquí: `getAuthoritativeProduct` es la ÚNICA función que decide si un productId es
- * válido y cuál es su precio real.
+ * Whitelist de producto/entrega y bloqueos locales. El precio compilado es solo una referencia:
+ * `getTebexPrice` verifica el importe oficial antes de crear un checkout. El navegador nunca
+ * decide el precio ni habilita un producto mediante la sincronizacion.
  */
 export function getAuthoritativeProduct(env: Env, productId: string): Product | null {
   const runtimeEnv = env.ENVIRONMENT === "production" ? "prod" : "dev";

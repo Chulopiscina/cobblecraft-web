@@ -38,10 +38,9 @@ const rankComparisonRows = [
 ---
 
 <BaseLayout title="Tienda" description="Skins cosméticas de compra directa y suscripciones oficiales de CobbleCraft. Pagos gestionados por Tebex.">
-  <PageHero eyebrow="Tienda oficial" title="TIENDA" subtitle="Explorador 3,99 €/mes · Maestro 6,99 €/mes · Leyenda 9,99 €/mes" />
+  <PageHero eyebrow="Tienda oficial" title="TIENDA" subtitle="Rangos y skins oficiales · Precios verificados en Tebex" />
   <OperationsStatus />
   <nav class="container store-categories" aria-label="Categorías de tienda"><a href="#rangos">Rangos</a><a href="#skins">Skins</a></nav>
-  <SkinsCollection />
 
   {products.length === 0 && (
     <div class="container section">
@@ -79,6 +78,8 @@ const rankComparisonRows = [
       </div>
     </div>
   </section>
+
+  <SkinsCollection />
 
   {categories.filter((cat) => cat !== "rangos" && cat !== "skins").map((cat, i) => (
     <>

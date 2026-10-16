@@ -8,7 +8,7 @@ import type { Env } from "../types";
 const mapping = TebexPackageConfigSchema.parse(rawMapping);
 const pending = new Map<string,Promise<StorePrice>>();
 let lastFailureLog = 0;
-const Package = z.object({id:z.coerce.string(),base_price:z.coerce.number().finite().nonnegative(),
+const Package = z.object({id:z.coerce.string(),base_price:z.union([z.number(),z.string().regex(/^\d+(\.\d{1,2})?$/)]).pipe(z.coerce.number().finite().nonnegative()),
   currency:z.string().regex(/^[A-Z]{3}$/),type:z.enum(["single","subscription","both"]),disabled:z.boolean().optional()});
 
 export async function getTebexPrice(env: Env, product: Product, fresh = false): Promise<StorePrice> {

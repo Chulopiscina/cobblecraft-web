@@ -2,11 +2,13 @@
 import type { Product } from "@shared/catalog-schema";
 import type { SkinPreview } from "../lib/skins";
 import SkinPreviewView from "./SkinPreview.astro";
+import LivePrice from "./LivePrice.astro";
 interface Props { product: Product; skin: SkinPreview; apiBaseUrl: string; }
 const { product, skin, apiBaseUrl } = Astro.props;
-const price = new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}).format(product.priceCents/100);
 const benefits = product.metadata.benefits.split("|");
-const ld = JSON.stringify({"@context":"https://schema.org","@type":"Product",name:product.name,description:product.description,image:`https://cobblemon-server-site.pages.dev${product.icon}`,brand:{"@type":"Brand",name:"CobbleCraft"},...(product.checkoutEnabled?{offers:{"@type":"Offer",price:(product.priceCents/100).toFixed(2),priceCurrency:"EUR",availability:"https://schema.org/InStock"}}:{})}).replace(/</g,"\\u003c");
+const ld = JSON.stringify({"@context":"https://schema.org","@type":"Product",name:product.name,description:product.description,image:`https://cobblemon-server-site.pages.dev${product.icon}`,brand:{"@type":"Brand",name:"CobbleCraft"}}).replace(/</g,"\\u003c");
+const pokemon=skin.kind === "Pokémon";
+const warning=`Compras únicamente la skin, NO el Pokémon. Necesitas tener un ${skin.title} propio para aplicarla.`;
 ---
 <script is:inline type="application/ld+json" set:html={ld} />
 <section class="section">
@@ -14,23 +16,27 @@ const ld = JSON.stringify({"@context":"https://schema.org","@type":"Product",nam
     <a class="back-link" href="/tienda/skins/">← Colección de skins</a>
     <div class="skin-detail">
       <SkinPreviewView skin={skin} />
-      <div class="skin-detail__content">
+      <div class="skin-detail__content" data-price-product={product.productId}>
         <span class="eyebrow">{skin.kind} · Compra directa</span>
         <h1>{skin.title}<span>{skin.edition}</span></h1>
         <p class="skin-detail__intro">{product.description}</p>
-        <p class="skin-detail__price"><strong>{price}</strong><span>Pago único · Sin suscripción</span></p>
-        <h2>Qué recibes</h2><p>{skin.receipt}</p>
+        <p class="skin-detail__price"><strong><LivePrice productId={product.productId} /></strong><span data-live-billing>Pago único · Sin suscripción</span></p>
+        {pokemon ? <p class="purchase-pending"><strong>{warning}</strong></p> : <p>Cosmético completo para tu jugador. No proporciona ventajas jugables ni modifica tu equipamiento real.</p>}
+        {skin.gameplayAvailability === "pending" && <p class="purchase-pending">También prevista para conseguirse gratuitamente jugando; compra opcional. El método gratuito todavía está pendiente de activar.</p>}
+        <h2>Qué recibes</h2><p>{pokemon ? `1 objeto Skin ${skin.title} ${skin.edition} para aplicar a un ejemplar compatible propio. Se consume al confirmar.` : `Desbloqueo permanente de ${skin.title} ${skin.edition} en tu cuenta. Equipa o quita el traje desde Menú del Servidor > Cosméticos > Skins de armadura.`}</p>
+        {pokemon && <ul><li>Recibes exclusivamente el objeto cosmético. No se entrega ningún Pokémon.</li><li>La skin queda vinculada permanentemente a ese ejemplar: no puede extraerse, quitarse ni transferirse a otro Pokémon.</li><li>Puedes vender o intercambiar el Pokémon con skin entre jugadores; conserva su apariencia.</li></ul>}
         <ul>{benefits.map(benefit=><li>{benefit}</li>)}</ul>
         <form id="purchase-form" data-api-base={apiBaseUrl} data-product-id={product.productId} data-checkout-enabled={String(product.checkoutEnabled)} data-pending-label="Compra pendiente de activación">
           <label for="player-name">Nombre de Minecraft del destinatario</label>
           <input id="player-name" name="playerName" class="input" type="text" required minlength="3" maxlength="16" pattern="[A-Za-z0-9_]{3,16}" autocomplete="off" placeholder="Tu nombre exacto en el servidor" />
           <label class="name-confirm"><input type="checkbox" required name="confirmedName" /><span>He comprobado que el nombre es correcto.</span></label>
-          <button type="submit" id="purchase-submit" class="btn btn-primary btn-block" data-label={`Comprar por ${price}`} disabled>{product.checkoutEnabled?"Comprobando disponibilidad…":"Compra pendiente de activación"}</button>
+          {pokemon && <p class="purchase-pending"><strong>{warning}</strong></p>}
+          <button type="submit" id="purchase-submit" class="btn btn-primary btn-block" data-label="Comprar" disabled>{product.checkoutEnabled?"Comprobando disponibilidad…":"Compra pendiente de activación"}</button>
           {!product.checkoutEnabled && <p class="purchase-pending" role="note">Este producto todavía no admite pagos. No se realizará ningún cobro hasta completar su activación en Tebex y verificar la entrega.</p>}
           <p id="purchase-error" class="notice notice--error" role="alert" aria-live="assertive" style="display:none;"></p>
         </form>
         <p class="skin-detail__fine">Solo apariencia: sin ventajas jugables, sin llaves ni premios al azar. La entrega se valida mediante pago firmado y el servidor procesa el pedido al conectarte. <a href="/legal/reembolsos/">Condiciones y reembolsos</a>.</p>
-        {product.productId === "skin_pokemon_charizard_draconico" && <p class="skin-detail__fine">Modelo derivado de <a href="https://cobblemon.com" target="_blank" rel="noopener noreferrer">Cobblemon</a>, con textura y detalles de CobbleCraft. <a href="https://creativecommons.org/licenses/by-nc/3.0/" target="_blank" rel="noopener noreferrer">CC BY-NC 3.0</a>. Venta bloqueada hasta verificar autorización comercial.</p>}
+        {pokemon && <p class="skin-detail__fine">Modelo derivado de <a href="https://cobblemon.com" target="_blank" rel="noopener noreferrer">Cobblemon</a>, con textura y detalles de CobbleCraft. <a href="https://creativecommons.org/licenses/by-nc/3.0/" target="_blank" rel="noopener noreferrer">CC BY-NC 3.0</a>. Venta bloqueada hasta verificar autorización comercial.</p>}
       </div>
     </div>
   </div>

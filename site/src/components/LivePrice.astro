@@ -1,0 +1,10 @@
+---
+import { publicApiBaseUrl } from "../lib/api-base";
+interface Props { productId: string; }
+const {productId} = Astro.props;
+---
+<span class="live-price" data-live-price={productId} data-api-base={publicApiBaseUrl} aria-live="polite">Consultando precio…</span>
+<script>
+  import { startPriceSync } from "../lib/store-prices-client";
+  startPriceSync();
+</script>

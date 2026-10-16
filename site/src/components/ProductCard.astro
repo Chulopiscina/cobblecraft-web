@@ -1,15 +1,15 @@
 ---
 import type { Product } from "@shared/catalog-schema";
+import LivePrice from "./LivePrice.astro";
 
 interface Props {
   product: Product;
 }
 const { product } = Astro.props;
-const priceLabel = (product.priceCents / 100).toFixed(2).replace(".", ",") + (product.metadata.billing === "monthly" ? " €/mes" : " €");
 const durationLabel = product.metadata.durationLabel;
 ---
 
-<a class="card product-card" href={`/tienda/${product.slug}`}>
+<a class="card product-card" data-price-product={product.productId} href={`/tienda/${product.slug}`}>
   {product.devOnly && <span class="badge badge--muted product-card__dev">DEV</span>}
   {!product.checkoutEnabled && !product.devOnly && <span class="badge badge--muted product-card__dev">Tebex pendiente</span>}
   <div class="product-card__icon">
@@ -20,7 +20,8 @@ const durationLabel = product.metadata.durationLabel;
   <p style="font-size:0.88rem; min-height:2.6em; text-align:center;">{product.description}</p>
   <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; padding-top:10px;">
     <span style="display:flex; gap:6px; flex-wrap:wrap;">
-      <span class="badge badge--gold">{priceLabel}</span>
+      <span class="badge badge--gold"><LivePrice productId={product.productId} /></span>
+      <span class="badge" data-live-billing>{product.metadata.billing === "monthly" ? "Suscripción" : "Pago único"}</span>
       {durationLabel && <span class="badge badge--grass">{durationLabel}</span>}
     </span>
     <span class="product-card__cta">Ver detalles →</span>

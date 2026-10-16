@@ -1,5 +1,7 @@
 # Skins directas (web 0.1.2)
 
+Actualizacion de la coleccion a once skins y precios oficiales: ver `STORE_PRICES_AND_COLLECTION.md`. Este documento conserva el detalle de las tres entregas premium preparadas en .85; no implica que las ocho nuevas esten en esa whitelist.
+
 ## Fuentes de verdad
 
 - `store/catalog.json`: precios EUR en centimos, textos, limites y recompensa real.
@@ -9,9 +11,9 @@
 
 | Producto web | Paquete Tebex | Precio | Entrega real en progression_core 0.18.11.85 |
 | --- | --- | --- | --- |
-| skin_armor_mewtwo | 7742868 | 4,99 EUR | ACCOUNT_COSMETIC -> armor_overlay_mewtwo |
-| skin_armor_gyarados | 7742880 | 4,99 EUR | ACCOUNT_COSMETIC -> armor_overlay_gyarados |
-| skin_pokemon_charizard_draconico | 7742881 | 3,99 EUR | COSMETIC -> 1 progression:cosmetics/skin_charizard_draconico |
+| skin_armor_mewtwo | 7742868 | 12,99 EUR | ACCOUNT_COSMETIC -> armor_overlay_mewtwo |
+| skin_armor_gyarados | 7742880 | 12,99 EUR | ACCOUNT_COSMETIC -> armor_overlay_gyarados |
+| skin_pokemon_charizard_draconico | 7742881 | 9,99 EUR | COSMETIC -> 1 progression:cosmetics/skin_charizard_draconico |
 
 Las armaduras se desbloquean en el ledger de cosmeticos existente (reintentar no duplica el desbloqueo); se equipan/quitan desde Menu del Servidor > Cosmeticos > Skins de armadura. No son los antiguos trims `dev_*`.
 

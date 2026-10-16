@@ -35,7 +35,7 @@ it("forces an uncached quote before checkout and picks up subsequent price chang
   vi.stubGlobal("fetch",async()=>response({base_price:14.99}));
   expect((await getTebexPrice(env,product,true)).priceCents).toBe(1499);
 });
-it.each([{id:1},{currency:"USD"},{base_price:-1},{base_price:12.999},{type:"invalid"}])("rejects wrong package, currency or invalid price/billing %j",async change=>{
+it.each([{id:1},{currency:"USD"},{base_price:-1},{base_price:12.999},{base_price:null},{base_price:""},{base_price:false},{type:"invalid"}])("rejects wrong package, currency or invalid price/billing %j",async change=>{
   vi.stubGlobal("fetch",async()=>response(change));
   expect(await getTebexPrice(env,product)).toMatchObject({available:false,priceCents:null,reason:"invalid_package"});
 });

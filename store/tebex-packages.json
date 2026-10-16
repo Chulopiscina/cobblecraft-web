@@ -1,9 +1,17 @@
 {
-  "version": 4,
+  "version": 5,
   "packages": [
     { "productId": "skin_armor_mewtwo", "product": "Armadura Mewtwo", "packageId": "7742868", "action": "skin", "cosmeticId": "armor_overlay_mewtwo", "serverDeliveryVerified": false, "saleLicenseVerified": false },
     { "productId": "skin_armor_gyarados", "product": "Armadura Gyarados", "packageId": "7742880", "action": "skin", "cosmeticId": "armor_overlay_gyarados", "serverDeliveryVerified": false, "saleLicenseVerified": false },
     { "productId": "skin_pokemon_charizard_draconico", "product": "Charizard Dracónico", "packageId": "7742881", "action": "skin", "customItemId": "progression:cosmetics/skin_charizard_draconico", "serverDeliveryVerified": false, "saleLicenseVerified": false },
+    {"productId":"skin_armor_lucario_aura","product":"Lucario — Guardián Aura","packageId":"7743527","action":"skin","cosmeticId":"armor_overlay_lucario_aura","serverDeliveryVerified":false,"saleLicenseVerified":false},
+    {"productId":"skin_armor_tyranitar_emerald","product":"Tyranitar — Titán Esmeralda","packageId":"7743530","action":"skin","cosmeticId":"armor_overlay_tyranitar_emerald","serverDeliveryVerified":false,"saleLicenseVerified":false},
+    {"productId":"skin_armor_greninja_shadow","product":"Greninja — Ninja de las Sombras","packageId":"7743533","action":"skin","cosmeticId":"armor_overlay_greninja_shadow","serverDeliveryVerified":false,"saleLicenseVerified":false},
+    {"productId":"skin_armor_ash_classic","product":"Ash — Entrenador Legendario","packageId":"7743535","action":"skin","cosmeticId":"armor_overlay_ash_classic","serverDeliveryVerified":false,"saleLicenseVerified":false},
+    {"productId":"skin_pokemon_gyarados_celestial","product":"Gyarados — Dragón Celestial","packageId":"7743541","action":"skin","customItemId":"progression:cosmetics/skin_gyarados_celestial","serverDeliveryVerified":false,"saleLicenseVerified":false},
+    {"productId":"skin_pokemon_crobat_prisma","product":"Crobat — Prisma","packageId":"7743543","action":"skin","customItemId":"progression:cosmetics/skin_crobat_prisma","serverDeliveryVerified":false,"saleLicenseVerified":false},
+    {"productId":"skin_pokemon_arcanine_solar","product":"Arcanine — Guardián Solar","packageId":"7743545","action":"skin","customItemId":"progression:cosmetics/skin_arcanine_solar","serverDeliveryVerified":false,"saleLicenseVerified":false},
+    {"productId":"skin_pokemon_luxray_emperador","product":"Luxray — Emperador del Trueno","packageId":"7743550","action":"skin","customItemId":"progression:cosmetics/skin_luxray_emperador","serverDeliveryVerified":false,"saleLicenseVerified":false},
     {
       "productId": "rank_explorer",
       "product": "Explorador",

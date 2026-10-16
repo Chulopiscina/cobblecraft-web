@@ -29,6 +29,8 @@ def module(name, path):
 def triangles(polygons, texture_size):
     positions, uv = [], []
     for vertices, coords in polygons:
+        if np.linalg.norm(np.cross(vertices[1] - vertices[0], vertices[2] - vertices[0])) < 0.000001:
+            continue
         for index in (0, 1, 2, 0, 2, 3):
             positions.extend(round(float(n), 5) for n in vertices[index])
             uv.extend((round(float(coords[index][0]) / texture_size[0], 7),
@@ -64,6 +66,24 @@ m = module("store_mewtwo", ROOT / "scripts/generate-mewtwo-armor.py")
 armor("mewtwo", m, m.order_parts(m.build_parts()), m.kotlin)
 g = module("store_gyarados", ROOT / "scripts/generate-gyarados-armor.py")
 armor("gyarados", g.gm, g.build_parts(), g.gm.kotlin)
+
+costumes = module("store_costumes", ROOT / "scripts/generate-player-costumes.py")
+for slug, factory in costumes.MODELS.items():
+    sculpture = factory()
+    sculpture.parts = costumes.gm.order_parts(sculpture.parts)
+    tw, th = costumes.gm.pack_uv(sculpture.parts)
+    model_name, generated = costumes.kotlin(slug, sculpture, tw, th)
+    source = CLIENT / f"kotlin/com/cobblecraft/client/cosmetics/{model_name}.kt"
+    body = lambda text: "".join(text[text.index("    fun createBodyLayer()"):].split())
+    assert body(generated) == body(source.read_text(encoding="utf-8")), f"Generator drift: {source}"
+    texture = CLIENT / f"resources/assets/cobblecraft_client/textures/cosmetics/{slug}_overlay.png"
+    glow = texture.with_name(f"{slug}_overlay_glow.png")
+    name = slug.replace("_", "-")
+    polygons = [(v * [1, -1, -1], uv) for v, uv, _, _ in costumes.gm.world_polys(sculpture.parts, {}, tw, th)]
+    save(name, triangles(polygons, Image.open(texture).size), [source, texture, glow])
+    shutil.copyfile(texture, OUT / f"{name}.png")
+    shutil.copyfile(glow, OUT / f"{name}-glow.png")
+    costumes.gm.render(sculpture.parts, np.array(Image.open(texture)), np.array(Image.open(glow)), 35, px=5, show_base=False).save(OUT / f"{name}-icon.png")
 
 geo = RP / "progression_core/bedrock/pokemon/models/0006_charizard/charizard_draconico.geo.json"
 texture = RP / "progression_core/textures/pokemon/0006_charizard/charizard_draconico.png"
@@ -144,3 +164,54 @@ shutil.copyfile(texture, OUT / "charizard.png")
 shutil.copyfile(glow, OUT / "charizard-glow.png")
 shutil.copyfile(RP / "minecraft/textures/item/cosmetic_skin_charizard_draconico.png", OUT / "charizard-icon.png")
 shutil.copyfile(RP / "progression_core/bedrock/pokemon/models/0006_charizard/charizard_draconico_license", OUT / "charizard-license.txt")
+
+
+def export_pokemon(folder, slug, model):
+    """Export the real Bedrock bind pose; keep every ornament, pivot and original UV."""
+    geo = RP / f"progression_core/bedrock/pokemon/models/{folder}/{model}.geo.json"
+    texture = RP / f"progression_core/textures/pokemon/{folder}/{slug}.png"
+    glow = RP / f"progression_core/textures/pokemon_skins/{slug}_glow.png"
+    geometry = json.loads(geo.read_text())["minecraft:geometry"][0]
+    bones = {b["name"]: b for b in geometry["bones"]}
+    transforms = {}
+    def transform(name):
+        if name in transforms: return transforms[name]
+        b = bones[name]
+        pivot = np.array(b.get("pivot", [0, 0, 0]), dtype=float)
+        rotation = m.rot_zyx(*(np.radians(b.get("rotation", [0, 0, 0])) * [-1, -1, 1]))
+        translation = pivot
+        if "parent" in b:
+            pr, pt, pp = transform(b["parent"])
+            rotation, translation = pr @ rotation, pt + pr @ (pivot - pp)
+        transforms[name] = rotation, translation, pivot
+        return transforms[name]
+    polygons = []
+    for bone in bones.values():
+        rotation, translation, pivot = transform(bone["name"])
+        if bone["name"].startswith("eyelid"): continue
+        for cube in bone.get("cubes", []):
+            origin, size = cube["origin"], cube["size"]
+            assert isinstance(cube["uv"], list), "Unsupported per-face UV"
+            c = m.Cube((origin[0], -origin[1] - size[1], origin[2]), tuple(size), cube.get("inflate", 0), "skin", uv=tuple(cube["uv"]), mirror=cube.get("mirror", False))
+            cr = m.rot_zyx(*(np.radians(cube.get("rotation", [0, 0, 0])) * [-1, -1, 1]))
+            cp = np.array(cube.get("pivot", pivot), dtype=float)
+            for vertices, uv, _ in m.cube_polys(c, *Image.open(texture).size):
+                vertices = vertices * [1, -1, 1]
+                vertices = (vertices - cp) @ cr.T + cp
+                vertices = (vertices - pivot) @ rotation.T + translation
+                polygons.append((vertices * [-1, 1, -1], uv))
+    name = slug.replace("_", "-")
+    mesh = triangles(polygons, Image.open(texture).size)
+    mesh["pose"] = {"animation": "original_bind_pose", "time": 0}
+    save(name, mesh, [geo, texture, glow])
+    shutil.copyfile(texture, OUT / f"{name}.png")
+    shutil.copyfile(glow, OUT / f"{name}-glow.png")
+    shutil.copyfile(RP / f"minecraft/textures/item/cosmetic_skin_{slug}.png", OUT / f"{name}-icon.png")
+    shutil.copyfile(geo.parent / f"{slug}_license.txt", OUT / f"{name}-license.txt")
+
+
+for definition in [("0130_gyarados", "gyarados_celestial", "gyarados_celestial_male"),
+                   ("0169_crobat", "crobat_prisma", "crobat_prisma"),
+                   ("0059_arcanine", "arcanine_solar", "arcanine_solar"),
+                   ("0405_luxray", "luxray_emperador", "luxray_emperador_male")]:
+    export_pokemon(*definition)
