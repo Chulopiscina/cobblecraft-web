@@ -1,6 +1,7 @@
 import type { Env } from "./types";
 import { corsHeaders, securityHeaders, errorResponse, jsonResponse } from "./lib/security";
 import { checkoutAvailable } from "./lib/store-readiness";
+import { handleStorePrices } from "./routes/store-prices";
 import { handleSubscriptions, handleSubscriptionAck } from "./routes/subscriptions";
 import { handleCreateOrder, handleGetOrder, handleResumeOrderCheckout } from "./routes/orders";
 import { handleWebhook } from "./routes/webhook";
@@ -31,6 +32,7 @@ export default {
     try {
       if (path === "/api/admin/diagnostics" && request.method === "GET") return await handleOperations(request, env);
       if (path === "/api/store/status" && request.method === "GET") return jsonResponse(env, request, { checkoutAvailable: checkoutAvailable(env) });
+      if (path === "/api/store/prices" && request.method === "GET") return await handleStorePrices(request, env);
       if (path === "/api/orders" && request.method === "POST") return await handleCreateOrder(request, env, siteBaseUrl);
 
       const resumeCheckoutMatch = path.match(/^\/api\/orders\/([^/]+)\/checkout$/);

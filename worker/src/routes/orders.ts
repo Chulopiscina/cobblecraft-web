@@ -6,12 +6,15 @@ import { resolveMojangProfile } from "../lib/mojang";
 import { createOrder, markPendingPayment, markFailed, getOrderByPublicId } from "../lib/orders";
 import { createPaymentProvider } from "../lib/payment/factory";
 import { checkoutAvailable } from "../lib/store-readiness";
+import { getTebexPrice } from "../lib/tebex-prices";
 import { recordServiceHealth } from "../lib/operations";
 import { reduceSubscription } from "../lib/subscriptions";
 
 const CreateOrderBody = z.object({
   productId: z.string().min(1).max(64),
   playerName: z.string().regex(/^[A-Za-z0-9_]{3,16}$/, "Nombre de jugador Minecraft inválido"),
+  displayedPriceCents: z.number().int().nonnegative().optional(),
+  displayedCurrency: z.string().regex(/^[A-Z]{3}$/).optional(),
 });
 
 function errorSummary(err: unknown): string {
@@ -36,12 +39,25 @@ export async function handleCreateOrder(request: Request, env: Env, siteBaseUrl:
     return errorResponse(env, request, 400, "Petición inválida.");
   }
 
-  const product = getAuthoritativeProduct(env, parsed.productId);
+  let product = getAuthoritativeProduct(env, parsed.productId);
   if (!product) {
     return errorResponse(env, request, 404, "Producto no encontrado o no disponible.", ErrorCode.PRODUCT_NOT_FOUND);
   }
   if (!product.checkoutEnabled || !checkoutAvailable(env)) {
     return errorResponse(env, request, 409, "Este producto esta preparado, pero el checkout Tebex aun no esta activado.", ErrorCode.CHECKOUT_DISABLED);
+  }
+
+  if (env.PAYMENT_PROVIDER === "tebex") {
+    const quote = await getTebexPrice(env,product,true);
+    const billing=product.metadata.billing==="monthly"?"subscription":"one_time";
+    if (!quote.available || quote.disabled===true || quote.priceCents===null || quote.currency!==product.currency || quote.billing!==billing) {
+      return errorResponse(env,request,503,"No se pudo verificar el precio o la disponibilidad en Tebex.");
+    }
+    if ((parsed.displayedPriceCents!==undefined && parsed.displayedPriceCents!==quote.priceCents) ||
+        (parsed.displayedCurrency!==undefined && parsed.displayedCurrency!==quote.currency)) {
+      return errorResponse(env,request,409,"El precio ha cambiado en Tebex. Actualiza la página antes de continuar.");
+    }
+    product={...product,priceCents:quote.priceCents};
   }
 
   let profile;
