@@ -18,7 +18,7 @@ import { leagueTrainers } from "../../../data/guide/league";
         <div class="card" style="margin-bottom:26px;">
           <p style="margin:0;">
             La Liga es contenido endgame <strong>repetible</strong>: cada entrenador se puede volver a
-            retar, y cada victoria vuelve a pagar en dinero y en su token. Las composiciones de equipo de
+            retar. La recompensa monetaria tiene una ventana de <strong>30 minutos por líder y jugador</strong>; no cobra dinero en cada intento consecutivo. Las composiciones de equipo de
             cada entrenador no se revelan aquí a propósito.
           </p>
         </div>
@@ -52,16 +52,21 @@ import { leagueTrainers } from "../../../data/guide/league";
 <style>
   .trainer-list {
     display: grid;
+    grid-template-columns:minmax(0,1fr);
     gap: 16px;
   }
   .trainer-card__head {
     display: flex;
     gap: 14px;
     align-items: center;
+    flex-wrap:wrap;
   }
+  .trainer-card__head > div:nth-child(2) { flex:1;min-width:0; }
+  .trainer-card__head .icon-tile { flex-shrink:0; }
   .trainer-card__head h2 {
     margin: 0 0 4px;
     font-size: 1.15rem;
+    overflow-wrap:anywhere;
   }
   .trainer-card__meta {
     margin: 0;

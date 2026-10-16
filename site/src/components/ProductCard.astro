@@ -1,15 +1,22 @@
 ---
 import type { Product } from "@shared/catalog-schema";
 import LivePrice from "./LivePrice.astro";
+import { Image } from "astro:assets";
+import hub from "../assets/gallery/hub.png";
+import mastery from "../assets/gallery/maestria.png";
+import league from "../assets/gallery/liga.png";
 
 interface Props {
   product: Product;
 }
 const { product } = Astro.props;
 const durationLabel = product.metadata.durationLabel;
+const rankArt = { rank_explorer: hub, rank_master: mastery, rank_legend: league };
+const artwork = rankArt[product.productId as keyof typeof rankArt];
 ---
 
-<a class="card product-card" data-price-product={product.productId} href={`/tienda/${product.slug}`}>
+<a class:list={["card product-card", { "product-card--rank": artwork }]} data-price-product={product.productId} href={`/tienda/${product.slug}`}>
+  {artwork && <div class="product-card__scene" aria-hidden="true"><Image src={artwork} alt="" widths={[360,720]} sizes="(max-width:720px) 100vw, 360px" loading="lazy" format="webp" quality={75} /></div>}
   {product.devOnly && <span class="badge badge--muted product-card__dev">DEV</span>}
   {!product.checkoutEnabled && !product.devOnly && <span class="badge badge--muted product-card__dev">Tebex pendiente</span>}
   <div class="product-card__icon">
@@ -18,7 +25,7 @@ const durationLabel = product.metadata.durationLabel;
   </div>
   <h3 style="font-size:1.02rem; text-align:center;">{product.name}</h3>
   <p style="font-size:0.88rem; min-height:2.6em; text-align:center;">{product.description}</p>
-  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; padding-top:10px;">
+  <div class="product-card__footer">
     <span style="display:flex; gap:6px; flex-wrap:wrap;">
       <span class="badge badge--gold"><LivePrice productId={product.productId} /></span>
       <span class="badge" data-live-billing>{product.metadata.billing === "monthly" ? "Suscripción" : "Pago único"}</span>
@@ -34,11 +41,26 @@ const durationLabel = product.metadata.durationLabel;
     flex-direction: column;
     position: relative;
     text-align: center;
+    overflow: hidden;
+    gap: 4px;
+    border-top: 3px solid var(--gold);
+    transition: transform .18s ease, box-shadow .18s ease;
   }
+  .product-card:hover { transform:translateY(-3px); box-shadow:0 16px 36px -18px #24475e55; }
+  .product-card--rank { padding-top:150px; }
+  .product-card__scene { position:absolute;inset:0 0 auto;height:170px;border-bottom:1px solid var(--border); }
+  .product-card__scene :global(img) { width:100%;height:100%;object-fit:cover; }
+  .product-card--rank .product-card__icon { position:relative;z-index:1;background:#fff;border:3px solid #fff;border-radius:8px;box-shadow:0 4px 18px #18383b25; }
+  .product-card--rank[data-price-product="rank_explorer"] { border-top-color:#209bad; }
+  .product-card--rank[data-price-product="rank_master"] { border-top-color:#7c59b8; }
   .product-card__dev {
     position: absolute;
     top: 14px;
     right: 14px;
+    z-index:2;
+    color:#fff;
+    background:#183440e8;
+    border-color:#d4e7eb;
   }
   .product-card__icon {
     width: 84px;
@@ -57,13 +79,16 @@ const durationLabel = product.metadata.durationLabel;
   .product-card__cta {
     font-size: 0.8rem;
     font-weight: 700;
-    color: var(--cyan);
-    opacity: 0;
+    color: var(--cyan-ink);
+    white-space:nowrap;
+    opacity: 1;
     transform: translateX(-4px);
     transition:
       opacity 0.18s var(--ease),
       transform 0.18s var(--ease);
   }
+  .product-card__footer { display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:auto;padding-top:12px; }
+  .product-card__footer > span:first-child { justify-content:center; }
   .product-card:hover .product-card__cta {
     opacity: 1;
     transform: translateX(0);

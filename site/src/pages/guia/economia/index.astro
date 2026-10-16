@@ -5,6 +5,7 @@ import WorldBackdrop from "../../../components/WorldBackdrop.astro";
 import Breadcrumbs from "../../../components/Breadcrumbs.astro";
 import Icon from "../../../components/Icon.astro";
 import { economyInfo } from "../../../data/guide/economy";
+import { euros } from "../../../lib/money";
 ---
 
 <BaseLayout title="Economía" description="De dónde sale y a dónde va el dinero en CobbleCraft: fuentes, gastos y cómo funciona el Mercado.">
@@ -14,12 +15,13 @@ import { economyInfo } from "../../../data/guide/economy";
     <section class="section">
       <div class="container" style="max-width:760px;">
         <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Economía" }]} />
+        <p>El símbolo € de esta guía corresponde a <strong>moneda del juego</strong>, no a dinero real. En los menús económicos y de Mercado puedes abrir el historial de compras y ventas recientes.</p>
 
         <div class="card" style="margin-bottom:22px;">
           <div class="econ-head">
             <div class="icon-tile icon-tile--cyan"><Icon name="moneda" /></div>
             <div>
-              <h2 style="margin:0 0 4px;">Bono de bienvenida: {economyInfo.starterMoney} monedas</h2>
+              <h2 style="margin:0 0 4px;">Bono de bienvenida: {euros(economyInfo.starterMoney)}</h2>
               <p style="margin:0; color:var(--text-muted);">{economyInfo.starterNote}</p>
             </div>
           </div>

@@ -24,7 +24,7 @@ export const siteConfig = {
   /** Copia real de `launcher/assets/logo/hub_menu_emblem.png` (128x128) - nunca un logo inventado. */
   logo: {
     path: "/images/logo.png",
-    alt: "Emblema de Servidor Cobblemon",
+    alt: "Emblema de CobbleCraft",
   },
 
   minecraft: {
@@ -33,7 +33,7 @@ export const siteConfig = {
     loader: "Fabric",
     // launcher/config/launcher-config.json ramMinMb/ramMaxMb - misma fuente real, nunca inventada.
     ramMinMb: 2048,
-    ramMaxMb: 4096,
+    ramMaxMb: 6144, // 2026-10-12: el launcher ya asigna 6 GB por defecto (RamPolicy); la web decía 4.
   },
 
   /**
@@ -68,7 +68,7 @@ export const siteConfig = {
     // online, nunca porque los NPCs no existieran. Verificado en vivo forzando la carga del
     // área real del Hub y confirmando las 5 posiciones exactas.
     npcsPlaced: true,
-    skinsAvailable: false, // Skin System V1 existe como framework, sin skins reales publicadas todavia
+    skinsAvailable: true,
   },
 } as const;
 

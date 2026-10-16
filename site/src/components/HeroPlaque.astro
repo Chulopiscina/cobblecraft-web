@@ -1,20 +1,17 @@
 ---
-/**
- * Rediseño visual V4 - "placa" tipo cartel para integrar el título/subtítulo del hero dentro de
- * la escena de pradera (ver MeadowScene.astro), con vidrio esmerilado + marco cálido + esquinas
- * en corte voxel. `size="sm"` para cabeceras cortas (solo eyebrow+h1), por defecto para las que
- * incluyen además un párrafo corto.
- */
 interface Props {
   size?: "sm" | "md";
 }
 const { size = "md" } = Astro.props;
 ---
 
-<div class={size === "sm" ? "hero-plaque hero-plaque--sm" : "hero-plaque"}>
-  <span class="hero-plaque__bolt hero-plaque__bolt--tl" aria-hidden="true"></span>
-  <span class="hero-plaque__bolt hero-plaque__bolt--tr" aria-hidden="true"></span>
-  <span class="hero-plaque__bolt hero-plaque__bolt--bl" aria-hidden="true"></span>
-  <span class="hero-plaque__bolt hero-plaque__bolt--br" aria-hidden="true"></span>
+<div class:list={["brand-heading", { "brand-heading--compact": size === "sm" }]}>
   <slot />
 </div>
+<style>
+  .brand-heading { color:#fff;max-width:800px;margin:auto; }
+  .brand-heading :global(h1) { color:#fff;font-size:46px;line-height:1.15;text-shadow:0 2px 10px #0009;overflow-wrap:anywhere; }
+  .brand-heading :global(p), .brand-heading :global(.eyebrow) { color:#eefaff!important; }
+  .brand-heading :global(.text-gradient-gold) { background:none;color:#ffe39b;-webkit-text-fill-color:currentColor; }
+  @media(max-width:600px) { .brand-heading :global(h1) { font-size:27px; } }
+</style>

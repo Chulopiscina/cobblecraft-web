@@ -1,0 +1,14 @@
+---
+import Icon from "./Icon.astro";
+---
+<a href="/downloads/CobbleCraft-Launcher-latest.zip" class="btn btn-primary btn-lg launcher-cta" data-launcher-download>
+  <Icon name="descarga" size={20} />
+  <span>Descargar Launcher</span>
+</a>
+<style>
+  .launcher-cta { max-width: 100%; gap: 10px; }
+  .launcher-cta span { white-space: normal; }
+  @media (max-width: 480px) {
+    .launcher-cta { width: 100%; padding-inline: 16px; }
+  }
+</style>

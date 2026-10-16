@@ -8,10 +8,11 @@ import { items } from "../../../data/guide/items";
 import type { ItemCategory } from "../../../data/guide/types";
 import { CATEGORY_LABELS } from "../../../lib/guide-helpers";
 
-const categoryFilters = ["todos", ...Object.keys(CATEGORY_LABELS)] as const;
+// Solo categorías con fichas: sin esto quedaba un filtro "Accesorios" vacío tras retirar el sistema (0.18.11.41).
+const categoryFilters = ["todos", ...Object.keys(CATEGORY_LABELS).filter((cat) => items.some((item) => item.category === cat))] as const;
 ---
 
-<BaseLayout title="Catálogo de Ítems" description="Catálogo visual de los ítems propios de CobbleCraft: accesorios, cofres, llaves, materiales de Slayer, tokens de Liga, equipo de Maestría y más.">
+<BaseLayout title="Catálogo de Ítems" description="Catálogo visual de los ítems propios de CobbleCraft: cofres, llaves, materiales de Slayer, tokens de Liga, equipo de Maestría y más.">
   <PageHero eyebrow="Guía CobbleCraft" title="CATÁLOGO DE ÍTEMS" subtitle={`${items.length} ítems propios de CobbleCraft, verificados contra el estado real del servidor.`} />
 
   <WorldBackdrop>

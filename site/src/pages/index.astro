@@ -1,14 +1,15 @@
 ---
-import { Image, getImage } from "astro:assets";
+import LauncherCta from "../components/LauncherCta.astro";
+import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import FeatureCard from "../components/FeatureCard.astro";
 import ServerStatus from "../components/ServerStatus.astro";
 import Icon from "../components/Icon.astro";
 import HeroPlaque from "../components/HeroPlaque.astro";
+import { publicApiBaseUrl } from "../lib/api-base";
 import { siteConfig } from "@shared/site.config";
+import { enchantFamilies } from "../data/guide/enchantments";
 
-import heroLandscape from "../assets/images/hero-landscape.png";
-import bodyLandscape from "../assets/images/body-landscape.png";
 
 import galleryHub from "../assets/gallery/hub.png";
 import galleryMapaHub from "../assets/gallery/mapa-hub.png";
@@ -18,23 +19,18 @@ import galleryPesca from "../assets/gallery/pesca.png";
 import gallerySlayerGengar from "../assets/gallery/slayer-gengar.png";
 import gallerySlayerSala from "../assets/gallery/slayer-sala.png";
 
-const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
-
-// Envoltorio "ambiente general" (pedido explícito, sección 2) - `background-image: cover` propio
-// vía CSS var, nunca deformada con `100% 100%`. width=1600 es suficiente para el ancho máximo real
-// de un `background-size:cover` de página completa sin cargar el PNG original de varios MB.
-const worldBg = await getImage({ src: bodyLandscape, width: 1920, format: "webp", quality: 68 });
+const apiBaseUrl = publicApiBaseUrl;
 
 const systemSpotlights = [
   { icon: "cristal", title: "Investigaciones", description: "Laboratorio, fósiles, misiones legendarias y Anomalías: rutas reales para Pokémon especiales.", variant: "cyan" },
-  { icon: "pesca", title: "Pesca", description: "Minigame propio con rarezas reales - de común a mítico - que además genera dinero cada vez que pescas.", variant: "cyan" },
-  { icon: "slayer", title: "Cacerías Slayer", description: "4 tiers de Bosses únicos con equipo y recompensas propias - cada victoria paga dinero real.", variant: "gold" },
-  { icon: "medalla", title: "Liga Pokémon", description: "5 entrenadores de Nv.120 a Nv.160 - contenido endgame repetible, cada victoria vuelve a pagar.", variant: "purple" },
+  { icon: "pesca", title: "Pesca", description: "Minijuego propio con rarezas de común a mítico y recompensas en moneda del juego.", variant: "cyan" },
+  { icon: "slayer", title: "Cacerías Slayer", description: "4 tiers de jefes únicos con equipo, materiales y moneda del juego.", variant: "gold" },
+  { icon: "medalla", title: "Liga Pokémon", description: "5 entrenadores de Nv.120 a Nv.160. Puedes repetirlos; el dinero tiene una ventana de 30 minutos por líder.", variant: "purple" },
   { icon: "candado", title: "Claims", description: "Rocas de Protección para proteger tu terreno y tus construcciones frente a otros jugadores.", variant: "cyan" },
-  { icon: "altar", title: "Encantamientos", description: "9 encantamientos propios, Tier I a VI, comprables al Encantador y mejorables en el yunque.", variant: "gold" },
+  { icon: "altar", title: "Encantamientos", description: "14 familias propias de nivel I a VI. Combina libros y mejora el equipo de cada skill.", variant: "gold" },
   { icon: "escudo", title: "Maestría", description: "El equipo endgame real: combina Slayer, Pesca y Liga en 3 sets de progresión propios.", variant: "purple" },
   { icon: "cofre", title: "Cofres", description: "5 cofres con llave propia y probabilidades visibles - dinero, objetos, equipo y futuros cosméticos. Las llaves solo se ganan jugando, nunca se compran.", variant: "gold" },
-  { icon: "accesorio", title: "Accesorios", description: "27 accesorios reales para los 27 espacios de tu Bolsa - colecciónalos todos, cada uno con un pequeño bonus permanente en combate, crítico, cacerías o recolección.", variant: "purple" },
+  { icon: "jefe", title: "Incursiones y Mazmorras", description: "Incursiones en grupo contra jefes colosales y Mazmorras en solitario o en pareja, con recompensas propias.", variant: "purple" },
 ] as const;
 
 const skillCards = [
@@ -43,20 +39,20 @@ const skillCards = [
   { icon: "agricultura", title: "Agricultura", description: "Equipo propio para quien vive de la tierra." },
   { icon: "recoleccion", title: "Recolección", description: "Hachas y armaduras temáticas para explorar los bosques." },
   { icon: "combate", title: "Combate", description: "Progresión de combate propia, con bono de experiencia real." },
-  { icon: "captura", title: "Captura", description: "Suerte de Captura real mediante equipo y amuletos." },
-  { icon: "cria", title: "Cría", description: "Guardería propia para criar a tus Pokémon." },
+  { icon: "captura", title: "Captura", description: "Suerte de Captura mediante armadura y encantamientos compatibles." },
+  { icon: "cria", title: "Cría", description: "Daycare+ y progreso propio al eclosionar tus huevos." },
   { icon: "slayer", title: "Cacerías", description: "Cacerías contra Bosses únicos, con equipo y recompensas propias." },
 ] as const;
 
 const economyCards = [
-  { icon: "moneda", title: "Moneda única", description: "Empiezas con 500 monedas de bienvenida y ganas más jugando." },
+  { icon: "moneda", title: "Moneda única", description: "Empiezas con 500 € de bienvenida y ganas más jugando." },
   { icon: "tienda", title: "Tienda", description: "Vende materiales al servidor a precios controlados." },
   { icon: "mercado", title: "Mercado", description: "Compra y vende directamente entre jugadores." },
   { icon: "coleccion", title: "Mercado Pokémon", description: "Intercambia Pokémon con otros jugadores de forma segura." },
 ] as const;
 
 const progressionSteps = [
-  { title: "Prepárate", description: "Ten localizada la guía y el Launcher para cuando activemos la apertura pública." },
+  { title: "Entra a jugar", description: "Descarga el Launcher oficial: prepara el cliente, los mods y el pack automáticamente." },
   { title: "Survival + Pokémon", description: "Explora el mundo, atrapa Pokémon y monta tu primera base con tu Roca de Protección." },
   { title: "Skills y Pesca", description: "Sube tus 8 Skills jugando de forma natural - la Pesca además te da dinero desde el minuto uno." },
   { title: "Cacerías Slayer", description: "Cuando estés listo, enfréntate a los 4 tiers de Bosses por equipo, dinero y progresión." },
@@ -83,7 +79,7 @@ const faqs = [
   { q: "¿Qué es Slayer?", a: "Un sistema de cacerías contra Bosses Pokémon únicos, repartidos en 4 tiers de dificultad creciente, con equipo y dinero propios como recompensa." },
   { q: "¿Qué es la Liga?", a: "Un recorrido de 5 entrenadores (Nv.120 a Nv.160) pensado como contenido endgame repetible - cada victoria vuelve a pagar, no es solo un logro de una vez." },
   { q: "¿Cómo protejo mi casa?", a: "Con las Rocas de Protección (Claims) - reclaman el terreno a tu alrededor para que otros jugadores no puedan construir ni robar ahí." },
-  { q: "¿Cómo entro en la Beta?", a: "CobbleCraft está preparando su primera Beta. Únete a la comunidad para enterarte en cuanto se abra - no hace falta rellenar ninguna solicitud." },
+  { q: "¿Cómo entro a jugar?", a: "CobbleCraft ya está abierto. Descarga el Launcher oficial, instálalo y pulsa JUGAR. No hace falta instalar mods manualmente; el proyecto sigue recibiendo mejoras." },
   { q: "¿Cómo funciona /vote?", a: "Escribe /vote dentro del servidor y recibirás un enlace personal y seguro para votar por CobbleCraft desde la web. Cada voto ayuda a que más gente descubra el servidor." },
   { q: "¿Qué son los cofres?", a: "5 cofres distintos (Voto, Suministros, Shiny, Cosméticos y Épico), cada uno con su propia llave y sus propias recompensas. El Cofre Shiny entrega un Pokémon siempre shiny. Las probabilidades son visibles dentro del juego." },
   { q: "¿Cómo consigo llaves?", a: "Jugando: votando por el servidor, encontrándolas como drop en el mundo o recibiéndolas en eventos puntuales. No se venden con dinero real." },
@@ -94,7 +90,7 @@ const faqs = [
 
 <BaseLayout title="Inicio">
   <section class="hero hero--photo">
-    <Image src={heroLandscape} alt="" class="hero__bg" widths={[640, 960, 1280, 1920]} sizes="100vw" loading="eager" fetchpriority="high" format="webp" quality={70} />
+    <Image src={galleryHub} alt="" class="hero__bg" widths={[640, 960, 1280, 1920]} sizes="100vw" loading="eager" fetchpriority="high" format="webp" quality={75} />
     <div class="hero__scrim" aria-hidden="true"></div>
     <div class="container">
       <img class="hero__logo" src={siteConfig.logo.path} alt={siteConfig.logo.alt} />
@@ -108,12 +104,13 @@ const faqs = [
         </p>
       </HeroPlaque>
       <p style="max-width:560px; margin:22px auto 0; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.35);">
-        Minecraft Java {siteConfig.minecraft.javaVersion} · Cobblemon {siteConfig.minecraft.cobblemonVersion} · Fabric · Servidor en desarrollo / próxima Beta
+        Minecraft Java {siteConfig.minecraft.javaVersion} · Cobblemon {siteConfig.minecraft.cobblemonVersion} · Fabric · Ya abierto, en evolución constante
       </p>
       <div style="margin: 20px 0;">
         <ServerStatus statusEndpoint={apiBaseUrl} />
       </div>
       <div class="hero__actions">
+        <LauncherCta />
         {siteConfig.links.discord ? (
           <a href={siteConfig.links.discord} class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
             <Icon name="usuario" size={18} />
@@ -136,12 +133,12 @@ const faqs = [
         <div class="stat"><div class="stat__value">8</div><div class="stat__label">Skills reales</div></div>
         <div class="stat"><div class="stat__value">4</div><div class="stat__label">Tiers Slayer</div></div>
         <div class="stat"><div class="stat__value">5</div><div class="stat__label">Entrenadores de Liga</div></div>
-        <div class="stat"><div class="stat__value">9</div><div class="stat__label">Encantamientos propios</div></div>
+        <div class="stat"><div class="stat__value">{enchantFamilies.length}</div><div class="stat__label">Encantamientos propios</div></div>
       </div>
     </div>
   </section>
 
-  <div class="world-bg" style={`--world-bg-image: url(${worldBg.src})`}>
+  <div class="world-bg">
     <div class="divider"><span class="divider__glyph"></span></div>
 
     <section class="section" id="que-es">
@@ -152,8 +149,7 @@ const faqs = [
           <p>
             CobbleCraft es un servidor de supervivencia sobre Cobblemon: exploras, capturas y luchas con
             Pokémon como en cualquier survival, pero cada sistema (Skills, dinero, equipo, Slayer, Liga)
-            está construido a medida para que progresar tenga sentido a largo plazo - nada de vaciarse en
-            una semana.
+            está construido a medida para conectar la aventura, los recursos y los retos de final de juego.
           </p>
         </div>
       </div>
@@ -164,7 +160,7 @@ const faqs = [
         <div class="section-head section-head--center">
           <span class="eyebrow" style="justify-content:center;">Características</span>
           <h2>Sistemas principales</h2>
-          <p>Todo lo que ves aquí existe de verdad en el servidor - nada de promesas sin jugar.</p>
+          <p>Conoce las actividades y rutas de progresión del servidor.</p>
         </div>
         <div class="grid grid--3">
           {systemSpotlights.map((c) => <FeatureCard {...c} />)}
@@ -215,7 +211,7 @@ const faqs = [
           <span class="eyebrow" style="justify-content:center;">Economía</span>
           <h2>Una economía viva</h2>
           <p>
-            Todo jugador nuevo empieza con 500 monedas de bienvenida. A partir de ahí, ganas más pescando,
+            Todo jugador nuevo empieza con 500 € de bienvenida. A partir de ahí, ganas más pescando,
             capturando Pokémon, derrotando Bosses Slayer y venciendo a los entrenadores de la Liga - y
             puedes comerciar directamente con otros jugadores en el Mercado.
           </p>
@@ -258,13 +254,13 @@ const faqs = [
   <section class="section" style="text-align:center;">
     <div class="container" style="max-width:560px;">
       <span class="eyebrow" style="justify-content:center;">Comunidad</span>
-      <h2>CobbleCraft está preparando su primera Beta</h2>
+      <h2>Tu próxima aventura empieza aquí</h2>
       <p>
         {siteConfig.links.discord
-          ? "Únete a la comunidad en Discord para seguir el desarrollo y enterarte en cuanto se abra la Beta."
+          ? "CobbleCraft ya está abierto. Comparte tu aventura, resuelve dudas y sigue las próximas novedades en Discord."
           : "Todavía no tenemos un canal de comunidad público - vuelve pronto para unirte y seguir el desarrollo."}
       </p>
-      <p style="opacity:0.75; font-size:0.9rem;">Sin fecha cerrada todavía. Sin P2W.</p>
+      <p style="opacity:0.75; font-size:0.9rem;">Progresión jugando. Cosméticos sin ventajas de combate.</p>
       <div class="hero__actions" style="margin-top:8px;">
         {siteConfig.links.discord ? (
           <a href={siteConfig.links.discord} class="btn btn-primary" target="_blank" rel="noopener noreferrer">Únete a la comunidad</a>
@@ -303,6 +299,16 @@ const faqs = [
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .hero--photo { padding: 88px 0 48px; }
+  @media (max-width: 480px) {
+    .hero--photo { padding: 24px 0; }
+    .hero__logo { width: 64px; height: 64px; margin-bottom: 12px; }
+    .hero__actions { gap: 10px; margin-top: 16px; }
+    .hero__actions :global(.btn-lg) { font-size: 0.9rem; min-height: 44px; padding: 12px 16px; }
+  }
+</style>
 
 <script>
   const items = document.querySelectorAll<HTMLButtonElement>("[data-gallery-open]");

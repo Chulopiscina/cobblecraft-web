@@ -8,8 +8,12 @@
  * `compact` (menos padding, sin logo/animación) pensado para cabeceras de página interior.
  */
 import { Image } from "astro:assets";
-import HeroPlaque from "./HeroPlaque.astro";
 import heroLandscape from "../assets/images/hero-landscape.png";
+import hub from "../assets/gallery/hub.png";
+import fishing from "../assets/gallery/pesca.png";
+import league from "../assets/gallery/liga.png";
+import slayer from "../assets/gallery/slayer-gengar.png";
+import mastery from "../assets/gallery/maestria.png";
 
 interface Props {
   eyebrow?: string;
@@ -18,25 +22,31 @@ interface Props {
   compact?: boolean;
 }
 const { eyebrow, title, subtitle, compact = true } = Astro.props;
+const scene = title.includes("PESCA") ? fishing : title.includes("LIGA") ? league : title.includes("SLAYER") ? slayer : title.includes("MAESTRÍA") ? mastery : title.includes("GUÍA") || title.includes("COBBLECRAFT") || title.includes("PASOS") ? hub : heroLandscape;
 ---
 
 <section class={compact ? "hero hero--photo hero--compact" : "hero hero--photo"}>
-  <Image src={heroLandscape} alt="" class="hero__bg" widths={[640, 960, 1280, 1920]} sizes="100vw" loading="eager" fetchpriority="high" format="webp" quality={70} />
+  <Image src={scene} alt="" class="hero__bg" widths={[640, 960, 1280, 1920]} sizes="100vw" loading="eager" fetchpriority="high" format="webp" quality={70} />
   <div class="hero__scrim" aria-hidden="true"></div>
   <div class="container">
     <slot name="before" />
-    <HeroPlaque size={compact ? "sm" : "md"}>
+    <div class="page-heading">
       {eyebrow && <span class="eyebrow">{eyebrow}</span>}
       <slot name="badge" />
-      <h1><span class="text-gradient-gold">{title}</span></h1>
-      {subtitle && <p style="font-size:1.05rem; max-width:560px; margin:10px auto 0; color:var(--text);">{subtitle}</p>}
-    </HeroPlaque>
+      <h1>{title}</h1>
+      {subtitle && <p>{subtitle}</p>}
+    </div>
     <slot />
   </div>
 </section>
 
 <style>
   .hero--compact {
-    padding: 76px 0 56px;
+    padding: 74px 0 58px;
   }
+  .page-heading { max-width:830px;margin:auto;color:#fff; }
+  .page-heading h1 { color:#fff;font-size:32px;line-height:1.2;margin:12px 0;letter-spacing:0;overflow-wrap:anywhere;text-shadow:0 2px 8px #0008; }
+  .page-heading p { max-width:660px;margin:12px auto 0;color:#eef6fa;font-size:16px;text-shadow:0 1px 4px #000; }
+  .page-heading .eyebrow { color:#b5f7f2; }
+  @media(max-width:600px) { .page-heading h1 { font-size:25px; } .hero--compact { padding:52px 0 44px; } }
 </style>

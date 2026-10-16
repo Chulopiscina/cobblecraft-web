@@ -5,6 +5,7 @@ import WorldBackdrop from "../../../components/WorldBackdrop.astro";
 import Breadcrumbs from "../../../components/Breadcrumbs.astro";
 import Icon from "../../../components/Icon.astro";
 import { marketInfo } from "../../../data/guide/market";
+import { euros } from "../../../lib/money";
 ---
 
 <BaseLayout title="Mercado" description="Compra y vende con otros jugadores en el Mercado de CobbleCraft: listados, comisiones y límites reales.">
@@ -14,6 +15,8 @@ import { marketInfo } from "../../../data/guide/market";
     <section class="section">
       <div class="container" style="max-width:760px;">
         <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Mercado" }]} />
+        <p>Abre Mercado desde el menú del servidor. Objetos y Pokémon tienen buscador, sugerencias, últimas búsquedas y favoritos. Puedes ordenar por precio o recientes; los Pokémon también por nivel e IV total. La ficha incluye vendedor, IVs/EVs y movimientos.</p>
+        <p>Los Pokémon listados salen realmente de tu equipo. Entregas, devoluciones y productos pendientes se consultan en el buzón; «Reclamar todo» recoge lo que pueda entregarse. Los Pokémon con skin pueden comerciarse conservando su apariencia permanente.</p>
 
         <div class="card" style="margin-bottom:22px;">
           <p style="margin:0 0 10px;">
@@ -22,7 +25,7 @@ import { marketInfo } from "../../../data/guide/market";
           </p>
           <p style="margin:0;">
             Cada listado dura <strong>{marketInfo.listingDurationHours} horas</strong>. Al listar se cobra
-            una comisión fija de <strong>{marketInfo.listingFeeFlat} monedas</strong> más un{" "}
+            una comisión fija de <strong>{euros(marketInfo.listingFeeFlat)}</strong> más un{" "}
             <strong>{marketInfo.listingFeePercent}%</strong> del precio, y al venderse se aplica además un
             impuesto de venta del <strong>{marketInfo.salesTaxPercent}%</strong> (
             {marketInfo.pokemonSalesTaxPercent}% también para Pokémon).

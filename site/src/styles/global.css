@@ -7,15 +7,15 @@
    sin cambios: Orbitron (display/voxel), Baloo 2 (acento puntual), Inter (cuerpo). */
 
 :root {
-  --bg: #f6fbf1;
+  --bg: #f7f9fc;
   --bg-elevated: #ffffff;
   --bg-card: #ffffff;
-  --bg-card-hover: #fbfff4;
-  --bg-soft: #eef6e4;
-  --border: #dbe9cd;
-  --border-soft: #e8f1de;
-  --text: #21301c;
-  --text-muted: #5c6b53;
+  --bg-card-hover: #f5fafb;
+  --bg-soft: #edf3f5;
+  --border: #dce5ea;
+  --border-soft: #e9eff2;
+  --text: #19313e;
+  --text-muted: #536775;
 
   --gold: #d4af37;
   --gold-soft: #f0c860;
@@ -48,8 +48,8 @@
   --success: #2f9e52;
   --success-bg: #e4f6e6;
 
-  --radius: 16px;
-  --radius-sm: 10px;
+  --radius: 8px;
+  --radius-sm: 6px;
   --max-width: 1160px;
 
   --font-display: "Orbitron", "Rajdhani", system-ui, sans-serif;
@@ -149,16 +149,20 @@ h3 {
   margin: 0 0 0.5em;
   font-family: var(--font-display);
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   color: var(--text);
 }
 
 h1 {
-  font-size: clamp(2.1rem, 5.4vw, 3.6rem);
-  letter-spacing: 0.005em;
+  font-size: 48px;
+  letter-spacing: 0;
 }
 h2 {
-  font-size: clamp(1.5rem, 3.4vw, 2.15rem);
+  font-size: 30px;
+}
+@media (max-width: 600px) {
+  h1 { font-size: 28px; }
+  h2 { font-size: 24px; }
 }
 h3 {
   font-family: var(--font-body);
@@ -1036,7 +1040,7 @@ table.plain th {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(180deg, rgba(15, 25, 10, 0.28) 0%, rgba(15, 25, 10, 0.06) 42%, var(--bg) 100%);
+  background: rgba(6, 22, 31, 0.58);
 }
 
 /* Envoltorio con la imagen vertical de fondo (real, "ambiente general" del mundo) detrás de las
@@ -1053,17 +1057,10 @@ table.plain th {
    partes de la foto a medida que se hace scroll - el efecto de "profundidad" real que se buscaba. */
 .world-bg {
   position: relative;
-  background-image: var(--world-bg-image);
-  background-size: cover;
-  background-position: top center;
-  background-repeat: no-repeat;
+  background: var(--bg);
 }
 .world-bg::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, var(--bg) 0%, rgba(246, 251, 241, 0.2) 10%, rgba(246, 251, 241, 0.2) 90%, var(--bg) 100%);
-  pointer-events: none;
+  content: none;
 }
 .world-bg > * {
   position: relative;
@@ -1071,16 +1068,13 @@ table.plain th {
 /* Texto que cae directamente sobre la foto (fuera de una `.card` ya opaca) necesita su propio
    respaldo de legibilidad - mismo criterio que `.hero-plaque`, aquí más discreto (sin marco). */
 .world-bg .section-head {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.74);
-  backdrop-filter: blur(6px);
-  border-radius: var(--radius);
-  padding: 18px 26px;
+  background: none;
+  padding: 0;
 }
 .world-bg .section-head--center {
   display: block;
-  width: fit-content;
-  max-width: min(640px, 92%);
+  max-width: 740px;
+  margin-inline: auto;
 }
 
 /* ---- Galería real (capturas del servidor) ---- */

@@ -24,11 +24,11 @@ export const researchHighlights: ResearchHighlight[] = [
   },
   {
     title: "Laboratorio",
-    summary: "Proyectos repetibles para Mewtwo, Genesect y Type: Null.",
+    summary: "Proyectos repetibles para Mewtwo y Genesect con el Científico.",
     details: [
       "Mewtwo: 3 Estrellas del Nether, 5 Gemas Psíquicas y 1 Bloque de Diamante.",
       "Genesect: 1 Dome Fossil, 1 Disco Extraño y 3 Fragmentos de Netherita.",
-      "Type: Null: 1 Mejora, 1 Casco de Netherita y 4 Bloques de Hierro."
+      "Type: Null está retirado del Científico; no existe ese proyecto de laboratorio. Silvally conserva su misión del Cronista."
     ]
   },
   {
@@ -43,7 +43,7 @@ export const researchHighlights: ResearchHighlight[] = [
   },
   {
     title: "Cronista de Leyendas",
-    summary: "misiónes reales para Legendarios y Miticos.",
+    summary: "Misiones reales para legendarios y míticos.",
     details: [
       "Cada misión tiene objetivos y tier propio.",
       "El encuentro se desbloquea tras completar la misión.",
@@ -52,10 +52,10 @@ export const researchHighlights: ResearchHighlight[] = [
   },
   {
     title: "Explorador de Anomalías",
-    summary: "misiónes reales para Ultraentes y Necrozma tras retirar Ultra Space del servidor.",
+    summary: "Misiones reales para Ultraentes y Necrozma tras retirar Ultra Space del servidor.",
     details: [
       "Ultra Space fue eliminado definitivamente: ya no hay dimension paralela que explorar.",
-      "Nihilego, Buzzwole, Pheromosa, Xurkitree, Celesteela, Kartana, Guzzlord, Poipole, Stakataka y Blacephalon usan misiónes.",
+      "Nihilego, Buzzwole, Pheromosa, Xurkitree, Celesteela, Kartana, Guzzlord, Poipole, Stakataka y Blacephalon usan misiones.",
       "Necrozma es la misión mas exigente del Explorador de Anomalías."
     ]
   }
@@ -79,21 +79,21 @@ export const researchPokémonRoutes: ResearchPokémonRoute[] = [
   {
     name: "Type: Null",
     category: "Laboratorio",
-    status: "Disponible",
-    route: "Proyecto de Laboratorio de contencion.",
-    requirements: "Mejora, Casco de Netherita y Bloques de Hierro."
+    status: "Reservado",
+    route: "Retirado del Científico. No se ofrece como proyecto ni recompensa de Laboratorio.",
+    requirements: "Los ejemplares ya obtenidos no se borran. Silvally tiene su propia ruta de misión."
   },
   {
     name: "Legendarios y Miticos",
     category: "Cronista de Leyendas",
     status: "Disponible",
-    route: "misiónes por tiers con objetivos y encuentro capturable al completarlas."
+    route: "Misiones por tiers con objetivos y encuentro capturable al completarlas."
   },
   {
     name: "Ultraentes",
     category: "Explorador de Anomalías",
     status: "Disponible",
-    route: "misiónes independientes por Ultraente; Naganadel evoluciona desde Poipole con Pulso Dragon."
+    route: "Misiones independientes por Ultraente; Naganadel evoluciona desde Poipole con Pulso Dragón."
   },
   {
     name: "Necrozma",

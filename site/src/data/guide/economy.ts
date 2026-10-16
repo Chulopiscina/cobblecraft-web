@@ -5,8 +5,8 @@ export const economyInfo = {
   sources: [
     { name: "Pesca", description: "Dinero por cada pescada, más si la rareza es mayor." },
     { name: "Captura Pokémon", description: "Dinero por cada Pokémon salvaje capturado, más si es más raro." },
-    { name: "Cacerías (Slayer)", description: "Dinero al completar una Cacería con éxito (150 a 1200 según el tier)." },
-    { name: "Liga Pokémon", description: "Dinero al derrotar a un entrenador de Liga (300 a 1500 según el entrenador), repetible." },
+    { name: "Cacerías (Slayer)", description: "Dinero al completar una Cacería con éxito (300 € a 2.900 € según el tier; el contrato del Maestro cuesta 150 € a 2.000 €)." },
+    { name: "Liga Pokémon", description: "Dinero al derrotar a un entrenador de Liga (100 € a 300 € según el entrenador); el dinero se cobra como mucho una vez cada 30 min por líder." },
     { name: "Cofres", description: "Algunos premios de cofre incluyen dinero." },
   ],
   sinks: [

@@ -5,10 +5,12 @@ import WorldBackdrop from "../../../components/WorldBackdrop.astro";
 import Breadcrumbs from "../../../components/Breadcrumbs.astro";
 import Icon from "../../../components/Icon.astro";
 import { enchantFamilies } from "../../../data/guide/enchantments";
+import { euros } from "../../../lib/money";
+import FortuneExplainer from "../../../components/FortuneExplainer.astro";
 ---
 
-<BaseLayout title="Encantamientos" description="Las 9 familias reales de Encantamientos custom de CobbleCraft, de Nivel I a VI, con precios reales del Encantador.">
-  <PageHero eyebrow="Guía CobbleCraft" title="ENCANTAMIENTOS" subtitle="9 familias reales, Nivel I a VI." />
+<BaseLayout title="Encantamientos" description="Las 14 familias custom, niveles I–VI, compatibilidades y porcentajes explicados con ejemplos.">
+  <PageHero eyebrow="Guía CobbleCraft" title="ENCANTAMIENTOS" subtitle="14 familias · Nivel I a VI · Cada bonus, explicado." />
 
   <WorldBackdrop>
     <section class="section">
@@ -22,14 +24,18 @@ import { enchantFamilies } from "../../../data/guide/enchantments";
           </p>
         </div>
 
+        <FortuneExplainer />
+
         <div class="enchant-grid">
           {enchantFamilies.map((f) => (
             <div class="card enchant-card" id={f.id}>
               <div class="icon-tile icon-tile--purple"><Icon name="libro" /></div>
               <h2>{f.name}</h2>
               <p>{f.effect}</p>
+              <p><strong>Compatible:</strong> {f.appliesTo}</p>
+              <ol class="enchant-levels" aria-label={`Valores por nivel de ${f.name}`}>{f.tiers?.map((value,index)=><li><span>{["I","II","III","IV","V","VI"][index]}</span><strong>{value}</strong></li>)}</ol>
               <div class="enchant-card__foot">
-                <span class="badge badge--gold">Tier I: {f.tier1Price} monedas</span>
+                <span class="badge badge--gold">Tier I: {euros(f.tier1Price)}</span>
                 {f.itemSlug && <a href={`/guia/items/${f.itemSlug}`}>Ver ítem →</a>}
               </div>
             </div>
@@ -67,4 +73,10 @@ import { enchantFamilies } from "../../../data/guide/enchantments";
     font-weight: 600;
     font-size: 0.88rem;
   }
+</style>
+<style>
+  .enchant-levels { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;list-style:none;margin:16px 0;padding:0;border-top:1px solid var(--border); }
+  .enchant-levels li { padding:9px 4px;display:grid;gap:2px;font-size:13px; }
+  .enchant-levels span { color:var(--text-muted);font-size:11px; }
+  .enchant-levels strong { color:var(--cyan-ink); }
 </style>

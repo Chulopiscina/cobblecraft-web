@@ -5,6 +5,7 @@ import WorldBackdrop from "../../../components/WorldBackdrop.astro";
 import Breadcrumbs from "../../../components/Breadcrumbs.astro";
 import Icon from "../../../components/Icon.astro";
 import { skills } from "../../../data/guide/skills";
+import FortuneExplainer from "../../../components/FortuneExplainer.astro";
 ---
 
 <BaseLayout title="Skills" description="Las 8 Skills reales de CobbleCraft: cómo se sube cada una y qué desbloquean.">
@@ -14,6 +15,8 @@ import { skills } from "../../../data/guide/skills";
     <section class="section">
       <div class="container">
         <Breadcrumbs items={[{ label: "Guía", href: "/guia" }, { label: "Skills" }]} />
+        <FortuneExplainer />
+        <p>La fórmula de extras corresponde a Minería, Agricultura y Recolección. Pesca usa puntos de suerte para sus rarezas; Captura usa un multiplicador de tasa, y Combate/Cría/Slayer tienen sus propias recompensas. No todos los porcentajes significan lo mismo.</p>
 
         <div class="skill-grid">
           {skills.map((s) => (

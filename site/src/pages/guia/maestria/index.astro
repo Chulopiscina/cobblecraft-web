@@ -37,9 +37,10 @@ import { getRecipe } from "../../../data/guide/recipes";
               <div class="mastery-tier__stats">
                 <div><span>Nivel Cazador (Slayer) requerido</span><strong>{tier.requiredSlayerLevel}</strong></div>
                 <div><span>Nivel Pesca requerido</span><strong>{tier.requiredFishingLevel}</strong></div>
-                <div><span>Bono de set (4 piezas) - EV Ataque</span><strong>+{tier.fourPieceAttackEv}</strong></div>
-                <div><span>Bono de set (4 piezas) - EV Defensa</span><strong>+{tier.fourPieceDefenceEv}</strong></div>
+                <div><span>Ataque / Ataque Especial (4 piezas)</span><strong>+{tier.fourPieceAttackEv} puntos efectivos</strong></div>
+                <div><span>Defensa / Defensa Especial (4 piezas)</span><strong>+{tier.fourPieceDefenceEv} puntos efectivos</strong></div>
               </div>
+        <p>Los bonus se calculan al comenzar cada combate, sin escribir IVs ni EVs permanentes. El motor actual limita la suma efectiva de set, equipo y libros a +64 por estadística: los valores de configuración de Maestría II/III pueden superar ese límite. Velocidad usa su propia conversión. No es la fórmula de Fortuna ni un porcentaje de drops.</p>
 
               {recipe && (
                 <>

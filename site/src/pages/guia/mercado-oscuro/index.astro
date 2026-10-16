@@ -1,0 +1,37 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import { darkVariants } from "../../../data/guide/dark-market";
+const stats=["PS","ATQ","DEF","ATQ ESP","DEF ESP","VEL"];
+---
+<BaseLayout title="Mercado Oscuro" description="Contratos de fin de semana, variantes oscuras fijas y caducidad: Gengar, Absol y Electivire.">
+  <PageHero eyebrow="Guía CobbleCraft" title="MERCADO OSCURO" subtitle="Un fin de semana. Un contrato. Una variante especial." />
+  <section class="section"><div class="container">
+    <Breadcrumbs items={[{label:"Guía",href:"/guia"},{label:"Mercado Oscuro"}]} />
+    <div class="market-intro"><div><h2>De sábado a domingo</h2><p>El Mercader aparece en el Hub desde el sábado a las 00:00 hasta terminar el domingo a las 23:59, según <strong>Europe/Madrid</strong>. Cada edición ofrece una sola variante elegida entre las habilitadas: la misma para todo el servidor, incluso tras reiniciar.</p></div><div><h2>Reclama antes de que se marche</h2><p>Acepta un contrato, completa todos sus objetivos y vuelve al NPC a reclamar. El Pokémon va al equipo o, si está lleno, al PC. Al cerrar caduca todo el progreso, <strong>también una recompensa completada que no hayas reclamado</strong>.</p></div></div>
+    <p>En <strong>Menú → Misiones</strong> puedes consultar los objetivos completos y seguir hasta tres misiones en el HUD. Seguir o dejar de seguir no cancela un contrato. El tiempo restante es el del servidor.</p>
+    <div class="dark-variants">{darkVariants.map(v=><article class="card"><img src={`/images/dark-market/${v.species}.png`} width="360" height="360" loading="lazy" alt={v.name} /><div class="dark-variant__body"><h2>{v.name}</h2><p>Nv.{v.level} · {v.nature} · {v.ability}</p><ul>{v.goals.map(goal=><li>{goal}</li>)}</ul><div class="stats-scroll"><table><caption>Estadísticas base: normal → oscuro</caption><thead><tr>{stats.map(s=><th scope="col">{s}</th>)}</tr></thead><tbody><tr>{v.dark.map((s,i)=><td>{v.normal[i]} → <strong>{s}</strong></td>)}</tr></tbody></table></div><p class="ivs">IVs fijos: {v.ivs.join(" / ")} · EVs iniciales: 0.</p></div></article>)}</div>
+    <p>La plantilla de cada especie fija IVs, naturaleza, habilidad, nivel y movimientos. Los UUID y propietarios son distintos, pero no se sortean sus atributos. Las formas oscuras no pueden criar ni transmitir su condición. No emplean multiplicadores de daño por golpe: Cobblemon calcula sus stats de forma nativa y Maestría se suma por su mecanismo habitual.</p>
+    <p>Metagross y Garchomp permanecen fuera de la rotación. Los ejemplares antiguos no se eliminan.</p>
+  </div></section>
+</BaseLayout>
+<style>
+  .market-intro { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px;margin-bottom:26px; }
+  .market-intro h2 { font-size:23px; }
+  .market-intro p { color:var(--text-muted);font-size:15px; }
+  .dark-variants { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:30px 0; }
+  .dark-variants article { padding:0;overflow:hidden; }
+  .dark-variants img { display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain; }
+  .dark-variant__body { padding:20px; }
+  .dark-variant__body h2 { font-size:20px;margin:0; }
+  .dark-variant__body p,.dark-variant__body li { font-size:13px; }
+  .dark-variant__body ul { padding-left:18px;min-height:90px; }
+  .stats-scroll { overflow-x:auto; }
+  table { width:100%;border-collapse:collapse;font-size:11px;text-align:left; }
+  caption { text-align:left;margin-bottom:8px;color:var(--text-muted); }
+  th,td { padding:7px 3px;border-bottom:1px solid var(--border);white-space:nowrap; }
+  .ivs { color:var(--text-muted);font-size:12px; }
+  @media(max-width:900px) { .dark-variants { grid-template-columns:minmax(0,1fr); } .dark-variants article { display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); } }
+  @media(max-width:600px) { .market-intro { grid-template-columns:minmax(0,1fr);gap:12px; } .dark-variants article { display:block; } }
+</style>

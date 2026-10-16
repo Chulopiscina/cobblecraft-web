@@ -3,8 +3,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PageHero from "../components/PageHero.astro";
 import WorldBackdrop from "../components/WorldBackdrop.astro";
 import Icon from "../components/Icon.astro";
+import { publicApiBaseUrl } from "../lib/api-base";
 
-const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+const apiBaseUrl = publicApiBaseUrl;
 ---
 
 <BaseLayout title="Votar" description="Vota por CobbleCraft y ayuda a que más gente descubra el servidor.">

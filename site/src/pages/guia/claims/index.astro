@@ -5,6 +5,7 @@ import WorldBackdrop from "../../../components/WorldBackdrop.astro";
 import Breadcrumbs from "../../../components/Breadcrumbs.astro";
 import Icon from "../../../components/Icon.astro";
 import { claimTiers, protectionRocks } from "../../../data/guide/claims";
+import { euros } from "../../../lib/money";
 ---
 
 <BaseLayout title="Claims" description="Protege tu terreno en CobbleCraft: cómo crece tu límite de chunks con tus Skills y las Rocas de Protección del Topógrafo.">
@@ -59,7 +60,7 @@ import { claimTiers, protectionRocks } from "../../../data/guide/claims";
               <div class="icon-tile"><Icon name="escudo" /></div>
               <h3>{rock.name}</h3>
               <p>{rock.sideBlocks}x{rock.sideBlocks} bloques</p>
-              <span class="badge badge--gold">{rock.price} monedas</span>
+              <span class="badge badge--gold">{euros(rock.price)}</span>
             </div>
           ))}
         </div>

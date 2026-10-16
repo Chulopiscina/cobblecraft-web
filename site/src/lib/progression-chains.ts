@@ -7,6 +7,7 @@ import { crates } from "../data/guide/crates";
 import { protectionRocks } from "../data/guide/claims";
 import { enchantFamilies } from "../data/guide/enchantments";
 import { CATEGORY_LABELS } from "./guide-helpers";
+import { euros } from "./money";
 
 /**
  * Motor de "cadenas de progresión" del Atlas de Objetos (`/guia/objetos`) y de la sección
@@ -122,7 +123,7 @@ export function buildClaimsChain(): ChainNode[] {
     textNode("Topógrafo (NPC del Hub)", "Vende las Rocas de Protección a cambio de dinero del servidor.", "/guia/claims"),
   ];
   for (const rock of protectionRocks) {
-    nodes.push(textNode(rock.name, `Protege un área de ${rock.sideBlocks}x${rock.sideBlocks} bloques - ${rock.price} monedas.`, "/guia/claims"));
+    nodes.push(textNode(rock.name, `Protege un área de ${rock.sideBlocks}x${rock.sideBlocks} bloques - ${euros(rock.price)}.`, "/guia/claims"));
   }
   nodes.push(textNode("Terreno protegido", "Bloques y construcciones a salvo de otros jugadores dentro del área.", "/guia/claims"));
   return nodes;
@@ -137,7 +138,7 @@ export function buildEnchantChain(familyId: string): ChainNode[] | null {
   const item = getItem(family.itemSlug);
   if (!item) return null;
   return [
-    textNode("Encantador (Hub)", `Tier I por ${family.tier1Price} monedas.`, "/guia/encantamientos"),
+    textNode("Encantador (Hub)", `Tier I por ${euros(family.tier1Price)}.`, "/guia/encantamientos"),
     itemNode(item),
     textNode("Yunque", "Combina 2 copias del mismo tier para subir de nivel, hasta Tier VI.", "/guia/encantamientos"),
   ];

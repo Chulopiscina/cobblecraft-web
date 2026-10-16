@@ -4,8 +4,9 @@ import FeatureCard from "../components/FeatureCard.astro";
 import ServerStatus from "../components/ServerStatus.astro";
 import PageHero from "../components/PageHero.astro";
 import WorldBackdrop from "../components/WorldBackdrop.astro";
+import { publicApiBaseUrl } from "../lib/api-base";
 
-const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL ?? "";
+const apiBaseUrl = publicApiBaseUrl;
 
 const systems = [
   { icon: "cristal", title: "Investigaciones Pokémon", description: "Laboratorio, fósiles, Cronista de Leyendas, Explorador de Anomalías y rutas especiales reales.", variant: "cyan" },
@@ -15,14 +16,14 @@ const systems = [
   { icon: "pesca", title: "Pesca", description: "Sistema de pesca completo con cañas, armaduras y materiales exclusivos.", variant: "cyan" },
   { icon: "medalla", title: "Liga Pokémon", description: "5 entrenadores de Nv.120 a Nv.160 - contenido endgame repetible.", variant: "gold" },
   { icon: "candado", title: "Claims", description: "Rocas de Protección para proteger tu terreno frente a otros jugadores.", variant: "cyan" },
-  { icon: "jefe", title: "Jefes Mundiales", description: "Jefes especiales del mundo con objetos únicos como recompensa.", variant: "gold" },
+  { icon: "jefe", title: "Jefes Mundiales", description: "Jefes especiales del mundo: quien los derrota gana Marcas Alfa, dinero y XP de Combate.", variant: "gold" },
   { icon: "moneda", title: "Economía", description: "Moneda única del servidor con auditoría real de cada transacción.", variant: "cyan" },
   { icon: "mercado", title: "Mercado", description: "Compra y vende objetos y Pokémon directamente entre jugadores.", variant: "gold" },
   { icon: "escudo", title: "Maestría", description: "El equipo endgame real: combina Slayer, Pesca y Liga en 3 sets propios.", variant: "cyan" },
-  { icon: "altar", title: "Encantamientos personalizados", description: "9 encantamientos propios Tier I-VI, comprables al Encantador y mejorables en el yunque.", variant: "gold" },
-  { icon: "paleta", title: "Skins y Cosméticos", description: "Sistema de personalización visual en desarrollo activo.", variant: "cyan" },
+  { icon: "altar", title: "Encantamientos personalizados", description: "14 familias propias Tier I–VI con compatibilidades y bonus específicos.", variant: "gold" },
+  { icon: "paleta", title: "Skins y Cosméticos", description: "Trajes completos, aspectos Pokémon permanentes y títulos desde el menú Cosméticos.", variant: "cyan" },
   { icon: "cofre", title: "Cofres", description: "5 cofres con llave propia y probabilidades visibles - dinero, objetos, equipo y futuros cosméticos. Las llaves solo se ganan jugando, nunca se compran.", variant: "gold" },
-  { icon: "accesorio", title: "Accesorios", description: "27 accesorios reales, 27 espacios en la Bolsa - colecciónalos todos y cada uno aplica su efecto automáticamente. Se consiguen crafteando con materiales reales y son comerciables entre jugadores.", variant: "cyan" },
+  { icon: "jefe", title: "Incursiones y Mazmorras", description: "Incursiones en grupo contra jefes colosales y Mazmorras en solitario o en pareja, con recompensas propias.", variant: "cyan" },
 ] as const;
 ---
 

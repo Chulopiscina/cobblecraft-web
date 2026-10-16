@@ -2,6 +2,7 @@ import { items } from "../data/guide/items";
 import { recipes } from "../data/guide/recipes";
 import { categories } from "../data/guide/categories";
 import { crates } from "../data/guide/crates";
+const normalize = (value:string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 export interface SearchHit {
   kind: string;
@@ -44,7 +45,7 @@ const index: SearchHit[] = [
 ];
 
 export function searchGuide(query: string): SearchHit[] {
-  const q = query.trim().toLowerCase();
+  const q = normalize(query.trim());
   if (q.length < 2) return [];
-  return index.filter((entry) => entry.haystack.includes(q));
+  return index.filter((entry) => normalize(entry.haystack).includes(q));
 }
