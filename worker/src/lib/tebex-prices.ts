@@ -7,6 +7,7 @@ import type { Env } from "../types";
 
 const mapping = TebexPackageConfigSchema.parse(rawMapping);
 const pending = new Map<string,Promise<StorePrice>>();
+let lastFailureLog = 0;
 const Package = z.object({id:z.coerce.string(),base_price:z.coerce.number().finite().nonnegative(),
   currency:z.string().regex(/^[A-Z]{3}$/),type:z.enum(["single","subscription","both"]),disabled:z.boolean().optional()});
 
@@ -17,7 +18,7 @@ export async function getTebexPrice(env: Env, product: Product, fresh = false): 
     available:false,priceCents:null,currency:null,billing:null,disabled:null,checkedAt:Date.now(),expiresAt:Date.now()+30000,reason});
   if (!token || !packageId) return unavailable("credentials_missing");
   const digest = await crypto.subtle.digest("SHA-256",new TextEncoder().encode(`${token}:${mapping.version}:${packageId}:${product.currency}`));
-  const key = `https://prices.cobblecraft.invalid/v1/${Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("")}`;
+  const key = `https://prices.cobblecraft.invalid/v2/${Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("")}`;
   const cache = typeof caches === "undefined" ? undefined : caches.default;
   if (!fresh && cache) {
     try {
@@ -47,7 +48,14 @@ export async function getTebexPrice(env: Env, product: Product, fresh = false): 
         result = {productId:product.productId,packageId,source:"tebex",available:true,priceCents:Math.round(p.base_price*100),
           currency:p.currency,billing:p.type==="single"?"one_time":p.type,disabled:p.disabled??null,checkedAt:now,expiresAt:now+120000};
       }
-    } catch { result={...unavailable("upstream_unavailable"),...(upstreamStatus?{upstreamStatus}:{})}; }
+    } catch (error) {
+      result={...unavailable("upstream_unavailable"),...(upstreamStatus?{upstreamStatus}:{})};
+      if (Date.now()-lastFailureLog>60000) {
+        lastFailureLog=Date.now();
+        const detail=error instanceof Error?`${error.name}: ${error.message}`:"network failure";
+        console.warn("TEBEX_PRICE_SYNC",detail.replaceAll(token,"[REDACTADO]").replace(/https?:\/\/\S+/g,"[URL]").slice(0,160));
+      }
+    }
     if (cache) try {
       await cache.put(key,Response.json(result,{headers:{"Cache-Control":`public,max-age=${result.available?120:30}`}}));
     } catch { /* Cache writes are optional; never log upstream URLs or credentials. */ }
