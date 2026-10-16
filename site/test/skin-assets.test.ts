@@ -7,6 +7,13 @@ import products from "../../store/catalog.json";
 
 const web = resolve(import.meta.dirname,"../..");
 describe("real skin previews",()=>{
+  it("uses real game animation frames for the four ceremonial Pokemon, not a collapsed bind pose",()=>{
+    for(const [name,animation] of [["gyarados-celestial","battle_idle"],["crobat-prisma","air_idle"],["arcanine-solar","ground_idle"],["luxray-emperador","ground_idle"]]) {
+      const mesh=JSON.parse(readFileSync(resolve(web,"site/public/models/skins",name+".json"),"utf8"));
+      expect(mesh.pose.animation).toMatch(new RegExp(`^animation\\..+\\.${animation}$`));
+      expect(mesh.pose.source).toContain("/animations/");
+    }
+  });
   for(const skin of skins.skins) it(`${skin.title} has complete source-matching geometry, textures and a visible fallback`,()=>{
     expect(products.products.some(p=>p.productId===skin.productId&&p.category==="skins")).toBe(true);
     for(const path of [skin.model,skin.texture,skin.glow,skin.fallback])expect(existsSync(resolve(web,"site/public"+path))).toBe(true);

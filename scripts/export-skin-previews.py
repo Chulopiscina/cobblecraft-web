@@ -98,11 +98,11 @@ with zipfile.ZipFile(jar) as archive:
 idle = next(value["bones"] for key, value in animations.items() if key.endswith(".ground_idle"))
 
 
-def at_zero(value):
+def at_zero(value, time=0):
     """Evaluate only numeric arithmetic and degree sin/cos from the actual idle frame, never eval Molang."""
     if isinstance(value, (int, float)):
         return value
-    node = ast.parse(value.replace("q.anim_time", "0").replace("math.sin", "sin").replace("math.cos", "cos"), mode="eval").body
+    node = ast.parse(value.replace("q.anim_time", str(time)).replace("math.sin", "sin").replace("math.cos", "cos").replace("math.abs", "abs"), mode="eval").body
 
     def visit(n):
         if isinstance(n, ast.Constant) and isinstance(n.value, (int, float)):
@@ -115,6 +115,8 @@ def at_zero(value):
             if isinstance(n.op, ast.Sub): return a - b
             if isinstance(n.op, ast.Mult): return a * b
             if isinstance(n.op, ast.Div): return a / b
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "abs" and len(n.args) == 1:
+            return abs(visit(n.args[0]))
         if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in ("sin", "cos") and len(n.args) == 1:
             return getattr(math, n.func.id)(math.radians(visit(n.args[0])))
         raise ValueError(f"Unsupported idle expression: {value}")
@@ -166,23 +168,31 @@ shutil.copyfile(RP / "minecraft/textures/item/cosmetic_skin_charizard_draconico.
 shutil.copyfile(RP / "progression_core/bedrock/pokemon/models/0006_charizard/charizard_draconico_license", OUT / "charizard-license.txt")
 
 
-def export_pokemon(folder, slug, model):
-    """Export the real Bedrock bind pose; keep every ornament, pivot and original UV."""
+def export_pokemon(folder, slug, model, animation, time=0):
+    """Export an actual idle animation frame, preserving ornaments, pivots and UV."""
     geo = RP / f"progression_core/bedrock/pokemon/models/{folder}/{model}.geo.json"
     texture = RP / f"progression_core/textures/pokemon/{folder}/{slug}.png"
     glow = RP / f"progression_core/textures/pokemon_skins/{slug}_glow.png"
     geometry = json.loads(geo.read_text())["minecraft:geometry"][0]
     bones = {b["name"]: b for b in geometry["bones"]}
+    species = folder.split("_", 1)[1]
+    animation_path = f"assets/cobblemon/bedrock/pokemon/animations/{folder}/{species}.animation.json"
+    animation_id = f"animation.{species}.{animation}"
+    with zipfile.ZipFile(jar) as archive:
+        pose = json.loads(archive.read(animation_path))["animations"][animation_id]["bones"]
     transforms = {}
     def transform(name):
         if name in transforms: return transforms[name]
         b = bones[name]
+        frame = pose.get(name, {})
         pivot = np.array(b.get("pivot", [0, 0, 0]), dtype=float)
-        rotation = m.rot_zyx(*(np.radians(b.get("rotation", [0, 0, 0])) * [-1, -1, 1]))
-        translation = pivot
+        angles = np.array(b.get("rotation", [0, 0, 0])) + np.array([at_zero(v, time) for v in frame.get("rotation", [0, 0, 0])])
+        offset = np.array([at_zero(v, time) for v in frame.get("position", [0, 0, 0])])
+        rotation = m.rot_zyx(*(np.radians(angles) * [-1, -1, 1]))
+        translation = pivot + offset
         if "parent" in b:
             pr, pt, pp = transform(b["parent"])
-            rotation, translation = pr @ rotation, pt + pr @ (pivot - pp)
+            rotation, translation = pr @ rotation, pt + pr @ (pivot - pp + offset)
         transforms[name] = rotation, translation, pivot
         return transforms[name]
     polygons = []
@@ -202,16 +212,16 @@ def export_pokemon(folder, slug, model):
                 polygons.append((vertices * [-1, 1, -1], uv))
     name = slug.replace("_", "-")
     mesh = triangles(polygons, Image.open(texture).size)
-    mesh["pose"] = {"animation": "original_bind_pose", "time": 0}
-    save(name, mesh, [geo, texture, glow])
+    mesh["pose"] = {"animation": animation_id, "time": time, "source": animation_path}
+    save(name, mesh, [geo, texture, glow, jar])
     shutil.copyfile(texture, OUT / f"{name}.png")
     shutil.copyfile(glow, OUT / f"{name}-glow.png")
     shutil.copyfile(RP / f"minecraft/textures/item/cosmetic_skin_{slug}.png", OUT / f"{name}-icon.png")
     shutil.copyfile(geo.parent / f"{slug}_license.txt", OUT / f"{name}-license.txt")
 
 
-for definition in [("0130_gyarados", "gyarados_celestial", "gyarados_celestial_male"),
-                   ("0169_crobat", "crobat_prisma", "crobat_prisma"),
-                   ("0059_arcanine", "arcanine_solar", "arcanine_solar"),
-                   ("0405_luxray", "luxray_emperador", "luxray_emperador_male")]:
+for definition in [("0130_gyarados", "gyarados_celestial", "gyarados_celestial_male", "battle_idle"),
+                   ("0169_crobat", "crobat_prisma", "crobat_prisma", "air_idle", 0.333333),
+                   ("0059_arcanine", "arcanine_solar", "arcanine_solar", "ground_idle"),
+                   ("0405_luxray", "luxray_emperador", "luxray_emperador_male", "ground_idle")]:
     export_pokemon(*definition)
