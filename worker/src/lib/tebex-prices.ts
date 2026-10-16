@@ -30,11 +30,12 @@ export async function getTebexPrice(env: Env, product: Product, fresh = false): 
   if (pending.has(flightKey)) return pending.get(flightKey)!;
   const load = async (): Promise<StorePrice> => {
     let result: StorePrice;
+    let upstreamStatus: number | undefined;
     try {
       const response = await fetch(`https://headless.tebex.io/api/accounts/${encodeURIComponent(token)}/packages/${packageId}`,{
         headers:{Accept:"application/json","Cache-Control":"no-cache"},redirect:"error",signal:AbortSignal.timeout(7000),
       });
-      if (!response.ok) { await response.body?.cancel(); throw new Error("upstream"); }
+      if (!response.ok) { upstreamStatus=response.status; await response.body?.cancel(); throw new Error("upstream"); }
       const body = await response.json() as {data?:unknown};
       const values = Array.isArray(body.data) ? body.data : [body.data];
       const parsed = Package.safeParse(values.length===1 ? values[0] : null);
@@ -46,7 +47,7 @@ export async function getTebexPrice(env: Env, product: Product, fresh = false): 
         result = {productId:product.productId,packageId,source:"tebex",available:true,priceCents:Math.round(p.base_price*100),
           currency:p.currency,billing:p.type==="single"?"one_time":p.type,disabled:p.disabled??null,checkedAt:now,expiresAt:now+120000};
       }
-    } catch { result=unavailable("upstream_unavailable"); }
+    } catch { result={...unavailable("upstream_unavailable"),...(upstreamStatus?{upstreamStatus}:{})}; }
     if (cache) try {
       await cache.put(key,Response.json(result,{headers:{"Cache-Control":`public,max-age=${result.available?120:30}`}}));
     } catch { /* Cache writes are optional; never log upstream URLs or credentials. */ }

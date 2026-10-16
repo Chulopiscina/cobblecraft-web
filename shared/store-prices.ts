@@ -6,6 +6,7 @@ export const StorePriceSchema = z.object({
   currency: z.string().regex(/^[A-Z]{3}$/).nullable(),
   billing: z.enum(["one_time", "subscription", "both"]).nullable(),
   disabled: z.boolean().nullable(), checkedAt: z.number(), expiresAt: z.number(),
+  upstreamStatus: z.number().int().optional(),
   reason: z.enum(["credentials_missing", "upstream_unavailable", "invalid_package"]).optional(),
 });
 export const StorePricesSchema = z.object({serverTime:z.number(),prices:z.array(StorePriceSchema)});
